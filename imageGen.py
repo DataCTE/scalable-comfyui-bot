@@ -3,6 +3,7 @@ import uuid
 import json
 import random
 import urllib.request
+import time
 import urllib.parse
 from PIL import Image
 from io import BytesIO
@@ -155,7 +156,13 @@ async def generate_images(prompt: str,negative_prompt: str):
         f.write(img)
     
     upload_image(image_name)
-    workflow = edit_given_nodes_properties(workflow, image_load_nodes, 'image', image_name)
+    time.sleep(1)
+    image_just_name = image_name.split('/')[-1]
+    workflow = edit_given_nodes_properties(workflow, image_load_nodes, 'image', image_just_name)
+    
+    # Dump workflow into json
+    with open("workflow.json", 'w') as f:
+        json.dump(workflow, f)
     
     # Modify batch size
 
