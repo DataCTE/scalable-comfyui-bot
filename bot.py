@@ -16,7 +16,7 @@ def setup_config():
 
     config = configparser.ConfigParser()
     config.read('config.properties')
-    return config['DISCORD']['TOKEN'], config['BOT']['SDXL_SOURCE']
+    return config['DISCORD']['TOKEN']
 
 def generate_default_config():
     config = configparser.ConfigParser()
@@ -56,8 +56,8 @@ def create_collage(images):
     return collage_path
 
 # setting up the bot
-TOKEN, IMAGE_SOURCE = "", "LOCAL"
-setup_config()
+TOKEN, IMAGE_SOURCE = setup_config(), "LOCAL"
+
 intents = discord.Intents.default() 
 client = discord.Client(intents=intents)
 tree = discord.app_commands.CommandTree(client)
@@ -141,12 +141,13 @@ class Buttons(discord.ui.View):
 @tree.command(name="imagine", description="Generate an image based on input text")
 @app_commands.describe(prompt='Prompt for the image being generated')
 @app_commands.describe(negative_prompt='Prompt for what you want to steer the AI away from')
-async def slash_command(interaction: discord.Interaction, prompt: str, negative_prompt: str = None):
+@app_commands.describe(batch_size='Number of images to generate')
+async def slash_command(interaction: discord.Interaction, prompt: str, negative_prompt: str = None, batch_size: int = 1):
     # Send an initial message
     await interaction.response.send_message(f"{interaction.user.mention} asked me to imagine \"{prompt}\", this shouldn't take too long...")
 
     # Generate the image and get progress updates
-    images = await generate_images(prompt,negative_prompt)
+    images = await generate_images(prompt,negative_prompt,batch_size)
 
     # Construct the final message with user mention
     final_message = f"{interaction.user.mention} asked me to imagine \"{prompt}\", here is what I imagined for them."

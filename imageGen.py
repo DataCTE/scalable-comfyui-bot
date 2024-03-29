@@ -122,7 +122,7 @@ def edit_given_nodes_properties(workflow, chosen_nodes, key, value):
     
     return workflow
 
-async def generate_images(prompt: str,negative_prompt: str):
+async def generate_images(prompt: str,negative_prompt: str,batch_size:int):
     with open(text2img_config, 'r') as file:
       workflow = json.load(file)
 
@@ -139,7 +139,7 @@ async def generate_images(prompt: str,negative_prompt: str):
     if(prompt != None and prompt_nodes[0] != ''):
         workflow = edit_given_nodes_properties(workflow, prompt_nodes, 'text', prompt)
 
-    workflow = edit_given_nodes_properties(workflow, latent_image_nodes, 'batch_size', 1)
+    workflow = edit_given_nodes_properties(workflow, latent_image_nodes, 'batch_size', batch_size)
     workflow = edit_given_nodes_properties(workflow, ksampler_nodes, 'steps', 30)
     workflow = edit_given_nodes_properties(workflow, ksampler_nodes, 'seed', 1)
     
