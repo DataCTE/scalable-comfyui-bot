@@ -16,15 +16,15 @@ def setup_config():
 
     config = configparser.ConfigParser()
     config.read('config.properties')
-    return config['BOT']['TOKEN'], config['BOT']['SDXL_SOURCE']
+    return config['DISCORD']['TOKEN'], config['BOT']['SDXL_SOURCE']
 
 def generate_default_config():
     config = configparser.ConfigParser()
     config['DISCORD'] = {
-        'TOKEN': 'YOUR_DEFAULT_DISCORD_BOT_TOKEN'
+        'TOKEN': ''
     }
     config['LOCAL'] = {
-        'SERVER_ADDRESS': 'YOUR_COMFYUI_URL'
+        'SERVER_ADDRESS': 'http://127.0.0.1:9191'
     }
     config['API'] = {
         'API_KEY': 'STABILITY_AI_API_KEY',
@@ -56,7 +56,8 @@ def create_collage(images):
     return collage_path
 
 # setting up the bot
-TOKEN, IMAGE_SOURCE = setup_config()
+TOKEN, IMAGE_SOURCE = "", "LOCAL"
+setup_config()
 intents = discord.Intents.default() 
 client = discord.Client(intents=intents)
 tree = discord.app_commands.CommandTree(client)

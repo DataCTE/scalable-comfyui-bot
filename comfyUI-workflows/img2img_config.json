@@ -1,7 +1,7 @@
 {
     "1": {
       "inputs": {
-        "ckpt_name": "sd_xl_refiner_1.0.safetensors"
+        "ckpt_name": "Proteus-RunDiffusion.safetensors"
       },
       "class_type": "CheckpointLoaderSimple"
     },

@@ -1,162 +1,176 @@
 {
-    "4": {
+    "3": {
       "inputs": {
-        "ckpt_name": "sd_xl_base_1.0.safetensors"
+        "image": "i-ask-ai-what-is-meaning-of-life-and-this-is-result-what-do-v0-8g0378qgy7k91.webp",
+        "upload": "image"
       },
-      "class_type": "CheckpointLoaderSimple"
-    },
-    "6": {
-      "inputs": {
-        "text": "",
-        "clip": [
-          "4",
-          1
-        ]
-      },
-      "class_type": "CLIPTextEncode"
+      "class_type": "LoadImage",
+      "_meta": {
+        "title": "Load Image"
+      }
     },
     "7": {
       "inputs": {
-        "text": "",
-        "clip": [
-          "4",
-          1
-        ]
+        "ckpt_name": "Proteus-RunDiffusion.safetensors"
       },
-      "class_type": "CLIPTextEncode"
+      "class_type": "CheckpointLoaderSimple",
+      "_meta": {
+        "title": "Load Checkpoint"
+      }
     },
     "8": {
       "inputs": {
-        "samples": [
-          "17",
+        "seed": 748068200266849,
+        "steps": 30,
+        "cfg": 8.5,
+        "sampler_name": "dpmpp_3m_sde",
+        "scheduler": "karras",
+        "denoise": 1,
+        "model": [
+          "22",
           0
         ],
-        "vae": [
-          "4",
-          2
+        "positive": [
+          "9",
+          0
+        ],
+        "negative": [
+          "10",
+          0
+        ],
+        "latent_image": [
+          "11",
+          0
         ]
       },
-      "class_type": "VAEDecode"
+      "class_type": "KSampler",
+      "_meta": {
+        "title": "KSampler"
+      }
     },
     "9": {
       "inputs": {
-        "filename_prefix": "base_output",
-        "images": [
-          "8",
-          0
+        "text": "interior of a house",
+        "clip": [
+          "7",
+          1
         ]
       },
-      "class_type": "SaveImage"
+      "class_type": "CLIPTextEncode",
+      "_meta": {
+        "title": "Positive Prompt"
+      }
+    },
+    "10": {
+      "inputs": {
+        "text": "",
+        "clip": [
+          "7",
+          1
+        ]
+      },
+      "class_type": "CLIPTextEncode",
+      "_meta": {
+        "title": "Negative Prompt"
+      }
     },
     "11": {
       "inputs": {
-        "ckpt_name": "sd_xl_refiner_1.0.safetensors"
+        "width": 1024,
+        "height": 1024,
+        "batch_size": 1
       },
-      "class_type": "CheckpointLoaderSimple"
+      "class_type": "EmptyLatentImage",
+      "_meta": {
+        "title": "Empty Latent Image"
+      }
     },
     "12": {
       "inputs": {
-        "text": "",
-        "clip": [
-          "11",
-          1
-        ]
-      },
-      "class_type": "CLIPTextEncode"
-    },
-    "13": {
-      "inputs": {
-        "text": "",
-        "clip": [
-          "11",
-          1
-        ]
-      },
-      "class_type": "CLIPTextEncode"
-    },
-    "17": {
-      "inputs": {
-        "seed": 1002925642440624,
-        "steps": 20,
-        "cfg": 6,
-        "sampler_name": "dpmpp_2s_ancestral",
-        "scheduler": "normal",
-        "denoise": 1,
-        "model": [
-          "4",
-          0
-        ],
-        "positive": [
-          "6",
-          0
-        ],
-        "negative": [
-          "7",
-          0
-        ],
-        "latent_image": [
-          "21",
-          0
-        ]
-      },
-      "class_type": "KSampler"
-    },
-    "18": {
-      "inputs": {
         "samples": [
-          "20",
+          "8",
           0
         ],
         "vae": [
-          "11",
+          "7",
           2
         ]
       },
-      "class_type": "VAEDecode"
+      "class_type": "VAEDecode",
+      "_meta": {
+        "title": "VAE Decode"
+      }
     },
-    "19": {
+    "16": {
       "inputs": {
         "filename_prefix": "final_output",
         "images": [
-          "18",
+          "12",
           0
         ]
       },
-      "class_type": "SaveImage"
+      "class_type": "SaveImage",
+      "_meta": {
+        "title": "Save Image"
+      }
     },
     "20": {
       "inputs": {
-        "seed": 84204593769148,
-        "steps": 15,
-        "cfg": 8,
-        "sampler_name": "dpmpp_2m",
-        "scheduler": "normal",
-        "denoise": 0.25,
-        "model": [
-          "11",
-          0
+        "weight": 1,
+        "ipadapter": [
+          "21",
+          1
         ],
-        "positive": [
-          "12",
-          0
-        ],
-        "negative": [
-          "13",
-          0
-        ],
-        "latent_image": [
-          "17",
+        "image": [
+          "3",
           0
         ]
       },
-      "class_type": "KSampler"
+      "class_type": "IPAdapterEncoder",
+      "_meta": {
+        "title": "IPAdapter Encoder"
+      }
     },
     "21": {
       "inputs": {
-        "width": 1024,
-        "height": 1024,
-        "batch_size": 4
+        "preset": "PLUS (high strength)",
+        "model": [
+          "7",
+          0
+        ]
       },
-      "class_type": "EmptyLatentImage"
+      "class_type": "IPAdapterUnifiedLoader",
+      "_meta": {
+        "title": "IPAdapter Unified Loader"
+      }
+    },
+    "22": {
+      "inputs": {
+        "weight": 0.6,
+        "weight_type": "style transfer (SDXL)",
+        "start_at": 0,
+        "end_at": 1,
+        "embeds_scaling": "V only",
+        "model": [
+          "21",
+          0
+        ],
+        "ipadapter": [
+          "21",
+          1
+        ],
+        "pos_embed": [
+          "20",
+          0
+        ],
+        "neg_embed": [
+          "20",
+          1
+        ]
+      },
+      "class_type": "IPAdapterEmbeds",
+      "_meta": {
+        "title": "IPAdapter Embeds"
+      }
     }
-}
+  }
