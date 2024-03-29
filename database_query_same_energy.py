@@ -7,13 +7,22 @@ from io import BytesIO
 from tqdm import tqdm
 import json
 
-def perform_search(text="studio ghibli"):
+def perform_search(text="studio ghibli", recursion=0):
+    if recursion > 10:
+        return
+    # force alnum
     results = requests.get(f"https://imageapi.same.energy/search?text={text}&n=100")
     
     if results.status_code == 200:
         if len(results.text.splitlines()) > 1:
             # This result was not cached
-            results = json.loads(results.text.splitlines()[2])
+            try:
+                results = json.loads(results.text.splitlines()[2])
+            except Exception as e:
+                results = json.loads(results.text.splitlines()[1])
+                split_1 = results["message"].split("The word '")[1]
+                word = split_1.split("' isn't recognized")[0]
+                return perform_search(text.replace(word, ""), recursion=recursion+1)
         else:
             # This result was cached
             results = results.json()
