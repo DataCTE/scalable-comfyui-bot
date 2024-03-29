@@ -1,0 +1,9 @@
+{
+    "fondant_datacomp_small": {
+        "indice_folder": "datacomp_small",
+        "columns_to_return": ["url"],
+        "clip_model": "open_clip:ViT-B-32/laion2b_s34b_b79k",
+        "enable_mclip_option": false,
+        "provide_aesthetic_embeddings": true
+    }
+}
