@@ -7,7 +7,7 @@ import time
 import urllib.parse
 from PIL import Image
 from io import BytesIO
-from database_query import perform_search
+from database_query_same_energy import perform_search
 import configparser
 import os
 import tempfile
@@ -141,7 +141,7 @@ async def generate_images(prompt: str,negative_prompt: str,batch_size:int):
 
     workflow = edit_given_nodes_properties(workflow, latent_image_nodes, 'batch_size', batch_size)
     workflow = edit_given_nodes_properties(workflow, ksampler_nodes, 'steps', 30)
-    workflow = edit_given_nodes_properties(workflow, ksampler_nodes, 'seed', 1)
+    workflow = edit_given_nodes_properties(workflow, ksampler_nodes, 'seed', random.randint(0, 10000000))
     
     # Perform search
     results = perform_search(prompt)
