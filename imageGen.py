@@ -6,6 +6,7 @@ import urllib.request
 import urllib.parse
 from PIL import Image
 from io import BytesIO
+from database_query import perform_search
 import configparser
 import os
 import tempfile
@@ -130,6 +131,7 @@ async def generate_images(prompt: str,negative_prompt: str):
     prompt_nodes = search_for_nodes_with_key('Positive Prompt', workflow, 'title', whether_to_use_meta=True)
     latent_image_nodes = search_for_nodes_with_key('EmptyLatentImage', workflow, 'class_type', whether_to_use_meta=False)
     ksampler_nodes = search_for_nodes_with_key('KSampler', workflow, 'class_type', whether_to_use_meta=False)
+    image_load_nodes = search_for_nodes_with_key('LoadImage', workflow, 'class_type', whether_to_use_meta=False)
     # neg_prompt_nodes = search_for_node_with_title('Negative Prompt', workflow, 'title', whether_to_use_meta=True)
 
     # Modify the prompt dictionary
@@ -139,6 +141,21 @@ async def generate_images(prompt: str,negative_prompt: str):
     workflow = edit_given_nodes_properties(workflow, latent_image_nodes, 'batch_size', 1)
     workflow = edit_given_nodes_properties(workflow, ksampler_nodes, 'steps', 30)
     workflow = edit_given_nodes_properties(workflow, ksampler_nodes, 'seed', 1)
+    
+    # Perform search
+    results = perform_search(prompt)
+    
+    # Pick random candidate
+    img = (random.choice(results))
+    
+    # Save the image
+    os.makedirs("input_images", exist_ok=True)
+    image_name = f'input_images/image {random.randint(0, 10000000)}.png'
+    with open(image_name, 'wb') as f:
+        f.write(img)
+    
+    upload_image(image_name)
+    workflow = edit_given_nodes_properties(workflow, image_load_nodes, 'image', image_name)
     
     # Modify batch size
 
