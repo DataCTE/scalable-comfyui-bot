@@ -634,22 +634,24 @@ async def generate_alternatives(
     model: str,
 ):
     await init_db(engine)
-    # Ensure the 'input' directory exists
+    # grab the image from the db
+    
+    async with AsyncSessionLocal() as session:
+        image = await session.execute(select(Image).filter(Image.UUID == UUID).order_by(Image.count))
+        image = image.scalars().all()
+        #convert to PIL image
+       
+
+    # save the image to a file
     input_dir = "input"
     if not os.path.exists(input_dir):
         os.makedirs(input_dir, exist_ok=True)
         logging.info(f"Created directory: {input_dir}")
-
-    # Generate a unique filename for the image
+    
     random_number = random.randint(0, 10000000)
     inputname = os.path.join(input_dir, f"image{random_number}.png")
     print(f"Generated filename: {inputname}")
-    # Save the image to the generated filename
-    image.save(inputname, format="PNG")
 
-    print(f"Processing image: {inputname}")
-    filename_without_directory = os.path.basename(inputname)
-    print(f"Filename without directory: {filename_without_directory}")
 
     # Load the workflow configuration
     with open(img2img_config, "r") as file:

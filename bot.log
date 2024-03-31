@@ -12356,3 +12356,325 @@ sqlalchemy.engine.Engine - INFO - [raw sql] ()
 sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("jobs")
 sqlalchemy.engine.Engine - INFO - [raw sql] ()
 sqlalchemy.engine.Engine - INFO - COMMIT
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - INSERT INTO images (user_id, data, "UUID", url, count, model, prompt) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id
+sqlalchemy.engine.Engine - INFO - [generated in 0.00008s (insertmanyvalues) 1/4 (ordered; batch not supported)] (879714655356997692, <memory at 0x7f379d5beec0>, 'ee84847e-2c6e-48ac-b6e4-b9f67e4db853', 'output/image_1.png', 1, 'proteus-rundiffusionV2.5', 'Sacred_beast, gold oriental dragon, mystical, aura, (particle effects), lightning, (background storm clouds), ((background thunder)), glowing blue eyes, best quality, masterpiece, masterpiece, best quality')
+sqlalchemy.engine.Engine - INFO - INSERT INTO images (user_id, data, "UUID", url, count, model, prompt) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id
+sqlalchemy.engine.Engine - INFO - [insertmanyvalues 2/4 (ordered; batch not supported)] (879714655356997692, <memory at 0x7f379d5bef80>, 'ee84847e-2c6e-48ac-b6e4-b9f67e4db853', 'output/image_2.png', 2, 'proteus-rundiffusionV2.5', 'Sacred_beast, gold oriental dragon, mystical, aura, (particle effects), lightning, (background storm clouds), ((background thunder)), glowing blue eyes, best quality, masterpiece, masterpiece, best quality')
+sqlalchemy.engine.Engine - INFO - INSERT INTO images (user_id, data, "UUID", url, count, model, prompt) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id
+sqlalchemy.engine.Engine - INFO - [insertmanyvalues 3/4 (ordered; batch not supported)] (879714655356997692, <memory at 0x7f379d5bf280>, 'ee84847e-2c6e-48ac-b6e4-b9f67e4db853', 'output/image_3.png', 3, 'proteus-rundiffusionV2.5', 'Sacred_beast, gold oriental dragon, mystical, aura, (particle effects), lightning, (background storm clouds), ((background thunder)), glowing blue eyes, best quality, masterpiece, masterpiece, best quality')
+sqlalchemy.engine.Engine - INFO - INSERT INTO images (user_id, data, "UUID", url, count, model, prompt) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id
+sqlalchemy.engine.Engine - INFO - [insertmanyvalues 4/4 (ordered; batch not supported)] (879714655356997692, <memory at 0x7f379d5bf340>, 'ee84847e-2c6e-48ac-b6e4-b9f67e4db853', 'output/image_4.png', 4, 'proteus-rundiffusionV2.5', 'Sacred_beast, gold oriental dragon, mystical, aura, (particle effects), lightning, (background storm clouds), ((background thunder)), glowing blue eyes, best quality, masterpiece, masterpiece, best quality')
+sqlalchemy.engine.Engine - INFO - COMMIT
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT images.id, images.user_id, images.data, images."UUID", images.url, images.count, images.model, images.prompt 
+FROM images 
+WHERE images."UUID" = ? ORDER BY images.count
+sqlalchemy.engine.Engine - INFO - [generated in 0.00010s] ('ee84847e-2c6e-48ac-b6e4-b9f67e4db853',)
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT images.id, images.user_id, images.data, images."UUID", images.url, images.count, images.model, images.prompt 
+FROM images 
+WHERE images."UUID" = ? AND images.user_id = ? ORDER BY images.count
+sqlalchemy.engine.Engine - INFO - [generated in 0.00008s] ('ee84847e-2c6e-48ac-b6e4-b9f67e4db853', 879714655356997692)
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT images.id, images.user_id, images.data, images."UUID", images.url, images.count, images.model, images.prompt 
+FROM images 
+WHERE images."UUID" = ? ORDER BY images.count
+sqlalchemy.engine.Engine - INFO - [cached since 14.6s ago] ('ee84847e-2c6e-48ac-b6e4-b9f67e4db853',)
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT images.prompt 
+FROM images 
+WHERE images."UUID" = ?
+ LIMIT ? OFFSET ?
+sqlalchemy.engine.Engine - INFO - [generated in 0.00032s] ('ee84847e-2c6e-48ac-b6e4-b9f67e4db853', 1, 0)
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("users")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("guilds")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("channels")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("payments")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("images")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("jobs")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - COMMIT
+discord.ui.view - ERROR - Ignoring exception in view <Buttons timeout=10000000000000 children=8> for item <ImageButton style=<ButtonStyle.secondary: 2> url=None disabled=True label='V4' emoji=<PartialEmoji animated=False name='♻️' id=None> row=1>
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/ui/view.py", line 427, in _scheduled_task
+    await item.callback(interaction)
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/bot.py", line 77, in callback
+    await self._callback(interaction, self)
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/bot.py", line 147, in reroll_image
+    await generate_alternatives(
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/imageGen.py", line 648, in generate_alternatives
+    image.save(inputname, format="PNG")
+    ^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'save'
+discord.client - INFO - logging in using static token
+discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 92b0e071d198331d9cedc351ece8d5a9).
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("users")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("guilds")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("channels")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("payments")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("images")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("jobs")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - COMMIT
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT users.id, users.username, users.email, users.user_id, users."stripeID", users."hiveID", users.credits, users.tier, users.banned 
+FROM users 
+WHERE users.user_id = ?
+sqlalchemy.engine.Engine - INFO - [generated in 0.00027s] (879714655356997692,)
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("users")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("guilds")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("channels")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("payments")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("images")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("jobs")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - COMMIT
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - INSERT INTO images (user_id, data, "UUID", url, count, model, prompt) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id
+sqlalchemy.engine.Engine - INFO - [generated in 0.00009s (insertmanyvalues) 1/4 (ordered; batch not supported)] (879714655356997692, <memory at 0x7ff906e22e00>, 'cd3d5846-d2eb-43ca-bec6-6ad87e8472f5', 'output/image_1.png', 1, 'proteus-rundiffusionV2.5', 'Sacred_beast, gold oriental dragon, mystical, aura, (particle effects), lightning, (background storm clouds), ((background thunder)), glowing blue eyes, best quality, masterpiece, masterpiece, best quality')
+sqlalchemy.engine.Engine - INFO - INSERT INTO images (user_id, data, "UUID", url, count, model, prompt) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id
+sqlalchemy.engine.Engine - INFO - [insertmanyvalues 2/4 (ordered; batch not supported)] (879714655356997692, <memory at 0x7ff906e23100>, 'cd3d5846-d2eb-43ca-bec6-6ad87e8472f5', 'output/image_2.png', 2, 'proteus-rundiffusionV2.5', 'Sacred_beast, gold oriental dragon, mystical, aura, (particle effects), lightning, (background storm clouds), ((background thunder)), glowing blue eyes, best quality, masterpiece, masterpiece, best quality')
+sqlalchemy.engine.Engine - INFO - INSERT INTO images (user_id, data, "UUID", url, count, model, prompt) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id
+sqlalchemy.engine.Engine - INFO - [insertmanyvalues 3/4 (ordered; batch not supported)] (879714655356997692, <memory at 0x7ff906e231c0>, 'cd3d5846-d2eb-43ca-bec6-6ad87e8472f5', 'output/image_3.png', 3, 'proteus-rundiffusionV2.5', 'Sacred_beast, gold oriental dragon, mystical, aura, (particle effects), lightning, (background storm clouds), ((background thunder)), glowing blue eyes, best quality, masterpiece, masterpiece, best quality')
+sqlalchemy.engine.Engine - INFO - INSERT INTO images (user_id, data, "UUID", url, count, model, prompt) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id
+sqlalchemy.engine.Engine - INFO - [insertmanyvalues 4/4 (ordered; batch not supported)] (879714655356997692, <memory at 0x7ff906e23280>, 'cd3d5846-d2eb-43ca-bec6-6ad87e8472f5', 'output/image_4.png', 4, 'proteus-rundiffusionV2.5', 'Sacred_beast, gold oriental dragon, mystical, aura, (particle effects), lightning, (background storm clouds), ((background thunder)), glowing blue eyes, best quality, masterpiece, masterpiece, best quality')
+sqlalchemy.engine.Engine - INFO - COMMIT
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT images.id, images.user_id, images.data, images."UUID", images.url, images.count, images.model, images.prompt 
+FROM images 
+WHERE images."UUID" = ? ORDER BY images.count
+sqlalchemy.engine.Engine - INFO - [generated in 0.00008s] ('cd3d5846-d2eb-43ca-bec6-6ad87e8472f5',)
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT images.id, images.user_id, images.data, images."UUID", images.url, images.count, images.model, images.prompt 
+FROM images 
+WHERE images."UUID" = ? AND images.user_id = ? ORDER BY images.count
+sqlalchemy.engine.Engine - INFO - [generated in 0.00009s] ('cd3d5846-d2eb-43ca-bec6-6ad87e8472f5', 879714655356997692)
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT images.prompt 
+FROM images 
+WHERE images."UUID" = ?
+ LIMIT ? OFFSET ?
+sqlalchemy.engine.Engine - INFO - [generated in 0.00015s] ('cd3d5846-d2eb-43ca-bec6-6ad87e8472f5', 1, 0)
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("users")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("guilds")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("channels")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("payments")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("images")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("jobs")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - COMMIT
+discord.ui.view - ERROR - Ignoring exception in view <Buttons timeout=10000000000000 children=8> for item <ImageButton style=<ButtonStyle.secondary: 2> url=None disabled=True label='V4' emoji=<PartialEmoji animated=False name='♻️' id=None> row=1>
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/ui/view.py", line 427, in _scheduled_task
+    await item.callback(interaction)
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/bot.py", line 77, in callback
+    await self._callback(interaction, self)
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/bot.py", line 147, in reroll_image
+    await generate_alternatives(
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/imageGen.py", line 648, in generate_alternatives
+    PILImage.save(inputname, format="PNG")
+    ^^^^^^^^^^^^^
+AttributeError: module 'PIL.Image' has no attribute 'save'
+discord.client - INFO - logging in using static token
+discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: cf6e1e22f8f2448d3b0cf1847e20cfb4).
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("users")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("guilds")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("channels")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("payments")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("images")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("jobs")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - COMMIT
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT users.id, users.username, users.email, users.user_id, users."stripeID", users."hiveID", users.credits, users.tier, users.banned 
+FROM users 
+WHERE users.user_id = ?
+sqlalchemy.engine.Engine - INFO - [generated in 0.00012s] (879714655356997692,)
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("users")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("guilds")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("channels")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("payments")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("images")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("jobs")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - COMMIT
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - INSERT INTO images (user_id, data, "UUID", url, count, model, prompt) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id
+sqlalchemy.engine.Engine - INFO - [generated in 0.00008s (insertmanyvalues) 1/4 (ordered; batch not supported)] (879714655356997692, <memory at 0x7f3474192ec0>, '57e30445-22f1-475d-ba37-80cbca820e68', 'output/image_1.png', 1, 'proteus-rundiffusionV2.5', 'Sacred_beast, gold oriental dragon, mystical, aura, (particle effects), lightning, (background storm clouds), ((background thunder)), glowing blue eyes, best quality, masterpiece, masterpiece, best quality')
+sqlalchemy.engine.Engine - INFO - INSERT INTO images (user_id, data, "UUID", url, count, model, prompt) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id
+sqlalchemy.engine.Engine - INFO - [insertmanyvalues 2/4 (ordered; batch not supported)] (879714655356997692, <memory at 0x7f34741931c0>, '57e30445-22f1-475d-ba37-80cbca820e68', 'output/image_2.png', 2, 'proteus-rundiffusionV2.5', 'Sacred_beast, gold oriental dragon, mystical, aura, (particle effects), lightning, (background storm clouds), ((background thunder)), glowing blue eyes, best quality, masterpiece, masterpiece, best quality')
+sqlalchemy.engine.Engine - INFO - INSERT INTO images (user_id, data, "UUID", url, count, model, prompt) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id
+sqlalchemy.engine.Engine - INFO - [insertmanyvalues 3/4 (ordered; batch not supported)] (879714655356997692, <memory at 0x7f3474193280>, '57e30445-22f1-475d-ba37-80cbca820e68', 'output/image_3.png', 3, 'proteus-rundiffusionV2.5', 'Sacred_beast, gold oriental dragon, mystical, aura, (particle effects), lightning, (background storm clouds), ((background thunder)), glowing blue eyes, best quality, masterpiece, masterpiece, best quality')
+sqlalchemy.engine.Engine - INFO - INSERT INTO images (user_id, data, "UUID", url, count, model, prompt) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id
+sqlalchemy.engine.Engine - INFO - [insertmanyvalues 4/4 (ordered; batch not supported)] (879714655356997692, <memory at 0x7f3474193340>, '57e30445-22f1-475d-ba37-80cbca820e68', 'output/image_4.png', 4, 'proteus-rundiffusionV2.5', 'Sacred_beast, gold oriental dragon, mystical, aura, (particle effects), lightning, (background storm clouds), ((background thunder)), glowing blue eyes, best quality, masterpiece, masterpiece, best quality')
+sqlalchemy.engine.Engine - INFO - COMMIT
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT images.id, images.user_id, images.data, images."UUID", images.url, images.count, images.model, images.prompt 
+FROM images 
+WHERE images."UUID" = ? ORDER BY images.count
+sqlalchemy.engine.Engine - INFO - [generated in 0.00009s] ('57e30445-22f1-475d-ba37-80cbca820e68',)
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT images.id, images.user_id, images.data, images."UUID", images.url, images.count, images.model, images.prompt 
+FROM images 
+WHERE images."UUID" = ? AND images.user_id = ? ORDER BY images.count
+sqlalchemy.engine.Engine - INFO - [generated in 0.00008s] ('57e30445-22f1-475d-ba37-80cbca820e68', 879714655356997692)
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT users.id, users.username, users.email, users.user_id, users."stripeID", users."hiveID", users.credits, users.tier, users.banned 
+FROM users 
+WHERE users.user_id = ?
+sqlalchemy.engine.Engine - INFO - [cached since 121.2s ago] (517894275707568168,)
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - INSERT INTO users (username, email, user_id, "stripeID", "hiveID", credits, tier, banned) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+sqlalchemy.engine.Engine - INFO - [generated in 0.00043s] ('pharcry.', None, 517894275707568168, None, None, 100, 0, 0)
+sqlalchemy.engine.Engine - INFO - COMMIT
+sqlalchemy.engine.Engine - INFO - SELECT users.id, users.username, users.email, users.user_id, users."stripeID", users."hiveID", users.credits, users.tier, users.banned 
+FROM users 
+WHERE users.user_id = ?
+sqlalchemy.engine.Engine - INFO - [cached since 121.2s ago] (517894275707568168,)
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("users")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("guilds")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("channels")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("payments")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("images")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("jobs")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - COMMIT
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - INSERT INTO images (user_id, data, "UUID", url, count, model, prompt) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id
+sqlalchemy.engine.Engine - INFO - [cached since 121.7s ago (insertmanyvalues) 1/4 (ordered; batch not supported)] (517894275707568168, <memory at 0x7f3474193c40>, '55bdfca2-067a-4d70-9b8c-af497dd54fa0', 'output/image_1.png', 1, 'proteus-rundiffusionV2.5', 'Quetzalcoatl - A feathered serpent deity from Mesoamerican mythology, often associated with the wind, air, and learning. Quetzalcoatl is depicted as a mix between a dragon and a bird, with bright, colorful feathers., masterpiece, best quality')
+sqlalchemy.engine.Engine - INFO - INSERT INTO images (user_id, data, "UUID", url, count, model, prompt) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id
+sqlalchemy.engine.Engine - INFO - [insertmanyvalues 2/4 (ordered; batch not supported)] (517894275707568168, <memory at 0x7f3474193d00>, '55bdfca2-067a-4d70-9b8c-af497dd54fa0', 'output/image_2.png', 2, 'proteus-rundiffusionV2.5', 'Quetzalcoatl - A feathered serpent deity from Mesoamerican mythology, often associated with the wind, air, and learning. Quetzalcoatl is depicted as a mix between a dragon and a bird, with bright, colorful feathers., masterpiece, best quality')
+sqlalchemy.engine.Engine - INFO - INSERT INTO images (user_id, data, "UUID", url, count, model, prompt) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id
+sqlalchemy.engine.Engine - INFO - [insertmanyvalues 3/4 (ordered; batch not supported)] (517894275707568168, <memory at 0x7f3474193dc0>, '55bdfca2-067a-4d70-9b8c-af497dd54fa0', 'output/image_3.png', 3, 'proteus-rundiffusionV2.5', 'Quetzalcoatl - A feathered serpent deity from Mesoamerican mythology, often associated with the wind, air, and learning. Quetzalcoatl is depicted as a mix between a dragon and a bird, with bright, colorful feathers., masterpiece, best quality')
+sqlalchemy.engine.Engine - INFO - INSERT INTO images (user_id, data, "UUID", url, count, model, prompt) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id
+sqlalchemy.engine.Engine - INFO - [insertmanyvalues 4/4 (ordered; batch not supported)] (517894275707568168, <memory at 0x7f3474193e80>, '55bdfca2-067a-4d70-9b8c-af497dd54fa0', 'output/image_4.png', 4, 'proteus-rundiffusionV2.5', 'Quetzalcoatl - A feathered serpent deity from Mesoamerican mythology, often associated with the wind, air, and learning. Quetzalcoatl is depicted as a mix between a dragon and a bird, with bright, colorful feathers., masterpiece, best quality')
+sqlalchemy.engine.Engine - INFO - COMMIT
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT images.id, images.user_id, images.data, images."UUID", images.url, images.count, images.model, images.prompt 
+FROM images 
+WHERE images."UUID" = ? ORDER BY images.count
+sqlalchemy.engine.Engine - INFO - [cached since 121.7s ago] ('55bdfca2-067a-4d70-9b8c-af497dd54fa0',)
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT images.id, images.user_id, images.data, images."UUID", images.url, images.count, images.model, images.prompt 
+FROM images 
+WHERE images."UUID" = ? AND images.user_id = ? ORDER BY images.count
+sqlalchemy.engine.Engine - INFO - [cached since 121.8s ago] ('55bdfca2-067a-4d70-9b8c-af497dd54fa0', 517894275707568168)
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT users.id, users.username, users.email, users.user_id, users."stripeID", users."hiveID", users.credits, users.tier, users.banned 
+FROM users 
+WHERE users.user_id = ?
+sqlalchemy.engine.Engine - INFO - [cached since 183.7s ago] (156879849263333376,)
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - INSERT INTO users (username, email, user_id, "stripeID", "hiveID", credits, tier, banned) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+sqlalchemy.engine.Engine - INFO - [cached since 62.52s ago] ('musigreg2', None, 156879849263333376, None, None, 100, 0, 0)
+sqlalchemy.engine.Engine - INFO - COMMIT
+sqlalchemy.engine.Engine - INFO - SELECT users.id, users.username, users.email, users.user_id, users."stripeID", users."hiveID", users.credits, users.tier, users.banned 
+FROM users 
+WHERE users.user_id = ?
+sqlalchemy.engine.Engine - INFO - [cached since 183.7s ago] (156879849263333376,)
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("users")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("guilds")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("channels")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("payments")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("images")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("jobs")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - COMMIT
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT images.id, images.user_id, images.data, images."UUID", images.url, images.count, images.model, images.prompt 
+FROM images 
+WHERE images."UUID" = ? ORDER BY images.count
+sqlalchemy.engine.Engine - INFO - [cached since 177.4s ago] ('55bdfca2-067a-4d70-9b8c-af497dd54fa0',)
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - INSERT INTO images (user_id, data, "UUID", url, count, model, prompt) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id
+sqlalchemy.engine.Engine - INFO - [cached since 184.7s ago (insertmanyvalues) 1/4 (ordered; batch not supported)] (156879849263333376, <memory at 0x7f3474193f40>, '7709b4d2-9391-4fa7-b5d3-83d81f878920', 'output/image_1.png', 1, 'proteus-rundiffusionV2.5', 'Young woman with massive breasts, dark green eyes,ginger hair,very long intricate hair flowing in the wind,blue dress made of dragon scales,dress on fire,blue flames,, masterpiece, best quality')
+sqlalchemy.engine.Engine - INFO - INSERT INTO images (user_id, data, "UUID", url, count, model, prompt) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id
+sqlalchemy.engine.Engine - INFO - [insertmanyvalues 2/4 (ordered; batch not supported)] (156879849263333376, <memory at 0x7f3474193400>, '7709b4d2-9391-4fa7-b5d3-83d81f878920', 'output/image_2.png', 2, 'proteus-rundiffusionV2.5', 'Young woman with massive breasts, dark green eyes,ginger hair,very long intricate hair flowing in the wind,blue dress made of dragon scales,dress on fire,blue flames,, masterpiece, best quality')
+sqlalchemy.engine.Engine - INFO - INSERT INTO images (user_id, data, "UUID", url, count, model, prompt) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id
+sqlalchemy.engine.Engine - INFO - [insertmanyvalues 3/4 (ordered; batch not supported)] (156879849263333376, <memory at 0x7f3474192c80>, '7709b4d2-9391-4fa7-b5d3-83d81f878920', 'output/image_3.png', 3, 'proteus-rundiffusionV2.5', 'Young woman with massive breasts, dark green eyes,ginger hair,very long intricate hair flowing in the wind,blue dress made of dragon scales,dress on fire,blue flames,, masterpiece, best quality')
+sqlalchemy.engine.Engine - INFO - INSERT INTO images (user_id, data, "UUID", url, count, model, prompt) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id
+sqlalchemy.engine.Engine - INFO - [insertmanyvalues 4/4 (ordered; batch not supported)] (156879849263333376, <memory at 0x7f3474193c40>, '7709b4d2-9391-4fa7-b5d3-83d81f878920', 'output/image_4.png', 4, 'proteus-rundiffusionV2.5', 'Young woman with massive breasts, dark green eyes,ginger hair,very long intricate hair flowing in the wind,blue dress made of dragon scales,dress on fire,blue flames,, masterpiece, best quality')
+sqlalchemy.engine.Engine - INFO - COMMIT
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT images.id, images.user_id, images.data, images."UUID", images.url, images.count, images.model, images.prompt 
+FROM images 
+WHERE images."UUID" = ? ORDER BY images.count
+sqlalchemy.engine.Engine - INFO - [cached since 184.7s ago] ('7709b4d2-9391-4fa7-b5d3-83d81f878920',)
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT images.id, images.user_id, images.data, images."UUID", images.url, images.count, images.model, images.prompt 
+FROM images 
+WHERE images."UUID" = ? AND images.user_id = ? ORDER BY images.count
+sqlalchemy.engine.Engine - INFO - [cached since 184.8s ago] ('7709b4d2-9391-4fa7-b5d3-83d81f878920', 156879849263333376)
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT images.id, images.user_id, images.data, images."UUID", images.url, images.count, images.model, images.prompt 
+FROM images 
+WHERE images."UUID" = ? ORDER BY images.count
+sqlalchemy.engine.Engine - INFO - [cached since 221.3s ago] ('7709b4d2-9391-4fa7-b5d3-83d81f878920',)
+sqlalchemy.engine.Engine - INFO - ROLLBACK

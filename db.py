@@ -1,106 +1,155 @@
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import *
-from sqlalchemy.dialects.sqlite import BLOB
+import logging
+import sqlite3
 import os
-from sqlalchemy.ext.asyncio import AsyncEngine
 
-DATABASE_URL = "sqlite+aiosqlite:///./config/database.sqlite"
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
-# Create the asynchronous engine and session maker
-engine = create_async_engine(DATABASE_URL, echo=True)
-AsyncSessionLocal = sessionmaker(
-    autocommit=False, autoflush=False, bind=engine, class_=AsyncSession
-)
+DATABASE_URL = "./config/database.sqlite"
 
-# Declare the base class for models
-Base = declarative_base()
+def create_tables(conn):
+    cursor = conn.cursor()
 
-def deduct_credits(self, session, amount):
-        """Deducts a specified amount of credits from the user's account."""
-        if self.credits >= amount:
-            self.credits -= amount
-            session.commit()
-            return True
-        return False
+    # Create users table
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT,
+            email TEXT UNIQUE,
+            user_id TEXT UNIQUE,
+            stripeID TEXT,
+            hiveID TEXT,
+            tier INTEGER DEFAULT 0,
+            banned BOOLEAN DEFAULT FALSE
+        )
+    """)
 
-# Define your models
-class User(Base):  # Assuming User is a subclass of Base
-    __tablename__ = "users"
-    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    username = Column(String, index=True)
-    email = Column(String, unique=True, index=True)
-    user_id = Column(String, unique=True, index=True)
-    stripeID = Column(String, index=True)
-    hiveID = Column(String, index=True)
-    credits = Column(Integer, default=100)
-    tier = Column(Integer, default=0)
-    banned = Column(Boolean, default=False)
+    # Create credits table
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS credits (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id TEXT UNIQUE,
+            credits INTEGER DEFAULT 100,
+            FOREIGN KEY (user_id) REFERENCES users (user_id)
+        )
+    """)
 
-    def __init__(self, username, user_id, credits):
-        super(User, self).__init__(username=username, user_id=user_id, credits=credits)
-        self.credits = credits
+    # Create guilds table
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS guilds (
+            id INTEGER PRIMARY KEY,
+            name TEXT,
+            bannedguild BOOLEAN DEFAULT FALSE,
+            owner INTEGER
+        )
+    """)
 
+    # Create channels table
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS channels (
+            id INTEGER PRIMARY KEY,
+            nsfw BOOLEAN DEFAULT FALSE,
+            name TEXT
+        )
+    """)
 
-class Guild(Base):
-    __tablename__ = "guilds"
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String)
-    banned = Column(Boolean, default=False)
-    owner = Column(Integer)
+    # Create payments table
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS payments (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id TEXT,
+            type TEXT,
+            timestamp DATETIME,
+            txid TEXT,
+            confirmedAt DATETIME,
+            FOREIGN KEY (user_id) REFERENCES users (user_id)
+        )
+    """)
 
+    # Create images table
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS images (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id TEXT,
+            data BLOB,
+            UUID TEXT,
+            url TEXT,
+            count INTEGER,
+            model TEXT,
+            prompt TEXT,
+            FOREIGN KEY (user_id) REFERENCES users (user_id)
+        )
+    """)
 
-class Channel(Base):
-    __tablename__ = "channels"
-    id = Column(Integer, primary_key=True, index=True)
-    nsfw = Column(Boolean, default=False)
-    name = Column(String)
+    # Create jobs table
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS jobs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            data JSON
+        )
+    """)
 
+    conn.commit()
+    logger.info("Database tables created")
 
-class Payment(Base):
-    __tablename__ = "payments"
-    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
-    type = Column(String)
-    timestamp = Column(DateTime)
-    txid = Column(String)
-    confirmedAt = Column(DateTime)
-
-
-class Image(Base):
-    __tablename__ = "images"
-    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
-    data = Column(BINARY)
-    UUID = Column(String)
-    url = Column(String)
-    count = Column(Integer, default=None)
-    model = Column(String, default=None)
-    prompt = Column(String)
-
-
-class Job(Base):
-    __tablename__ = "jobs"
-    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    data = Column(JSON)
-
-
-async def init_db(engine: AsyncEngine):
-    # Extract the file path from the DATABASE_URL
-    db_file_path = DATABASE_URL.split("///")[
-        -1
-    ]  # Get the path after 'sqlite+aiosqlite:///'
-    db_dir = os.path.dirname(db_file_path)
-
-    # Ensure the directory for the SQLite database exists
+def init_db():
+    db_dir = os.path.dirname(DATABASE_URL)
     if not os.path.exists(db_dir):
         os.makedirs(db_dir)
+        logger.info(f"Created directory: {db_dir}")
 
-    # Now proceed to create the tables
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    conn = sqlite3.connect(DATABASE_URL)
+    create_tables(conn)
+    conn.close()
 
+# Example usage
+def main():
+    logger.info("Initializing database...")
+    init_db()
+    logger.info("Database initialized successfully")
 
-# Make sure to import and call init_db() at the appropriate place in your application
-# Typically, this would be done at application startup
+    conn = sqlite3.connect(DATABASE_URL)
+    cursor = conn.cursor()
+
+    try:
+        # Create a new user
+        cursor.execute("""
+            INSERT INTO users (username, email, user_id)
+            VALUES (?, ?, ?)
+        """, ("john_doe", "john@example.com", "123456"))
+        conn.commit()
+        logger.info("Created user: john_doe")
+
+        # Create a credit entry for the user
+        cursor.execute("""
+            INSERT INTO credits (user_id, credits)
+            VALUES (?, ?)
+        """, ("123456", 200))
+        conn.commit()
+        logger.info("Created credit entry for user: 123456")
+
+        # Retrieve user and credit information
+        cursor.execute("""
+            SELECT users.username, credits.credits
+            FROM users
+            JOIN credits ON users.user_id = credits.user_id
+            WHERE users.user_id = ?
+        """, ("123456",))
+        result = cursor.fetchone()
+        if result:
+            username, credits = result
+            logger.info(f"Retrieved user: {username}")
+            logger.info(f"User credits: {credits}")
+        else:
+            logger.warning("User not found")
+
+    except sqlite3.Error as e:
+        logger.error(f"Database error: {str(e)}")
+
+    finally:
+        cursor.close()
+        conn.close()
+
+if __name__ == "__main__":
+    main()

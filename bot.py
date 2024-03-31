@@ -125,7 +125,12 @@ class Buttons(discord.ui.View):
     
     async def reroll_image(self, interaction: discord.Interaction, button: discord.ui.Button):
         try:
-            batch_size = 1
+            batch_size = 4
+            #grab the button number and than convert that to count to grab with the UUID from the db
+            index = await extract_index_from_id(button.custom_id)
+            if index is None:
+                await interaction.response.send_message("Invalid custom_id format. Please ensure it contains a numeric index.")
+                return
             await interaction.response.send_message(
                 f'{interaction.user.mention} asked me to re-imagine the image, this shouldn\'t take too long...'
             )
@@ -296,11 +301,13 @@ async def imagine(
 
     file = discord.File(collage_path, filename="collage.png")
     final_message = f'{interaction.user.mention}, here is what I imagined for you with "{prompt}", "{model}":'
-    user_credits -= 5
-    deduct_credits(user_id, user_credits)
-    await interaction.followup.send(content=final_message, file=file, view=buttons_view, ephemeral=False)
     
-    return UUID
+    await interaction.followup.send(content=final_message, file=file, view=buttons_view, ephemeral=False)
+
+    await deduct_credits(user_id, 5)
+    
+    
+    return UUID 
 
 @tree.command(name="recharge", description="Recharge credits with Stripe")
 async def recharge(

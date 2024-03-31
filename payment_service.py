@@ -8,26 +8,36 @@ from db import AsyncSessionLocal
 from stripe_integration import *
 from sqlalchemy.future import select
 
+from sqlalchemy.exc import SQLAlchemyError
 
-async def deduct_credits(user_id, user_credits):
+
+async def deduct_credits(user_id, amount):
     """Deducts a specified amount of credits from the user's account."""
-    if user_id is None:
-        return False  # User not found, cannot update credits
-   
-    async with AsyncSessionLocal() as session:
-        result = await session.execute(select(User).where(User.user_id == user_id))
-        user = result.scalar_one_or_none()
-        if user is None:
-            return False  # User not found, cannot update credits
+    user_id = str(user_id)
 
-        # Update credits
-        user.credits = user_credits
+    try:
+        async with AsyncSessionLocal() as session:
+            result = await session.execute(select(User).where(User.user_id == user_id))
+            user = result.scalar_one_or_none()
 
-        # Commit changes to the database
-        session.add(user)
-        await session.commit()
+            if user:
+                user.credits -= amount
 
-    return True
+                session.add(user)
+                await session.commit()
+                print(f"Credits deducted successfully for user {user_id}")
+                return True
+            else:
+                print(f"User {user_id} not found")
+                return False
+
+    except SQLAlchemyError as e:
+        print(f"Database error: {str(e)}")
+        return False
+
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+        return False
 
 async def ensure_stripe_customer_exists(user_id, username, source):
     async with AsyncSessionLocal() as session:
