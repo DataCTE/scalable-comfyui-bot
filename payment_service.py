@@ -24,14 +24,16 @@ async def create_DB_user(user_id:str, username: str):
     """
     conn = sqlite3.connect(DATABASE_URL)
     cursor = conn.cursor()
-
+    basecredits = 100
+    add_credits(user_id, basecredits)
     try:
         cursor.execute("""
-            INSERT INTO users (user_id, username, credits)
-            VALUES (?, ?, ?)
-        """, (user_id, username, 100))
+            INSERT INTO users (user_id, username)
+            VALUES (?, ?)
+        """, (user_id, username))
         conn.commit()
         return True
+    #add credits to credits table
 
     except sqlite3.Error as e:
         print(f"Database error: {str(e)}")
@@ -40,6 +42,7 @@ async def create_DB_user(user_id:str, username: str):
     finally:
         cursor.close()
         conn.close()
+
 async def add_credits(user_id:str, amount:int):
     """Adds a specified amount of credits to the user's account.
 
