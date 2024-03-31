@@ -87,12 +87,14 @@ class Buttons(discord.ui.View):
         # Dynamically add alternative buttons
         for idx, image in enumerate(self.images):
             row = (idx + 1) // 5 + reroll_row  # Determine row based on index and re-roll row
+            self.reroll_image = self.reroll_image(count=idx + 1)
             btn = ImageButton(f"V{idx + 1}", "♻️", row, self.reroll_image)
             self.add_item(btn)
 
         # Dynamically add upscale buttons
         for idx, image in enumerate(self.images):
             row = (idx + len(self.images) + 1) // 5 + reroll_row  # Determine row based on index, number of alternative buttons, and re-roll row
+            self.reroll_image = self.reroll_image(count=idx + 1)
             btn = ImageButton(f"U{idx + 1}", "⬆️", row, self.upscale_image)
             self.add_item(btn)
 
@@ -127,7 +129,7 @@ class Buttons(discord.ui.View):
         return cls(prompt, negative_prompt, UUID, user_id, url, model, images)
 
     
-    async def reroll_image(self, interaction: discord.Interaction, button: discord.ui.Button):
+    async def reroll_image(self, interaction: discord.Interaction, button: discord.ui.Button, count: int):
         try:
             batch_size = 4
             # Grab the button number and then convert that to count to grab with the UUID from the db
@@ -149,8 +151,8 @@ class Buttons(discord.ui.View):
             try:
                 cursor.execute("""
                     SELECT prompt FROM images
-                    WHERE UUID = ? LIMIT 1
-                """, (self.UUID,))
+                    WHERE UUID = ? AND COUNT = ? LIMIT 1
+                """, (self.UUID, count))
                 result = cursor.fetchone()
                 prompt = result[0] if result else self.prompt  # Use the original prompt as a fallback
 
