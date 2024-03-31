@@ -11,14 +11,19 @@ import uuid
 from payment_service import discord_recharge_prompt, deduct_credits
 from utils import config
 from typing import Optional
-from stripe_integration import StripeIntegration
+from stripe_integration import *
 
 # setting up the bot
 config = configparser.ConfigParser()
 config.read("config.properties")
 TOKEN = config["DISCORD"]["TOKEN"]
 IMAGE_SOURCE = config["IMAGE"]["SOURCE"]
+stripe_api_key=config["STRIPE"]["API_KEY"]  
+stripe_product_id = config.get("STRIPE", "PRODUCT_ID")
 
+# Initialize the bot and
+
+stripe.api_key = stripe_api_key
 intents = discord.Intents.default()
 client = discord.Client(intents=intents)
 tree = discord.app_commands.CommandTree(client)
@@ -226,7 +231,8 @@ async def imagine(
 ):
     username = interaction.user.name
     user_id = interaction.user.id
-    user_credits = await StripeIntegration.discord_balance_prompt(username, user_id)
+    
+    user_credits = await discord_balance_prompt(username, user_id)
 
     if user_credits < 5:  # Assuming 5 credits are needed
         payment_link = await discord_recharge_prompt(username, user_id)
@@ -291,7 +297,7 @@ async def recharge(
 ):
     username = interaction.user.name
     user_id = interaction.user.id
-    payment_link = await discord_recharge_prompt(username, user_id)
+    payment_link = await create_payment_link(user_id, await get_default_pricing(stripe_product_id))
     if payment_link == "failed":
         await interaction.response.send_message(
             f"Failed to create payment link or payment itself failed. Please try again later.",
@@ -310,7 +316,7 @@ async def balance(
 ):
     username = interaction.user.name
     user_id = interaction.user.id
-    user_credits = await StripeIntegration.discord_balance_prompt(username, user_id)
+    user_credits = await discord_balance_prompt(username, user_id)
     await interaction.response.send_message(
         f"Your current balance is: {user_credits}",
         ephemeral=True

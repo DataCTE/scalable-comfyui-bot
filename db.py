@@ -26,17 +26,20 @@ def deduct_credits(self, session, amount):
         return False
 
 # Define your models
-class User(Base):
+class User(Base):  # Assuming User is a subclass of Base
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     username = Column(String, index=True)
     email = Column(String, unique=True, index=True)
-    discordID = Column(String, unique=True, index=True)
+    user_id = Column(String, unique=True, index=True)
     stripeID = Column(String, index=True)
-    hiveID = Column(String, index=True)  # Removed comma at the end
-    credits = Column(Integer, default=100)  # Assuming default credits set to 100
+    hiveID = Column(String, index=True)
+    credits = Column(Integer, default=100)
     tier = Column(Integer, default=0)
     banned = Column(Boolean, default=False)
+
+    def __init__(self, username, user_id, credits):
+        super(User, self).__init__(username=username, user_id=user_id, credits=credits)
 
 
 
