@@ -14,7 +14,10 @@ from stripe_integration import *
 import functools
 import sqlite3
 import logging
+# sync the slash command to your server
 
+
+        
 
 # setting up the bot
 config = configparser.ConfigParser()
@@ -24,7 +27,7 @@ IMAGE_SOURCE = config["IMAGE"]["SOURCE"]
 stripe_api_key=config["STRIPE"]["API_KEY"]  
 stripe_product_id = config.get("STRIPE", "PRODUCT_ID")
 
-# Initialize the bot and
+
 
 stripe.api_key = stripe_api_key
 intents = discord.Intents.default()
@@ -37,7 +40,6 @@ if IMAGE_SOURCE == "LOCAL":
 
 
 
-# sync the slash command to your server
 @client.event
 async def on_ready():
     init_db()  # Initialize DB
@@ -45,25 +47,8 @@ async def on_ready():
     print(f"Logged in as {client.user.name} ({client.user.id})")
 
 
-def get_user_credits(user_id: str):
-    conn = sqlite3.connect(DATABASE_URL)
-    cursor = conn.cursor()
 
-    try:
-        cursor.execute("""
-            SELECT credits FROM credits WHERE user_id = ?
-        """, (user_id,))
-        credits = cursor.fetchone()
-        return credits[0] if credits else None
 
-    except sqlite3.Error as e:
-        logger.error(f"Database error: {str(e)}")
-        return None
-
-    finally:
-        cursor.close()
-        conn.close()
-        print(credits)
 
 async def extract_index_from_id(custom_id):
     try:
@@ -165,12 +150,14 @@ class Buttons(discord.ui.View):
                 f'{interaction.user.mention} asked me to re-imagine the image, this shouldn\'t take too long...'
             )
             #credit check
-            user_credits = int(get_user_credits(self.user_id))
+            user_id = interaction.user.id
+            username = interaction.user.name
+            user_credits = await discord_balance_prompt(user_id, username)
             if user_credits is None:
                #add them to the db 
                 username=interaction.user.name
                 user_id=interaction.user.id
-                await create_DB_user(user_id, username) 
+                create_DB_user(user_id, username) 
             elif user_credits < 5:  # Assuming 5 credits are needed
                 payment_link = await discord_recharge_prompt(interaction.user.name, self.user_id)
                 if payment_link == "failed":
@@ -224,7 +211,8 @@ class Buttons(discord.ui.View):
                     view=Buttons(prompt, self.negative_prompt, new_UUID, interaction.user.id, collage_path, self.model)
                 )
             #after successful reroll, deduct credits
-                await deduct_credits(self.user_id, 5)
+                amount = user_credits - 5 
+                await deduct_credits(user_id, amount)
 
             except sqlite3.Error as e:
                 print(f"Database error: {str(e)}")
@@ -251,12 +239,14 @@ class Buttons(discord.ui.View):
                 f'{interaction.user.mention} asked me to upscale the image, this shouldn\'t take too long...'
             )
             # check credits
-            user_credits = int(get_user_credits(user_id))
+            user_id = interaction.user.id
+            username = interaction.user.name
+            user_credits = await discord_balance_prompt(user_id, username)
             if user_credits is None:
                #add them to the db 
                 username=interaction.user.name
                 user_id=interaction.user.id
-                await create_DB_user(user_id, username) 
+                create_DB_user(user_id, username) 
                
             elif user_credits < 1:  # Assuming 5 credits are needed
                 payment_link = await discord_recharge_prompt(interaction.user.name, self.user_id)
@@ -302,7 +292,9 @@ class Buttons(discord.ui.View):
                         file=discord.File(fp=upscaled_image_path, filename="upscaled_image.png")
                     )
                     #deduct credits
-                    await deduct_credits(self.user_id, 1)
+                    amount = user_credits - 1 
+                    print(amount)
+                    await deduct_credits(user_id, amount)
                 else:
                     await interaction.followup.send("Invalid image index.")
 
@@ -344,12 +336,12 @@ async def imagine(
     username = interaction.user.name
     user_id = interaction.user.id
 
-    user_credits = int(get_user_credits(user_id))
+    user_credits = await discord_balance_prompt(user_id, username)
     
 
     if user_credits is None:
         # Handle case where user credits couldn't be retrieved
-        await create_DB_user(user_id, username)
+        create_DB_user(user_id, username) 
 
     elif user_credits < 5:  # Assuming 5 credits are needed
         payment_link = await discord_recharge_prompt(username, user_id)
@@ -408,8 +400,9 @@ async def imagine(
     final_message = f'{interaction.user.mention}, here is what I imagined for you with "{prompt}", "{model}":'
     
     await interaction.followup.send(content=final_message, file=file, view=buttons_view, ephemeral=False)
-
-    await deduct_credits(user_id, 5)
+    amount = user_credits - 5 
+    print(amount)
+    await deduct_credits(user_id, amount)
     
     
     return UUID 
@@ -423,9 +416,9 @@ async def recharge(
     username = interaction.user.name
 
     #Make sure they exist in the db
-    user_credits = int(get_user_credits(user_id))
+    user_credits = await discord_balance_prompt(user_id, username)
     if user_credits is None:
-        await create_DB_user(user_id, username)
+        create_DB_user(user_id, username) 
 
     payment_link = await create_payment_link(user_id, await get_default_pricing(stripe_product_id))
     if payment_link == "failed":
@@ -439,6 +432,8 @@ async def recharge(
         ephemeral=True
     )
     await interaction.response.defer(ephemeral=True)
+   
+    
 
 @tree.command(name="balance", description="Check your credit balance")
 async def balance(
@@ -447,9 +442,9 @@ async def balance(
     user_id = interaction.user.id
     username = interaction.user.name
     # make sure they exist in the db 
-    user_credits = int(get_user_credits(user_id))
+    user_credits = await discord_balance_prompt(user_id, username)
     if user_credits is None:
-        await create_DB_user(user_id, username)
+        create_DB_user(user_id, username) 
 
     await interaction.response.send_message(
         f"Your current balance is: {user_credits}",

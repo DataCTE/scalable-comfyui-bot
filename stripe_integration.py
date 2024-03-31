@@ -87,8 +87,7 @@ async def verify_payment_links_job():
 
                     conn.commit()
 
-                    discord_id = user[1]  # Assuming discord_id is the 2nd column in the users table
-                    # Perform any further actions with the discord_id
+                   
 
     except sqlite3.Error as e:
         print(f"Database error: {str(e)}")
