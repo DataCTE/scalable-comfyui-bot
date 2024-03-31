@@ -232,7 +232,7 @@ async def imagine(
     username = interaction.user.name
     user_id = interaction.user.id
     
-    user_credits = await discord_balance_prompt(username, user_id)
+    user_credits = await discord_balance_prompt(user_id=user_id)
 
     if user_credits < 5:  # Assuming 5 credits are needed
         payment_link = await discord_recharge_prompt(username, user_id)
@@ -285,7 +285,8 @@ async def imagine(
 
     file = discord.File(collage_path, filename="collage.png")
     final_message = f'{interaction.user.mention}, here is what I imagined for you with "{prompt}", "{model}":'
-    deduct_credits(interaction.user.id)
+    user_credits -= 5
+    deduct_credits(user_id, user_credits)
     await interaction.followup.send(content=final_message, file=file, view=buttons_view, ephemeral=False)
     
     return UUID
@@ -295,7 +296,6 @@ async def recharge(
     interaction: discord.Interaction,
 
 ):
-    username = interaction.user.name
     user_id = interaction.user.id
     payment_link = await create_payment_link(user_id, await get_default_pricing(stripe_product_id))
     if payment_link == "failed":
@@ -314,9 +314,8 @@ async def recharge(
 async def balance(
     interaction: discord.Interaction,
 ):
-    username = interaction.user.name
     user_id = interaction.user.id
-    user_credits = await discord_balance_prompt(username, user_id)
+    user_credits = await discord_balance_prompt(user_id=user_id)
     await interaction.response.send_message(
         f"Your current balance is: {user_credits}",
         ephemeral=True

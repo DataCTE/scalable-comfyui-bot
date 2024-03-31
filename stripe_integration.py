@@ -81,12 +81,15 @@ async def verify_payment_links_job():
 async def verify_payment_links():
         await verify_payment_links_job()
 
-async def discord_balance_prompt(user_id, username):
-        async with AsyncSessionLocal() as session:
-            user = await session.execute(select(User).where(User.discordID == user_id))
-            user = user.scalars().first()
-            if user is None:
-                user = User(username=username, discordID=user_id, credits=100)
-                session.add(user)
-                await session.commit()
-            return user.credits
+async def discord_balance_prompt(user_id):
+    async with AsyncSessionLocal() as session:
+        # get user credits from the database 
+        result = await session.execute(select(User).where(User.user_id == user_id))
+        user = result.scalar_one_or_none()
+        print(user_id)
+        # check if user is None
+        if user is None:
+            raise ValueError(f"No user found with ID {user_id}")
+        # extract credits
+        credits = user.credits
+        return credits

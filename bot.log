@@ -10826,3 +10826,590 @@ Traceback (most recent call last):
   File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 846, in _do_call
     raise CommandInvokeError(self, e) from e
 discord.app_commands.errors.CommandInvokeError: Command 'recharge' raised an exception: InteractionResponded: This interaction has already been responded to before
+discord.client - INFO - logging in using static token
+discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 01bd5a5615db2b146bb81e50d836597e).
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("users")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("guilds")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("channels")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("payments")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("images")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("jobs")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - COMMIT
+discord.client - INFO - logging in using static token
+discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 36744be7ee4979855190bd5b3843c16e).
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("users")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("guilds")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("channels")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("payments")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("images")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("jobs")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - COMMIT
+discord.app_commands.tree - ERROR - Ignoring exception in command 'imagine'
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 828, in _do_call
+    return await self._callback(interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/bot.py", line 235, in imagine
+    user_credits = await discord_balance_prompt(username, user_id)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/stripe_integration.py", line 86, in discord_balance_prompt
+    user = await session.execute(select(User).where(User.discordID == user_id))
+                                                    ^^^^^^^^^^^^^^
+AttributeError: type object 'User' has no attribute 'discordID'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/tree.py", line 1248, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 853, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 846, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'imagine' raised an exception: AttributeError: type object 'User' has no attribute 'discordID'
+discord.app_commands.tree - ERROR - Ignoring exception in command 'imagine'
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 828, in _do_call
+    return await self._callback(interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/bot.py", line 235, in imagine
+    user_credits = await discord_balance_prompt(username, user_id)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/stripe_integration.py", line 86, in discord_balance_prompt
+    user = await session.execute(select(User).where(User.discordID == user_id))
+                                                    ^^^^^^^^^^^^^^
+AttributeError: type object 'User' has no attribute 'discordID'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/tree.py", line 1248, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 853, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 846, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'imagine' raised an exception: AttributeError: type object 'User' has no attribute 'discordID'
+discord.client - INFO - logging in using static token
+discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: d5311fcd44abeaa02213c9a7de55aad4).
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("users")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("guilds")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("channels")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("payments")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("images")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("jobs")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - COMMIT
+discord.client - INFO - logging in using static token
+discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 7340b61b4b55a49210cb39a83aaeeed8).
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("users")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("guilds")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("channels")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("payments")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("images")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("jobs")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - COMMIT
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT users.id, users.username, users.email, users.user_id, users."stripeID", users."hiveID", users.credits, users.tier, users.banned 
+FROM users 
+WHERE users.user_id = ?
+sqlalchemy.engine.Engine - INFO - [generated in 0.00012s] ('datarevised',)
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+discord.app_commands.tree - ERROR - Ignoring exception in command 'imagine'
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 828, in _do_call
+    return await self._callback(interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/bot.py", line 235, in imagine
+    user_credits = await discord_balance_prompt(username, user_id)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/stripe_integration.py", line 88, in discord_balance_prompt
+    return user.credits
+           ^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'credits'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/tree.py", line 1248, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 853, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 846, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'imagine' raised an exception: AttributeError: 'NoneType' object has no attribute 'credits'
+discord.client - INFO - logging in using static token
+discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 2d6963a93acba7e88d8828f17a80917d).
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT users.id, users.username, users.email, users.user_id, users."stripeID", users."hiveID", users.credits, users.tier, users.banned 
+FROM users 
+WHERE users.user_id = ?
+sqlalchemy.engine.Engine - INFO - [generated in 0.00025s] ('datarevised',)
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+discord.app_commands.tree - ERROR - Ignoring exception in command 'imagine'
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 828, in _do_call
+    return await self._callback(interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/bot.py", line 235, in imagine
+    user_credits = await discord_balance_prompt(username, user_id)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/stripe_integration.py", line 90, in discord_balance_prompt
+    return user.credits
+           ^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'credits'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/tree.py", line 1248, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 853, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 846, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'imagine' raised an exception: AttributeError: 'NoneType' object has no attribute 'credits'
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("users")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("guilds")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("channels")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("payments")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("images")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("jobs")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - COMMIT
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT users.id, users.username, users.email, users.user_id, users."stripeID", users."hiveID", users.credits, users.tier, users.banned 
+FROM users 
+WHERE users.user_id = ?
+sqlalchemy.engine.Engine - INFO - [cached since 3.313s ago] ('datarevised',)
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+discord.app_commands.tree - ERROR - Ignoring exception in command 'imagine'
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 828, in _do_call
+    return await self._callback(interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/bot.py", line 235, in imagine
+    user_credits = await discord_balance_prompt(username, user_id)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/stripe_integration.py", line 90, in discord_balance_prompt
+    return user.credits
+           ^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'credits'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/tree.py", line 1248, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 853, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 846, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'imagine' raised an exception: AttributeError: 'NoneType' object has no attribute 'credits'
+discord.client - INFO - logging in using static token
+discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 708d3f406d617c94e48b016bf90e3852).
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("users")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("guilds")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("channels")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("payments")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("images")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("jobs")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - COMMIT
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT users.id, users.username, users.email, users.user_id, users."stripeID", users."hiveID", users.credits, users.tier, users.banned 
+FROM users 
+WHERE users.user_id = ?
+sqlalchemy.engine.Engine - INFO - [generated in 0.00018s] ('datarevised',)
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+discord.app_commands.tree - ERROR - Ignoring exception in command 'imagine'
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 828, in _do_call
+    return await self._callback(interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/bot.py", line 235, in imagine
+    user_credits = await discord_balance_prompt(username, user_id)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/stripe_integration.py", line 91, in discord_balance_prompt
+    raise ValueError(f"No user found with ID {user_id}")
+ValueError: No user found with ID datarevised
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/tree.py", line 1248, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 853, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 846, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'imagine' raised an exception: ValueError: No user found with ID datarevised
+discord.client - INFO - logging in using static token
+discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: d28414a88393662672badd6d2b035c31).
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("users")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("guilds")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("channels")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("payments")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("images")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("jobs")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - COMMIT
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT users.id, users.username, users.email, users.user_id, users."stripeID", users."hiveID", users.credits, users.tier, users.banned 
+FROM users 
+WHERE users.user_id = ?
+sqlalchemy.engine.Engine - INFO - [generated in 0.00018s] (879714655356997692,)
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("users")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("guilds")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("channels")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("payments")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("images")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("jobs")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - COMMIT
+discord.app_commands.tree - ERROR - Ignoring exception in command 'balance'
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 828, in _do_call
+    return await self._callback(interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/bot.py", line 318, in balance
+    user_credits = await discord_balance_prompt(username, user_id)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: discord_balance_prompt() takes 1 positional argument but 2 were given
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/tree.py", line 1248, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 853, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 842, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'balance' raised an exception: TypeError: discord_balance_prompt() takes 1 positional argument but 2 were given
+asyncio - ERROR - Task was destroyed but it is pending!
+task: <Task cancelling name='Task-33' coro=<WebSocketCommonProtocol.close_connection() running at /home/alex/miniconda3/lib/python3.11/site-packages/websockets/legacy/protocol.py:1312> wait_for=<Future pending cb=[shield.<locals>._outer_done_callback() at /home/alex/miniconda3/lib/python3.11/asyncio/tasks.py:898, Task.task_wakeup()]> cb=[gather.<locals>._done_callback() at /home/alex/miniconda3/lib/python3.11/asyncio/tasks.py:754]>
+discord.client - INFO - logging in using static token
+discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 60229af2136584098ccebf62af9841e2).
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("users")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("guilds")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("channels")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("payments")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("images")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("jobs")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - COMMIT
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT users.id, users.username, users.email, users.user_id, users."stripeID", users."hiveID", users.credits, users.tier, users.banned 
+FROM users 
+WHERE users.user_id = 1
+sqlalchemy.engine.Engine - INFO - [generated in 0.00012s] ()
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+discord.app_commands.tree - ERROR - Ignoring exception in command 'balance'
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 828, in _do_call
+    return await self._callback(interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/bot.py", line 317, in balance
+    user_credits = await discord_balance_prompt( user_id==user_id)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/stripe_integration.py", line 91, in discord_balance_prompt
+    raise ValueError(f"No user found with ID {user_id}")
+ValueError: No user found with ID True
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/tree.py", line 1248, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 853, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 846, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'balance' raised an exception: ValueError: No user found with ID True
+discord.client - INFO - logging in using static token
+discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 960657683a424c29b14a93387cfc4386).
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("users")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("guilds")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("channels")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("payments")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("images")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("jobs")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - COMMIT
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT users.id, users.username, users.email, users.user_id, users."stripeID", users."hiveID", users.credits, users.tier, users.banned 
+FROM users 
+WHERE users.user_id = 1
+sqlalchemy.engine.Engine - INFO - [generated in 0.00031s] ()
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+discord.app_commands.tree - ERROR - Ignoring exception in command 'balance'
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 828, in _do_call
+    return await self._callback(interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/bot.py", line 317, in balance
+    user_credits = await discord_balance_prompt( user_id==user_id)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/stripe_integration.py", line 92, in discord_balance_prompt
+    raise ValueError(f"No user found with ID {user_id}")
+ValueError: No user found with ID True
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/tree.py", line 1248, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 853, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 846, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'balance' raised an exception: ValueError: No user found with ID True
+discord.client - INFO - logging in using static token
+discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 9ca29d686fab622f65989f305a6aad38).
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT users.id, users.username, users.email, users.user_id, users."stripeID", users."hiveID", users.credits, users.tier, users.banned 
+FROM users 
+WHERE users.user_id = ?
+sqlalchemy.engine.Engine - INFO - [generated in 0.00017s] (879714655356997692,)
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+discord.app_commands.tree - ERROR - Ignoring exception in command 'balance'
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 828, in _do_call
+    return await self._callback(interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/bot.py", line 322, in balance
+    await interaction.response.defer(ephemeral=True)
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/interactions.py", line 639, in defer
+    raise InteractionResponded(self._parent)
+discord.errors.InteractionResponded: This interaction has already been responded to before
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/tree.py", line 1248, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 853, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 846, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'balance' raised an exception: InteractionResponded: This interaction has already been responded to before
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("users")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("guilds")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("channels")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("payments")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("images")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("jobs")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - COMMIT
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT users.id, users.username, users.email, users.user_id, users."stripeID", users."hiveID", users.credits, users.tier, users.banned 
+FROM users 
+WHERE users.user_id = ?
+sqlalchemy.engine.Engine - INFO - [cached since 189.6s ago] (516582209839169552,)
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+discord.app_commands.tree - ERROR - Ignoring exception in command 'balance'
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 828, in _do_call
+    return await self._callback(interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/bot.py", line 317, in balance
+    user_credits = await discord_balance_prompt(user_id=user_id)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/stripe_integration.py", line 92, in discord_balance_prompt
+    raise ValueError(f"No user found with ID {user_id}")
+ValueError: No user found with ID 516582209839169552
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/tree.py", line 1248, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 853, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 846, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'balance' raised an exception: ValueError: No user found with ID 516582209839169552
+discord.client - INFO - logging in using static token
+discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: afc71b2eb174ac23beb8fd1edf6ff1de).
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("users")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("guilds")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("channels")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("payments")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("images")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("jobs")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - COMMIT
+discord.client - INFO - logging in using static token
+discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 31bc6878e3a6adedf7c1b3e2efff67a5).
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("users")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("guilds")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("channels")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("payments")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("images")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("jobs")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - COMMIT
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT users.id, users.username, users.email, users.user_id, users."stripeID", users."hiveID", users.credits, users.tier, users.banned 
+FROM users 
+WHERE users.user_id = ?
+sqlalchemy.engine.Engine - INFO - [generated in 0.00019s] (879714655356997692,)
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("users")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("guilds")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("channels")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("payments")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("images")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("jobs")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - COMMIT
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - INSERT INTO images (user_id, data, "UUID", url, count, model, prompt) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id
+sqlalchemy.engine.Engine - INFO - [generated in 0.00008s (insertmanyvalues) 1/4 (ordered; batch not supported)] (879714655356997692, <memory at 0x7fbdab7a6e00>, '29381b48-eed8-4033-b2dd-388022f3d392', 'output/image_1.png', 1, 'proteus-rundiffusionV2.5', 'Sacred_beast, gold oriental dragon, mystical, aura, (particle effects), lightning, (background storm clouds), ((background thunder)), glowing blue eyes, best quality, masterpiece, masterpiece, best quality')
+sqlalchemy.engine.Engine - INFO - INSERT INTO images (user_id, data, "UUID", url, count, model, prompt) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id
+sqlalchemy.engine.Engine - INFO - [insertmanyvalues 2/4 (ordered; batch not supported)] (879714655356997692, <memory at 0x7fbdab7a7100>, '29381b48-eed8-4033-b2dd-388022f3d392', 'output/image_2.png', 2, 'proteus-rundiffusionV2.5', 'Sacred_beast, gold oriental dragon, mystical, aura, (particle effects), lightning, (background storm clouds), ((background thunder)), glowing blue eyes, best quality, masterpiece, masterpiece, best quality')
+sqlalchemy.engine.Engine - INFO - INSERT INTO images (user_id, data, "UUID", url, count, model, prompt) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id
+sqlalchemy.engine.Engine - INFO - [insertmanyvalues 3/4 (ordered; batch not supported)] (879714655356997692, <memory at 0x7fbdab7a71c0>, '29381b48-eed8-4033-b2dd-388022f3d392', 'output/image_3.png', 3, 'proteus-rundiffusionV2.5', 'Sacred_beast, gold oriental dragon, mystical, aura, (particle effects), lightning, (background storm clouds), ((background thunder)), glowing blue eyes, best quality, masterpiece, masterpiece, best quality')
+sqlalchemy.engine.Engine - INFO - INSERT INTO images (user_id, data, "UUID", url, count, model, prompt) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id
+sqlalchemy.engine.Engine - INFO - [insertmanyvalues 4/4 (ordered; batch not supported)] (879714655356997692, <memory at 0x7fbdab7a7280>, '29381b48-eed8-4033-b2dd-388022f3d392', 'output/image_4.png', 4, 'proteus-rundiffusionV2.5', 'Sacred_beast, gold oriental dragon, mystical, aura, (particle effects), lightning, (background storm clouds), ((background thunder)), glowing blue eyes, best quality, masterpiece, masterpiece, best quality')
+sqlalchemy.engine.Engine - INFO - COMMIT
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT images.id, images.user_id, images.data, images."UUID", images.url, images.count, images.model, images.prompt 
+FROM images 
+WHERE images."UUID" = ? ORDER BY images.count
+sqlalchemy.engine.Engine - INFO - [generated in 0.00008s] ('29381b48-eed8-4033-b2dd-388022f3d392',)
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT images.id, images.user_id, images.data, images."UUID", images.url, images.count, images.model, images.prompt 
+FROM images 
+WHERE images."UUID" = ? AND images.user_id = ? ORDER BY images.count
+sqlalchemy.engine.Engine - INFO - [generated in 0.00008s] ('29381b48-eed8-4033-b2dd-388022f3d392', 879714655356997692)
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT users.id, users.username, users.email, users.user_id, users."stripeID", users."hiveID", users.credits, users.tier, users.banned 
+FROM users 
+WHERE users.user_id = ?
+sqlalchemy.engine.Engine - INFO - [cached since 71.64s ago] (879714655356997692,)
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+discord.app_commands.tree - ERROR - Ignoring exception in command 'balance'
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 828, in _do_call
+    return await self._callback(interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/bot.py", line 323, in balance
+    await interaction.response.defer(ephemeral=True)
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/interactions.py", line 639, in defer
+    raise InteractionResponded(self._parent)
+discord.errors.InteractionResponded: This interaction has already been responded to before
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/tree.py", line 1248, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 853, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 846, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'balance' raised an exception: InteractionResponded: This interaction has already been responded to before

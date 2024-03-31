@@ -9,18 +9,21 @@ from stripe_integration import *
 from sqlalchemy.future import select
 
 
-async def deduct_credits(user):
+async def deduct_credits(user_id, user_credits):
     """Deducts a specified amount of credits from the user's account."""
-    # Deduct flat 5 credits for each transaction
-    amount = 5  # Deduct 5 credits
-    if user is None:
-        return False  # User not found, cannot deduct credits
-
-    # Deduct credits from user's account
-    user.credits -= amount
-
-    # Save changes to the database
+    if user_id is None:
+        return False  # User not found, cannot update credits
+   
     async with AsyncSessionLocal() as session:
+        result = await session.execute(select(User).where(User.user_id == user_id))
+        user = result.scalar_one_or_none()
+        if user is None:
+            return False  # User not found, cannot update credits
+
+        # Update credits
+        user.credits = user_credits
+
+        # Commit changes to the database
         session.add(user)
         await session.commit()
 
