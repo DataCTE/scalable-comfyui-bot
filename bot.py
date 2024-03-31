@@ -38,7 +38,7 @@ elif IMAGE_SOURCE == "API":
 # sync the slash command to your server
 @client.event
 async def on_ready():
-    await init_db()  # Initialize DB
+    init_db()  # Initialize DB
     await tree.sync()
     print(f"Logged in as {client.user.name} ({client.user.id})")
 
