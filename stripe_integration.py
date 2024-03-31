@@ -1,67 +1,62 @@
 import asyncio
+import sqlite3
 import stripe
-from db import Payment, User  # Ensure these models exist and are correctly defined
-from utils import config  # Ensure this contains your configuration details
+from utils import config
 from datetime import datetime
-from concurrent.futures import ThreadPoolExecutor
-from db import AsyncSessionLocal
-from sqlalchemy.future import select
+
+DATABASE_URL = "./config/database.sqlite"
 
 async def run_in_executor(func, *args, **kwargs):
     loop = asyncio.get_running_loop()
     return await loop.run_in_executor(None, lambda: func(*args, **kwargs))
 
 async def create_customer(user_id, username, source):
-        
-        customer = await run_in_executor(
-            stripe.Customer.create,
-            metadata={
-                'online_username': username,
-                'username_from': source,
-                'user_id': str(user_id),
-            }
-        )
-        return customer.id
+    customer = await run_in_executor(
+        stripe.Customer.create,
+        metadata={
+            'online_username': username,
+            'username_from': source,
+            'user_id': str(user_id),
+        }
+    )
+    return customer.id
 
-async def create_DB_user(user_id, username):
-    async with AsyncSessionLocal() as session:
-        user = User(user_id=user_id, username=username, credits=100)
-        session.add(user)
-        await session.commit()
-        return user
-
-async def create_payment_link( user_id, price_id, customer_id=None):
-        payment_link = await run_in_executor(
-            stripe.PaymentLink.create,
-            line_items=[{'price': price_id, 'quantity': 1}],
-            metadata={'user_id': str(user_id), 'customer_id': customer_id or ''}
-        )
-        return payment_link.url
+async def create_payment_link(user_id, price_id, customer_id=None):
+    payment_link = await run_in_executor(
+        stripe.PaymentLink.create,
+        line_items=[{'price': price_id, 'quantity': 1}],
+        metadata={'user_id': str(user_id), 'customer_id': customer_id or ''}
+    )
+    return payment_link.url
 
 async def get_default_pricing(stripe_product_id):
-  
- 
     price = await run_in_executor(stripe.Price.retrieve, id=stripe_product_id)
     return price
 
-   
 def get_credit_per_usd():
-        return config['credits']['stripe']['credits_per_dollar']
+    return config['credits']['stripe']['credits_per_dollar']
 
-async def get_credit_amount_per_price_id( price_id):
-        price_object = await run_in_executor(stripe.Price.retrieve, price_id)
-        usd_amount = price_object.unit_amount / 100  # Stripe amounts are in cents
-        return get_total_credit_amount(usd_amount)
+async def get_credit_amount_per_price_id(price_id):
+    price_object = await run_in_executor(stripe.Price.retrieve, price_id)
+    usd_amount = price_object.unit_amount / 100  # Stripe amounts are in cents
+    return get_total_credit_amount(usd_amount)
 
 def get_total_credit_amount(usd_amount):
-        return usd_amount * get_credit_per_usd()
+    return usd_amount * get_credit_per_usd()
 
 async def verify_payment_links_job():
-        unconfirmed_payments = await Payment.query.filter_by(confirmed_at=None, type='stripe_payment_link').all()
-        unconfirmed_links = [payment.txid for payment in unconfirmed_payments]
+    conn = sqlite3.connect(DATABASE_URL)
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("""
+            SELECT * FROM payments
+            WHERE confirmed_at IS NULL AND type = 'stripe_payment_link'
+        """)
+        unconfirmed_payments = cursor.fetchall()
+        unconfirmed_links = [payment[4] for payment in unconfirmed_payments]  # Assuming txid is the 5th column in the payments table
 
         events = await run_in_executor(stripe.Event.list)
-
         for event in events.auto_paging_iter():
             if event['type'] != "checkout.session.completed":
                 continue
@@ -73,38 +68,37 @@ async def verify_payment_links_job():
                 total_usd = event['data']['object'].get('amount_total') / 100
                 credits = get_total_credit_amount(total_usd)
 
-                user = await User.query.get(user_id)
-                payment_to_confirm = next((p for p in unconfirmed_payments if p.txid == payment_link), None)
+                cursor.execute("""
+                    SELECT * FROM users WHERE id = ?
+                """, (user_id,))
+                user = cursor.fetchone()
 
+                payment_to_confirm = next((p for p in unconfirmed_payments if p[4] == payment_link), None)  # Assuming txid is the 5th column in the payments table
                 if payment_to_confirm:
-                    user.credits += credits
-                    await user.save()
+                    updated_credits = user[3] + credits  # Assuming credits is the 4th column in the users table
+                    cursor.execute("""
+                        UPDATE users SET credits = ? WHERE id = ?
+                    """, (updated_credits, user_id))
 
-                    payment_to_confirm.confirmed_at = datetime.now()
-                    await payment_to_confirm.save()
+                    confirmed_at = datetime.now()
+                    cursor.execute("""
+                        UPDATE payments SET confirmed_at = ? WHERE id = ?
+                    """, (confirmed_at, payment_to_confirm[0]))  # Assuming id is the 1st column in the payments table
 
-                    discord_id = user.discord_id
+                    conn.commit()
+
+                    discord_id = user[1]  # Assuming discord_id is the 2nd column in the users table
+                    # Perform any further actions with the discord_id
+
+    except sqlite3.Error as e:
+        print(f"Database error: {str(e)}")
+
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+
+    finally:
+        cursor.close()
+        conn.close()
 
 async def verify_payment_links():
-        await verify_payment_links_job()
-
-async def discord_balance_prompt(user_id, username):
-    async with AsyncSessionLocal() as session:
-        # get user credits from the database 
-        result = await session.execute(select(User).where(User.user_id == user_id))
-        user = result.scalar_one_or_none()
-        print(user)
-        if user is None:
-            await create_DB_user(user_id, username)
-            # get the newly created user
-            result = await session.execute(select(User).where(User.user_id == user_id))
-            user = result.scalar_one_or_none()
-
-        if user is not None:  # Check if user exists
-            # extract credits
-            credits = user.credits
-            print(user, credits, user_id, username)  # moved print statement here
-            return credits
-        else:
-            print(user, user_id, username)  # print statement without 'credits'
-            return None  # Or handle this case based on your application logic
+    await verify_payment_links_job()

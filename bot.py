@@ -4,11 +4,10 @@ from discord import app_commands
 import configparser
 from PIL import Image
 from datetime import datetime
-from db import init_db, AsyncSessionLocal, Image, User, engine
-from sqlalchemy import select
-from imageGen import generate_images, upscale_image, generate_alternatives, style_images, create_collage
+from db import init_db
+from imageGen import *
 import uuid
-from payment_service import discord_recharge_prompt, deduct_credits
+from payment_service import *
 from utils import config
 from typing import Optional
 from stripe_integration import *
@@ -39,22 +38,10 @@ elif IMAGE_SOURCE == "API":
 # sync the slash command to your server
 @client.event
 async def on_ready():
-    await init_db(engine)  # Initialize DB
+    await init_db()  # Initialize DB
     await tree.sync()
     print(f"Logged in as {client.user.name} ({client.user.id})")
 
-
-async def save_image_generation(user_id: str, prompt: str, image_path: str):
-    async with AsyncSessionLocal() as session:
-        new_image = Image(url=image_path)
-        session.add(new_image)
-        await session.commit()
-
-
-async def get_user_images(user_id: str):
-    async with AsyncSessionLocal() as session:
-        result = await session.execute(select(Image).where(Image.user_id == user_id))
-        return result.scalars().all()
 
 async def extract_index_from_id(custom_id):
     try:
@@ -111,26 +98,44 @@ class Buttons(discord.ui.View):
 
     @classmethod
     async def create(cls, prompt, negative_prompt, UUID, user_id, url, model):
-        async def get_images():
-            async with AsyncSessionLocal() as session:
-                result = await session.execute(
-                    select(Image).where(Image.UUID == UUID).where(Image.user_id == user_id).order_by(Image.count)
-                )
-                images = result.scalars().all()
-            return images
+        def get_images():
+            conn = sqlite3.connect(DATABASE_URL)
+            cursor = conn.cursor()
 
-        images = await get_images()
+            try:
+                cursor.execute("""
+                    SELECT * FROM images
+                    WHERE UUID = ? AND user_id = ?
+                    ORDER BY count
+                """, (UUID, user_id))
+                images = cursor.fetchall()
+                return images
+
+            except sqlite3.Error as e:
+                print(f"Database error: {str(e)}")
+                return []
+
+            except Exception as e:
+                print(f"An error occurred: {str(e)}")
+                return []
+
+            finally:
+                cursor.close()
+                conn.close()
+
+        images = await asyncio.to_thread(get_images)
         return cls(prompt, negative_prompt, UUID, user_id, url, model, images)
 
     
     async def reroll_image(self, interaction: discord.Interaction, button: discord.ui.Button):
         try:
             batch_size = 4
-            #grab the button number and than convert that to count to grab with the UUID from the db
+            # Grab the button number and then convert that to count to grab with the UUID from the db
             index = await extract_index_from_id(button.custom_id)
             if index is None:
                 await interaction.response.send_message("Invalid custom_id format. Please ensure it contains a numeric index.")
                 return
+
             await interaction.response.send_message(
                 f'{interaction.user.mention} asked me to re-imagine the image, this shouldn\'t take too long...'
             )
@@ -138,39 +143,55 @@ class Buttons(discord.ui.View):
             await interaction.message.edit(view=self)
 
             # Retrieve the prompt from the database
-            async with AsyncSessionLocal() as session:
-                result = await session.execute(select(Image.prompt).filter(Image.UUID == self.UUID).limit(1))
-                prompt = result.scalar()
+            conn = sqlite3.connect(DATABASE_URL)
+            cursor = conn.cursor()
 
-            if prompt is None:
-                prompt = self.prompt  # Use the original prompt as a fallback
+            try:
+                cursor.execute("""
+                    SELECT prompt FROM images
+                    WHERE UUID = ? LIMIT 1
+                """, (self.UUID,))
+                result = cursor.fetchone()
+                prompt = result[0] if result else self.prompt  # Use the original prompt as a fallback
 
-            # Generate a new UUID for the re-rolled image
-            new_UUID = str(uuid.uuid4())
+                # Generate a new UUID for the re-rolled image
+                new_UUID = str(uuid.uuid4())
 
-            # Generate a new image with the retrieved prompt
-            await generate_alternatives(
-                UUID=new_UUID,
-                user_id=interaction.user.id,
-                prompt=prompt,
-                negative_prompt=self.negative_prompt,
-                batch_size=batch_size,
-                width=1024,
-                height=1024,
-                model=self.model,
-                image=self.url
-            )
+                # Generate a new image with the retrieved prompt
+                await generate_alternatives(
+                    UUID=new_UUID,
+                    index=index,
+                    user_id=interaction.user.id,
+                    prompt=prompt,
+                    negative_prompt=self.negative_prompt,
+                    batch_size=batch_size,
+                    width=1024,
+                    height=1024,
+                    model=self.model,
+                    image=self.url
+                )
 
-            # Create a new collage for the re-rolled image
-            collage_path = await create_collage(UUID=new_UUID)
+                # Create a new collage for the re-rolled image
+                collage_path = await create_collage(UUID=new_UUID)
 
-            # Construct the final message with user mention
-            final_message = f'{interaction.user.mention} asked me to re-imagine the image, here is what I imagined for them. "{prompt}", "{self.model}"'
-            await interaction.channel.send(
-                content=final_message,
-                file=discord.File(fp=collage_path, filename="collage.png"),
-                view=Buttons(prompt, self.negative_prompt, new_UUID, interaction.user.id, collage_path, self.model)
-            )
+                # Construct the final message with user mention
+                final_message = f'{interaction.user.mention} asked me to re-imagine the image, here is what I imagined for them. "{prompt}", "{self.model}"'
+                await interaction.channel.send(
+                    content=final_message,
+                    file=discord.File(fp=collage_path, filename="collage.png"),
+                    view=Buttons(prompt, self.negative_prompt, new_UUID, interaction.user.id, collage_path, self.model)
+                )
+
+            except sqlite3.Error as e:
+                print(f"Database error: {str(e)}")
+
+            except Exception as e:
+                print(f"An error occurred: {str(e)}")
+
+            finally:
+                cursor.close()
+                conn.close()
+
         except discord.errors.InteractionResponded:
             return print("interaction failed")
         
@@ -188,20 +209,30 @@ class Buttons(discord.ui.View):
             button.disabled = True
             await interaction.message.edit(view=self)
 
-            # Assuming AsyncSessionLocal, Image model, and upscale_image function are defined elsewhere
-            async with AsyncSessionLocal() as session:
-                result = await session.execute(
-                    select(Image).where(Image.UUID == self.UUID).order_by(Image.count)
-                )
-                images = result.scalars().all()
+            conn = sqlite3.connect(DATABASE_URL)
+            cursor = conn.cursor()
+
+            try:
+                cursor.execute("""
+                    SELECT * FROM images
+                    WHERE UUID = ?
+                    ORDER BY count
+                """, (self.UUID,))
+                images = cursor.fetchall()
+
                 if index < len(images):
                     image = images[index]
+                    image_data = image[2]  # Assuming image data is stored in the 3rd column
+
                     # Upscale image logic assumed to be defined elsewhere
-                    upscaled_image = await upscale_image(image.data, self.prompt, self.negative_prompt)
+                    upscaled_image = await upscale_image(image_data, self.prompt, self.negative_prompt)
+
                     timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
                     upscaled_image_path = f"./out/upscaledImage_{timestamp}.png"
+
                     # Assuming upscaled_image has a .save() method
                     upscaled_image.save(upscaled_image_path)
+
                     final_message = f"{interaction.user.mention} here is your upscaled image"
                     await interaction.channel.send(
                         content=final_message,
@@ -209,6 +240,17 @@ class Buttons(discord.ui.View):
                     )
                 else:
                     await interaction.followup.send("Invalid image index.")
+
+            except sqlite3.Error as e:
+                print(f"Database error: {str(e)}")
+
+            except Exception as e:
+                print(f"An error occurred: {str(e)}")
+
+            finally:
+                cursor.close()
+                conn.close()
+
         except discord.errors.InteractionResponded:
             print("Interaction already responded")
         

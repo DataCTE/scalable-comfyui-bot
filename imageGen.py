@@ -6,7 +6,7 @@ import urllib.request
 import time
 import urllib.parse
 from PIL import Image as PILImage
-from db import AsyncSessionLocal, init_db, engine, Image
+from db import  init_db
 from io import BytesIO
 from database_query_same_energy import perform_search
 import configparser
@@ -21,10 +21,8 @@ from math import ceil, sqrt
 import aiofiles
 import discord
 import logging
-import aiohttp
-import asyncio
-
-
+import sqlite3
+from db import DATABASE_URL
 
 # Read the configuration
 config = configparser.ConfigParser()
@@ -69,6 +67,127 @@ def upload_image(filepath, subfolder=None, folder_type=None, overwrite=False):
         data["type"] = folder_type
     response = requests.post(url, files=files, data=data)
     return response.json()
+
+
+
+
+async def save_images(images, user_id, UUID, model, prompt):
+    conn = sqlite3.connect(DATABASE_URL)
+    cursor = conn.cursor()
+
+    try:
+        count = 1
+        for image in images:
+            img_byte_arr = io.BytesIO()
+            image.save(img_byte_arr, format="PNG")  # Corrected save method
+            blob = img_byte_arr.getvalue()
+
+            # Save the image to a file and use the file path as the URL
+            image_path = f'output/image_{count}.png'
+            image.save(image_path)
+
+            # Insert the image data into the database
+            cursor.execute("""
+                INSERT INTO images (url, data, user_id, UUID, count, model, prompt)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            """, (image_path, blob, user_id, UUID, count, model, prompt))
+
+            count += 1
+
+        # Commit the changes to the database
+        conn.commit()
+
+    except sqlite3.Error as e:
+        print(f"Database error: {str(e)}")
+        conn.rollback()
+
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+        conn.rollback()
+
+    finally:
+        cursor.close()
+        conn.close()
+
+
+async def get_image_from_database(image_id):
+    conn = sqlite3.connect(DATABASE_URL)
+    cursor = conn.cursor()
+
+    try:
+        # Retrieve the image data from the database based on the image ID
+        cursor.execute("""
+            SELECT data FROM images WHERE id = ?
+        """, (image_id,))
+        result = cursor.fetchone()
+
+        if result:
+            image_data = result[0]
+            return image_data
+        else:
+            print(f"Image with ID {image_id} not found in the database.")
+            return None
+
+    except sqlite3.Error as e:
+        print(f"Database error: {str(e)}")
+        return None
+
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+        return None
+
+    finally:
+        cursor.close()
+        conn.close()
+
+
+async def create_collage(UUID: str):
+    conn = sqlite3.connect(DATABASE_URL)
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("""
+            SELECT * FROM images
+            WHERE UUID = ?
+            ORDER BY count
+        """, (UUID,))
+        images = cursor.fetchall()
+
+        # Open the first image to get its width and height
+        first_image = PILImage.open(BytesIO(images[0][2]))  # Assuming image data is stored in the 3rd column
+        image_width, image_height = first_image.width, first_image.height
+
+        # Determine the dimensions of the collage
+        num_images = len(images)
+        rows = cols = ceil(sqrt(num_images))
+        collage_width, collage_height = cols * image_width, rows * image_height
+
+        # Create a new blank collage image
+        collage = PILImage.new("RGB", (collage_width, collage_height))
+
+        # Paste each image onto the collage
+        for i, image in enumerate(images):
+            img = PILImage.open(BytesIO(image[2]))  # Assuming image data is stored in the 3rd column
+            row, col = i // cols, i % cols
+            collage.paste(img, (col * image_width, row * image_height))
+
+        # Save the collage to a file
+        collage_path = f"collageimages/collage_{UUID}.png"
+        collage.save(collage_path)
+
+        return collage_path
+
+    except sqlite3.Error as e:
+        print(f"Database error: {str(e)}")
+        return None
+
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+        return None
+
+    finally:
+        cursor.close()
+        conn.close()
 
 
 class ImageGenerator:
@@ -175,8 +294,6 @@ async def generate_images(
     height: int,
     model: str,
 ):
-    # Ensure the DB is initialized (consider moving this to your bot's startup routine)
-    await init_db(engine)
 
     # Your existing logic to prepare for image generation...
     with open(text2img_config, "r") as file:
@@ -250,66 +367,9 @@ async def generate_images(
     
     
     await generator.close()
-   #increment return images from 1 to 4 plus UUID
-    
-    
-
-    async with AsyncSessionLocal() as session:
-        count = 1
-
-        for image in images:
-            img_byte_arr = io.BytesIO()
-            image.save(img_byte_arr, format="PNG")  # Corrected save method
-            blob = img_byte_arr.getvalue()
-
-            # Save the image to a file and use the file path as the URL
-            image_path = f'output/image_{count}.png'
-            image.save(image_path)
-
-            new_image = Image(
-                url=image_path, data=blob, user_id=user_id, UUID=UUID, count=count, model=model,  prompt=prompt
-            )  # Include additional fields as necessary
-            session.add(new_image)
-            count += 1
-            
-        # Commit the new records to the database
-        await session.commit()
-
-    print(f" {image_path}")
-    
+    await save_images(images, user_id, UUID, model, prompt)
 
 
-
-async def create_collage(UUID: str):
-    # Retrieve images from the database
-    async with AsyncSessionLocal() as session:
-        images = await session.execute(select(Image).filter(Image.UUID == UUID).order_by(Image.count))
-        images = images.scalars().all()
-
-    
-    # Open the first image to get its width and height
-    first_image = PILImage.open(BytesIO(images[0].data))
-    image_width, image_height = first_image.width, first_image.height
-
-    # Determine the dimensions of the collage
-    num_images = len(images)
-    rows = cols = ceil(sqrt(num_images))
-    collage_width, collage_height = cols * image_width, rows * image_height
-
-    # Create a new blank collage image
-    collage = PILImage.new("RGB", (collage_width, collage_height))
-
-    # Paste each image onto the collage
-    for i, image in enumerate(images):
-        img = PILImage.open(BytesIO(image.data))  # Assuming data contains image bytes
-        row, col = i // cols, i % cols
-        collage.paste(img, (col * image_width, row * image_height))
-
-    # Save the collage to a file
-    collage_path = f"collageimages/collage_{UUID}.png"
-    collage.save(collage_path)
-
-    return collage_path
 """
 async def generate_images(prompt: str,negative_prompt: str,batch_size:int, width:int, height:int, model:str):
     with open(text2img_config, 'r') as file:
@@ -409,30 +469,6 @@ logging.basicConfig(
 )
 
 
-async def save_image(attachment: discord.Attachment, filename: str):
-    """Asynchronously saves an image attachment to a file."""
-    if not isinstance(attachment, discord.Attachment):
-        logging.error(
-            f"Attachment is not a discord.Attachment instance: {type(attachment)}"
-        )
-        raise TypeError("Attachment must be a discord.Attachment instance")
-
-    # Ensure the directory exists
-    dir_name = os.path.dirname(filename)
-    if not os.path.exists(dir_name):
-        os.makedirs(dir_name, exist_ok=True)
-        logging.info(f"Created directory: {dir_name}")
-
-    # Use aiofiles to save the file asynchronously
-    try:
-        async with aiofiles.open(filename, "wb") as f:
-            await f.write(await attachment.read())
-        print(f"Successfully saved attachment to {filename}")
-    except Exception as e:
-        print(f"Failed to save attachment: {e}")
-        raise IOError(f"Failed to save attachment: {e}")
-
-
 
 
 async def style_images(
@@ -447,8 +483,7 @@ async def style_images(
     model: str,
 ):
     
-    await init_db(engine)
-    # Ensure the 'input' directory exists
+
     input_dir = "input"
     if not os.path.exists(input_dir):
         os.makedirs(input_dir, exist_ok=True)
@@ -460,7 +495,8 @@ async def style_images(
     print(f"Generated filename: {inputname}")
     # Attempt to save the attachment to the generated filename
     try:
-        await save_image(attachment, inputname)
+        with open(inputname, "wb") as file:
+            await attachment.save(file)
     except Exception as e:
         print(f"Error saving attachment: {e}")
         # Consider how to handle this error in your bot's context
@@ -599,33 +635,14 @@ async def style_images(
     images = await generator.get_images(workflow)
     print(f"Images generated: {images}")
     await generator.close()
-    async with AsyncSessionLocal() as session:
-        count = 1
-
-        for image in images:
-            img_byte_arr = io.BytesIO()
-            image.save(img_byte_arr, format="PNG")  # Corrected save method
-            blob = img_byte_arr.getvalue()
-
-            # Save the image to a file and use the file path as the URL
-            image_path = f'output/image_{count}.png'
-            image.save(image_path)
-
-            new_image = Image(
-                url=image_path, data=blob, user_id=user_id, UUID=UUID, count=count, model=model,  prompt=prompt
-            )  # Include additional fields as necessary
-            session.add(new_image)
-            count += 1
-            
-        # Commit the new records to the database
-        await session.commit()
-
+    # Save the images to the database
+    await save_images(images, user_id, UUID, model, prompt)
 
 
 async def generate_alternatives(
     UUID: str,
     user_id: int,
-    image: PILImage.Image,
+    index: int,
     prompt: str,
     negative_prompt: str,
     batch_size: int,
@@ -633,24 +650,10 @@ async def generate_alternatives(
     height: int,
     model: str,
 ):
-    await init_db(engine)
-    # grab the image from the db
-    
-    async with AsyncSessionLocal() as session:
-        image = await session.execute(select(Image).filter(Image.UUID == UUID).order_by(Image.count))
-        image = image.scalars().all()
-        #convert to PIL image
-       
+    image_id = index + UUID
+    #get image from db
+    inputname = await get_image_from_database(image_id)
 
-    # save the image to a file
-    input_dir = "input"
-    if not os.path.exists(input_dir):
-        os.makedirs(input_dir, exist_ok=True)
-        logging.info(f"Created directory: {input_dir}")
-    
-    random_number = random.randint(0, 10000000)
-    inputname = os.path.join(input_dir, f"image{random_number}.png")
-    print(f"Generated filename: {inputname}")
 
 
     # Load the workflow configuration
@@ -716,6 +719,9 @@ async def generate_alternatives(
         "height",
         height if height is not None else default_height,
     )
+    print(f"Processing image: {inputname}")
+    filename_without_directory = os.path.basename(inputname)
+    print(f"Filename without directory: {filename_without_directory}")
 
     upload_image(filepath=inputname)
     styleimage_nodes = search_for_nodes_with_key(
@@ -728,26 +734,7 @@ async def generate_alternatives(
     images = await generator.get_images(workflow)
     print(f"Images generated: {images}")
     await generator.close()
-    async with AsyncSessionLocal() as session:
-        count = 1
-
-        for image in images:
-            img_byte_arr = io.BytesIO()
-            image.save(img_byte_arr, format="PNG")  # Corrected save method
-            blob = img_byte_arr.getvalue()
-
-            # Save the image to a file and use the file path as the URL
-            image_path = f'output/image_{count}.png'
-            image.save(image_path)
-
-            new_image = Image(
-                url=image_path, data=blob, user_id=user_id, UUID=UUID, count=count, model=model,  prompt=prompt
-            )  # Include additional fields as necessary
-            session.add(new_image)
-            count += 1
-            
-        # Commit the new records to the database
-        await session.commit()
+    await save_images(images, user_id, UUID, model, prompt)
     
     return images
 
@@ -760,7 +747,7 @@ async def upscale_image(
     negative_prompt: str,
     model: str,
 ):
-    await init_db(engine)
+    
     # Ensure the 'input' directory exists
     input_dir = "input"
     if not os.path.exists(input_dir):
@@ -820,22 +807,7 @@ async def upscale_image(
     images = await generator.get_images(workflow)
     print(f"Images generated: {images}")
     await generator.close()
-    async with AsyncSessionLocal() as session:
-        img_byte_arr = io.BytesIO()
-        images[0].save(img_byte_arr, format="PNG")  # Corrected save method
-        blob = img_byte_arr.getvalue()
-
-        # Save the image to a file and use the file path as the URL
-        image_path = f'output/upscaledImage.png'
-        images[0].save(image_path)
-
-        new_image = Image(
-            url=image_path, data=blob, user_id=user_id, UUID=UUID, model=model,  prompt=prompt
-        )  # Include additional fields as necessary
-        session.add(new_image)
-        
-        # Commit the new record to the database
-        await session.commit()
+    await save_images(images, user_id, UUID, model, prompt)
     
     return images[0]
 

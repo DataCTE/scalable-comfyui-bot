@@ -103,6 +103,50 @@ def init_db():
     create_tables(conn)
     conn.close()
 
+async def save_image_generation(user_id: str, prompt: str, image_path: str):
+    conn = sqlite3.connect(DATABASE_URL)
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("""
+            INSERT INTO images (user_id, prompt, url)
+            VALUES (?, ?, ?)
+        """, (user_id, prompt, image_path))
+        conn.commit()
+
+    except sqlite3.Error as e:
+        print(f"Database error: {str(e)}")
+
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+
+    finally:
+        cursor.close()
+        conn.close()
+
+async def get_user_images(user_id: str):
+    conn = sqlite3.connect(DATABASE_URL)
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("""
+            SELECT * FROM images WHERE user_id = ?
+        """, (user_id,))
+        images = cursor.fetchall()
+        return images
+
+    except sqlite3.Error as e:
+        print(f"Database error: {str(e)}")
+        return []
+
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+        return []
+
+    finally:
+        cursor.close()
+        conn.close()
+
 # Example usage
 def main():
     logger.info("Initializing database...")
