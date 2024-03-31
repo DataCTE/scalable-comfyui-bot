@@ -5,3 +5,9 @@ __pycache__/
 config.properties
 *.spec
 datacomp_small*
+config.properties
+output/
+out/
+input/
+input_images/
+collageimages/
