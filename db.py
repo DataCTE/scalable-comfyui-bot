@@ -40,7 +40,7 @@ class User(Base):  # Assuming User is a subclass of Base
 
     def __init__(self, username, user_id, credits):
         super(User, self).__init__(username=username, user_id=user_id, credits=credits)
-
+        self.credits = credits
 
 
 class Guild(Base):

@@ -231,17 +231,27 @@ async def imagine(
 ):
     username = interaction.user.name
     user_id = interaction.user.id
-    
-    user_credits = await discord_balance_prompt(user_id=user_id)
 
-    if user_credits < 5:  # Assuming 5 credits are needed
+    user_credits = await discord_balance_prompt(user_id=user_id, username=username)
+
+    if user_credits is None:
+        # Handle case where user credits couldn't be retrieved
+        # This could happen due to an error or if the user doesn't exist
+        # You might want to log this or handle it based on your application logic
+        await interaction.response.send_message(
+            print(user_credits, user_id, username),
+            "Failed to retrieve user credits. Please try again later.",
+            ephemeral=True
+        )
+        await interaction.response.defer(ephemeral=True)
+    elif user_credits < 5:  # Assuming 5 credits are needed
         payment_link = await discord_recharge_prompt(username, user_id)
         if payment_link == "failed":
             await interaction.response.send_message(
-            f"Failed to create payment link or payment itself failed. Please try again later.",
-            ephemeral=True
+                "Failed to create payment link or payment itself failed. Please try again later.",
+                ephemeral=True
             )
-            exit
+            exit  # Make sure to fix this to properly exit the function
         await interaction.response.send_message(
             f"You don't have enough credits. Please recharge your account: {payment_link}",
             ephemeral=True
@@ -249,6 +259,7 @@ async def imagine(
         await interaction.response.defer(ephemeral=True)
     else:
         await interaction.response.defer(ephemeral=False)
+
 
 
     
@@ -315,7 +326,8 @@ async def balance(
     interaction: discord.Interaction,
 ):
     user_id = interaction.user.id
-    user_credits = await discord_balance_prompt(user_id=user_id)
+    username = interaction.user.name
+    user_credits = await discord_balance_prompt(user_id=user_id,  username=username)
     await interaction.response.send_message(
         f"Your current balance is: {user_credits}",
         ephemeral=True

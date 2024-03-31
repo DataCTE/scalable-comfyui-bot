@@ -23,6 +23,13 @@ async def create_customer(user_id, username, source):
         )
         return customer.id
 
+async def create_DB_user(user_id, username):
+    async with AsyncSessionLocal() as session:
+        user = User(user_id=user_id, username=username, credits=100)
+        session.add(user)
+        await session.commit()
+        return user
+
 async def create_payment_link( user_id, price_id, customer_id=None):
         payment_link = await run_in_executor(
             stripe.PaymentLink.create,
@@ -81,15 +88,23 @@ async def verify_payment_links_job():
 async def verify_payment_links():
         await verify_payment_links_job()
 
-async def discord_balance_prompt(user_id):
+async def discord_balance_prompt(user_id, username):
     async with AsyncSessionLocal() as session:
         # get user credits from the database 
         result = await session.execute(select(User).where(User.user_id == user_id))
         user = result.scalar_one_or_none()
-        print(user_id)
-        # check if user is None
+        print(user)
         if user is None:
-            raise ValueError(f"No user found with ID {user_id}")
-        # extract credits
-        credits = user.credits
-        return credits
+            await create_DB_user(user_id, username)
+            # get the newly created user
+            result = await session.execute(select(User).where(User.user_id == user_id))
+            user = result.scalar_one_or_none()
+
+        if user is not None:  # Check if user exists
+            # extract credits
+            credits = user.credits
+            print(user, credits, user_id, username)  # moved print statement here
+            return credits
+        else:
+            print(user, user_id, username)  # print statement without 'credits'
+            return None  # Or handle this case based on your application logic

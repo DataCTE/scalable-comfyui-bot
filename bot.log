@@ -11413,3 +11413,946 @@ Traceback (most recent call last):
   File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 846, in _do_call
     raise CommandInvokeError(self, e) from e
 discord.app_commands.errors.CommandInvokeError: Command 'balance' raised an exception: InteractionResponded: This interaction has already been responded to before
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT users.id, users.username, users.email, users.user_id, users."stripeID", users."hiveID", users.credits, users.tier, users.banned 
+FROM users 
+WHERE users.user_id = ?
+sqlalchemy.engine.Engine - INFO - [cached since 354.7s ago] (879714655356997692,)
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("users")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("guilds")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("channels")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("payments")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("images")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("jobs")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - COMMIT
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - INSERT INTO images (user_id, data, "UUID", url, count, model, prompt) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id
+sqlalchemy.engine.Engine - INFO - [cached since 355.1s ago (insertmanyvalues) 1/4 (ordered; batch not supported)] (879714655356997692, <memory at 0x7fbdab7a7a00>, 'a7438928-8bac-4d03-8087-b241f217d385', 'output/image_1.png', 1, 'proteus-rundiffusionV2.5', 'MHXL-Pos, A beautiful women, with long tutone hair, with cat ears, surrounded by stars and fireworks, magic chalkdust, black background, glowing line ... (120 characters truncated) ... , hyper-realistic details, luminous effects, and HDR tone mapping, crafted with maximal precision for top-quality fidelity, masterpiece, best quality')
+sqlalchemy.engine.Engine - INFO - INSERT INTO images (user_id, data, "UUID", url, count, model, prompt) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id
+sqlalchemy.engine.Engine - INFO - [insertmanyvalues 2/4 (ordered; batch not supported)] (879714655356997692, <memory at 0x7fbdab7a7ac0>, 'a7438928-8bac-4d03-8087-b241f217d385', 'output/image_2.png', 2, 'proteus-rundiffusionV2.5', 'MHXL-Pos, A beautiful women, with long tutone hair, with cat ears, surrounded by stars and fireworks, magic chalkdust, black background, glowing line ... (120 characters truncated) ... , hyper-realistic details, luminous effects, and HDR tone mapping, crafted with maximal precision for top-quality fidelity, masterpiece, best quality')
+sqlalchemy.engine.Engine - INFO - INSERT INTO images (user_id, data, "UUID", url, count, model, prompt) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id
+sqlalchemy.engine.Engine - INFO - [insertmanyvalues 3/4 (ordered; batch not supported)] (879714655356997692, <memory at 0x7fbdab7a7b80>, 'a7438928-8bac-4d03-8087-b241f217d385', 'output/image_3.png', 3, 'proteus-rundiffusionV2.5', 'MHXL-Pos, A beautiful women, with long tutone hair, with cat ears, surrounded by stars and fireworks, magic chalkdust, black background, glowing line ... (120 characters truncated) ... , hyper-realistic details, luminous effects, and HDR tone mapping, crafted with maximal precision for top-quality fidelity, masterpiece, best quality')
+sqlalchemy.engine.Engine - INFO - INSERT INTO images (user_id, data, "UUID", url, count, model, prompt) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id
+sqlalchemy.engine.Engine - INFO - [insertmanyvalues 4/4 (ordered; batch not supported)] (879714655356997692, <memory at 0x7fbdab7a7c40>, 'a7438928-8bac-4d03-8087-b241f217d385', 'output/image_4.png', 4, 'proteus-rundiffusionV2.5', 'MHXL-Pos, A beautiful women, with long tutone hair, with cat ears, surrounded by stars and fireworks, magic chalkdust, black background, glowing line ... (120 characters truncated) ... , hyper-realistic details, luminous effects, and HDR tone mapping, crafted with maximal precision for top-quality fidelity, masterpiece, best quality')
+sqlalchemy.engine.Engine - INFO - COMMIT
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT images.id, images.user_id, images.data, images."UUID", images.url, images.count, images.model, images.prompt 
+FROM images 
+WHERE images."UUID" = ? ORDER BY images.count
+sqlalchemy.engine.Engine - INFO - [cached since 355.1s ago] ('a7438928-8bac-4d03-8087-b241f217d385',)
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT images.id, images.user_id, images.data, images."UUID", images.url, images.count, images.model, images.prompt 
+FROM images 
+WHERE images."UUID" = ? AND images.user_id = ? ORDER BY images.count
+sqlalchemy.engine.Engine - INFO - [cached since 355s ago] ('a7438928-8bac-4d03-8087-b241f217d385', 879714655356997692)
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT users.id, users.username, users.email, users.user_id, users."stripeID", users."hiveID", users.credits, users.tier, users.banned 
+FROM users 
+WHERE users.user_id = ?
+sqlalchemy.engine.Engine - INFO - [cached since 473.9s ago] (879714655356997692,)
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("users")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("guilds")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("channels")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("payments")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("images")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("jobs")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - COMMIT
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT users.id, users.username, users.email, users.user_id, users."stripeID", users."hiveID", users.credits, users.tier, users.banned 
+FROM users 
+WHERE users.user_id = ?
+sqlalchemy.engine.Engine - INFO - [cached since 521s ago] (1115224310961930300,)
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+discord.app_commands.tree - ERROR - Ignoring exception in command 'imagine'
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 828, in _do_call
+    return await self._callback(interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/bot.py", line 235, in imagine
+    user_credits = await discord_balance_prompt(user_id=user_id)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/stripe_integration.py", line 92, in discord_balance_prompt
+    raise ValueError(f"No user found with ID {user_id}")
+ValueError: No user found with ID 1115224310961930300
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/tree.py", line 1248, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 853, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 846, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'imagine' raised an exception: ValueError: No user found with ID 1115224310961930300
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - INSERT INTO images (user_id, data, "UUID", url, count, model, prompt) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id
+sqlalchemy.engine.Engine - INFO - [cached since 474.7s ago (insertmanyvalues) 1/4 (ordered; batch not supported)] (879714655356997692, <memory at 0x7fbdab7a7640>, '55439f08-3fea-4cdc-bd81-9d4feeaaa7c1', 'output/image_1.png', 1, 'proteus-rundiffusionV2.5', 'MHXL-Pos, A beautiful black puma cat wearing a crown, surrounded by stars and fireworks, magic chalkdust, black background, glowing lines, hand drawn ... (101 characters truncated) ... , hyper-realistic details, luminous effects, and HDR tone mapping, crafted with maximal precision for top-quality fidelity, masterpiece, best quality')
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT users.id, users.username, users.email, users.user_id, users."stripeID", users."hiveID", users.credits, users.tier, users.banned 
+FROM users 
+WHERE users.user_id = ?
+sqlalchemy.engine.Engine - INFO - [cached since 530.4s ago] (1115224310961930300,)
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+sqlalchemy.engine.Engine - INFO - INSERT INTO images (user_id, data, "UUID", url, count, model, prompt) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id
+sqlalchemy.engine.Engine - INFO - [insertmanyvalues 2/4 (ordered; batch not supported)] (879714655356997692, <memory at 0x7fbdaaee4100>, '55439f08-3fea-4cdc-bd81-9d4feeaaa7c1', 'output/image_2.png', 2, 'proteus-rundiffusionV2.5', 'MHXL-Pos, A beautiful black puma cat wearing a crown, surrounded by stars and fireworks, magic chalkdust, black background, glowing lines, hand drawn ... (101 characters truncated) ... , hyper-realistic details, luminous effects, and HDR tone mapping, crafted with maximal precision for top-quality fidelity, masterpiece, best quality')
+discord.app_commands.tree - ERROR - Ignoring exception in command 'imagine'
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 828, in _do_call
+    return await self._callback(interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/bot.py", line 235, in imagine
+    user_credits = await discord_balance_prompt(user_id=user_id)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/stripe_integration.py", line 92, in discord_balance_prompt
+    raise ValueError(f"No user found with ID {user_id}")
+ValueError: No user found with ID 1115224310961930300
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/tree.py", line 1248, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 853, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 846, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'imagine' raised an exception: ValueError: No user found with ID 1115224310961930300
+sqlalchemy.engine.Engine - INFO - INSERT INTO images (user_id, data, "UUID", url, count, model, prompt) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id
+sqlalchemy.engine.Engine - INFO - [insertmanyvalues 3/4 (ordered; batch not supported)] (879714655356997692, <memory at 0x7fbdaaee41c0>, '55439f08-3fea-4cdc-bd81-9d4feeaaa7c1', 'output/image_3.png', 3, 'proteus-rundiffusionV2.5', 'MHXL-Pos, A beautiful black puma cat wearing a crown, surrounded by stars and fireworks, magic chalkdust, black background, glowing lines, hand drawn ... (101 characters truncated) ... , hyper-realistic details, luminous effects, and HDR tone mapping, crafted with maximal precision for top-quality fidelity, masterpiece, best quality')
+sqlalchemy.engine.Engine - INFO - INSERT INTO images (user_id, data, "UUID", url, count, model, prompt) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id
+sqlalchemy.engine.Engine - INFO - [insertmanyvalues 4/4 (ordered; batch not supported)] (879714655356997692, <memory at 0x7fbdaaee4280>, '55439f08-3fea-4cdc-bd81-9d4feeaaa7c1', 'output/image_4.png', 4, 'proteus-rundiffusionV2.5', 'MHXL-Pos, A beautiful black puma cat wearing a crown, surrounded by stars and fireworks, magic chalkdust, black background, glowing lines, hand drawn ... (101 characters truncated) ... , hyper-realistic details, luminous effects, and HDR tone mapping, crafted with maximal precision for top-quality fidelity, masterpiece, best quality')
+sqlalchemy.engine.Engine - INFO - COMMIT
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT images.id, images.user_id, images.data, images."UUID", images.url, images.count, images.model, images.prompt 
+FROM images 
+WHERE images."UUID" = ? ORDER BY images.count
+sqlalchemy.engine.Engine - INFO - [cached since 474.7s ago] ('55439f08-3fea-4cdc-bd81-9d4feeaaa7c1',)
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT images.id, images.user_id, images.data, images."UUID", images.url, images.count, images.model, images.prompt 
+FROM images 
+WHERE images."UUID" = ? AND images.user_id = ? ORDER BY images.count
+sqlalchemy.engine.Engine - INFO - [cached since 474.7s ago] ('55439f08-3fea-4cdc-bd81-9d4feeaaa7c1', 879714655356997692)
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+discord.client - INFO - logging in using static token
+discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: f605ff08cc7cbe1246bdf0a3b3e66fdc).
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("users")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("guilds")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("channels")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("payments")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("images")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("jobs")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - COMMIT
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT users.id, users.username, users.email, users.user_id, users."stripeID", users."hiveID", users.credits, users.tier, users.banned 
+FROM users 
+WHERE users.user_id = ?
+sqlalchemy.engine.Engine - INFO - [generated in 0.00043s] (1115224310961930300,)
+stripe - INFO - message='Request to Stripe api' method=post url=https://api.stripe.com/v1/customers
+stripe - INFO - message='Stripe API response' path=https://api.stripe.com/v1/customers response_code=200
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+discord.app_commands.tree - ERROR - Ignoring exception in command 'imagine'
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 828, in _do_call
+    return await self._callback(interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/bot.py", line 235, in imagine
+    user_credits = await discord_balance_prompt(user_id=user_id, username=username)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/stripe_integration.py", line 93, in discord_balance_prompt
+    credits = user.credits
+              ^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'credits'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/tree.py", line 1248, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 853, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 846, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'imagine' raised an exception: AttributeError: 'NoneType' object has no attribute 'credits'
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT users.id, users.username, users.email, users.user_id, users."stripeID", users."hiveID", users.credits, users.tier, users.banned 
+FROM users 
+WHERE users.user_id = ?
+sqlalchemy.engine.Engine - INFO - [cached since 36.41s ago] (153123756812795904,)
+stripe - INFO - message='Request to Stripe api' method=post url=https://api.stripe.com/v1/customers
+stripe - INFO - message='Stripe API response' path=https://api.stripe.com/v1/customers response_code=200
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+discord.app_commands.tree - ERROR - Ignoring exception in command 'imagine'
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 828, in _do_call
+    return await self._callback(interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/bot.py", line 235, in imagine
+    user_credits = await discord_balance_prompt(user_id=user_id, username=username)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/stripe_integration.py", line 93, in discord_balance_prompt
+    credits = user.credits
+              ^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'credits'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/tree.py", line 1248, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 853, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 846, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'imagine' raised an exception: AttributeError: 'NoneType' object has no attribute 'credits'
+discord.client - INFO - logging in using static token
+discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: cdf77a25068ea9b471bb98bfac306a18).
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT users.id, users.username, users.email, users.user_id, users."stripeID", users."hiveID", users.credits, users.tier, users.banned 
+FROM users 
+WHERE users.user_id = ?
+sqlalchemy.engine.Engine - INFO - [generated in 0.00032s] (1115224310961930300,)
+stripe - INFO - message='Request to Stripe api' method=post url=https://api.stripe.com/v1/customers
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("users")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("guilds")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("channels")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("payments")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("images")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("jobs")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - COMMIT
+stripe - INFO - message='Stripe API response' path=https://api.stripe.com/v1/customers response_code=200
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+discord.app_commands.tree - ERROR - Ignoring exception in command 'imagine'
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 828, in _do_call
+    return await self._callback(interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/bot.py", line 235, in imagine
+    user_credits = await discord_balance_prompt(user_id=user_id, username=username)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/stripe_integration.py", line 93, in discord_balance_prompt
+    credits = user.credits
+              ^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'credits'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/tree.py", line 1248, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 853, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 846, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'imagine' raised an exception: AttributeError: 'NoneType' object has no attribute 'credits'
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT users.id, users.username, users.email, users.user_id, users."stripeID", users."hiveID", users.credits, users.tier, users.banned 
+FROM users 
+WHERE users.user_id = ?
+sqlalchemy.engine.Engine - INFO - [cached since 20.14s ago] (156879849263333376,)
+stripe - INFO - message='Request to Stripe api' method=post url=https://api.stripe.com/v1/customers
+stripe - INFO - message='Stripe API response' path=https://api.stripe.com/v1/customers response_code=200
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+discord.app_commands.tree - ERROR - Ignoring exception in command 'imagine'
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 828, in _do_call
+    return await self._callback(interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/bot.py", line 235, in imagine
+    user_credits = await discord_balance_prompt(user_id=user_id, username=username)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/stripe_integration.py", line 93, in discord_balance_prompt
+    credits = user.credits
+              ^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'credits'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/tree.py", line 1248, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 853, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 846, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'imagine' raised an exception: AttributeError: 'NoneType' object has no attribute 'credits'
+discord.client - INFO - logging in using static token
+discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: ecb55ff0af32464ee79d07aa7cf59e77).
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("users")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("guilds")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("channels")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("payments")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("images")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("jobs")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - COMMIT
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT users.id, users.username, users.email, users.user_id, users."stripeID", users."hiveID", users.credits, users.tier, users.banned 
+FROM users 
+WHERE users.user_id = ?
+sqlalchemy.engine.Engine - INFO - [generated in 0.00040s] (156879849263333376,)
+stripe - INFO - message='Request to Stripe api' method=post url=https://api.stripe.com/v1/customers
+stripe - INFO - message='Stripe API response' path=https://api.stripe.com/v1/customers response_code=200
+sqlalchemy.engine.Engine - INFO - SELECT users.id, users.username, users.email, users.user_id, users."stripeID", users."hiveID", users.credits, users.tier, users.banned 
+FROM users 
+WHERE users.user_id = ?
+sqlalchemy.engine.Engine - INFO - [cached since 0.3258s ago] (156879849263333376,)
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+discord.app_commands.tree - ERROR - Ignoring exception in command 'imagine'
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 828, in _do_call
+    return await self._callback(interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/bot.py", line 235, in imagine
+    user_credits = await discord_balance_prompt(user_id=user_id, username=username)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/stripe_integration.py", line 96, in discord_balance_prompt
+    credits = user.credits
+              ^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'credits'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/tree.py", line 1248, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 853, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 846, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'imagine' raised an exception: AttributeError: 'NoneType' object has no attribute 'credits'
+discord.client - INFO - logging in using static token
+discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 572c49ba414ef687867bd65a7115af38).
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("users")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("guilds")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("channels")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("payments")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("images")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("jobs")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - COMMIT
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT users.id, users.username, users.email, users.user_id, users."stripeID", users."hiveID", users.credits, users.tier, users.banned 
+FROM users 
+WHERE users.user_id = ?
+sqlalchemy.engine.Engine - INFO - [generated in 0.00030s] (156879849263333376,)
+stripe - INFO - message='Request to Stripe api' method=post url=https://api.stripe.com/v1/customers
+stripe - INFO - message='Stripe API response' path=https://api.stripe.com/v1/customers response_code=200
+sqlalchemy.engine.Engine - INFO - SELECT users.id, users.username, users.email, users.user_id, users."stripeID", users."hiveID", users.credits, users.tier, users.banned 
+FROM users 
+WHERE users.user_id = ?
+sqlalchemy.engine.Engine - INFO - [cached since 0.3355s ago] (156879849263333376,)
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+discord.app_commands.tree - ERROR - Ignoring exception in command 'imagine'
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 828, in _do_call
+    return await self._callback(interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/bot.py", line 235, in imagine
+    user_credits = await discord_balance_prompt(user_id=user_id, username=username)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/stripe_integration.py", line 96, in discord_balance_prompt
+    credits = user.credits
+              ^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'credits'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/tree.py", line 1248, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 853, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 846, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'imagine' raised an exception: AttributeError: 'NoneType' object has no attribute 'credits'
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT users.id, users.username, users.email, users.user_id, users."stripeID", users."hiveID", users.credits, users.tier, users.banned 
+FROM users 
+WHERE users.user_id = ?
+sqlalchemy.engine.Engine - INFO - [cached since 4.239s ago] (1115224310961930300,)
+stripe - INFO - message='Request to Stripe api' method=post url=https://api.stripe.com/v1/customers
+stripe - INFO - message='Stripe API response' path=https://api.stripe.com/v1/customers response_code=200
+sqlalchemy.engine.Engine - INFO - SELECT users.id, users.username, users.email, users.user_id, users."stripeID", users."hiveID", users.credits, users.tier, users.banned 
+FROM users 
+WHERE users.user_id = ?
+sqlalchemy.engine.Engine - INFO - [cached since 4.477s ago] (1115224310961930300,)
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+discord.app_commands.tree - ERROR - Ignoring exception in command 'imagine'
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 828, in _do_call
+    return await self._callback(interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/bot.py", line 235, in imagine
+    user_credits = await discord_balance_prompt(user_id=user_id, username=username)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/stripe_integration.py", line 96, in discord_balance_prompt
+    credits = user.credits
+              ^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'credits'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/tree.py", line 1248, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 853, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 846, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'imagine' raised an exception: AttributeError: 'NoneType' object has no attribute 'credits'
+discord.client - INFO - logging in using static token
+discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 6ca980b7c06b799f501736c2ea47d2e2).
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("users")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA temp.table_info("users")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("guilds")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA temp.table_info("guilds")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("channels")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA temp.table_info("channels")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("payments")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA temp.table_info("payments")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("images")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA temp.table_info("images")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("jobs")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA temp.table_info("jobs")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - 
+CREATE TABLE users (
+	id INTEGER NOT NULL, 
+	username VARCHAR, 
+	email VARCHAR, 
+	user_id VARCHAR, 
+	"stripeID" VARCHAR, 
+	"hiveID" VARCHAR, 
+	credits INTEGER, 
+	tier INTEGER, 
+	banned BOOLEAN, 
+	PRIMARY KEY (id)
+)
+
+
+sqlalchemy.engine.Engine - INFO - [no key 0.00016s] ()
+sqlalchemy.engine.Engine - INFO - CREATE INDEX "ix_users_hiveID" ON users ("hiveID")
+sqlalchemy.engine.Engine - INFO - [no key 0.00013s] ()
+sqlalchemy.engine.Engine - INFO - CREATE INDEX "ix_users_stripeID" ON users ("stripeID")
+sqlalchemy.engine.Engine - INFO - [no key 0.00007s] ()
+sqlalchemy.engine.Engine - INFO - CREATE INDEX ix_users_username ON users (username)
+sqlalchemy.engine.Engine - INFO - [no key 0.00004s] ()
+sqlalchemy.engine.Engine - INFO - CREATE INDEX ix_users_id ON users (id)
+sqlalchemy.engine.Engine - INFO - [no key 0.00003s] ()
+sqlalchemy.engine.Engine - INFO - CREATE UNIQUE INDEX ix_users_user_id ON users (user_id)
+sqlalchemy.engine.Engine - INFO - [no key 0.00003s] ()
+sqlalchemy.engine.Engine - INFO - CREATE UNIQUE INDEX ix_users_email ON users (email)
+sqlalchemy.engine.Engine - INFO - [no key 0.00003s] ()
+sqlalchemy.engine.Engine - INFO - 
+CREATE TABLE guilds (
+	id INTEGER NOT NULL, 
+	name VARCHAR, 
+	banned BOOLEAN, 
+	owner INTEGER, 
+	PRIMARY KEY (id)
+)
+
+
+sqlalchemy.engine.Engine - INFO - [no key 0.00004s] ()
+sqlalchemy.engine.Engine - INFO - CREATE INDEX ix_guilds_id ON guilds (id)
+sqlalchemy.engine.Engine - INFO - [no key 0.00003s] ()
+sqlalchemy.engine.Engine - INFO - 
+CREATE TABLE channels (
+	id INTEGER NOT NULL, 
+	nsfw BOOLEAN, 
+	name VARCHAR, 
+	PRIMARY KEY (id)
+)
+
+
+sqlalchemy.engine.Engine - INFO - [no key 0.00004s] ()
+sqlalchemy.engine.Engine - INFO - CREATE INDEX ix_channels_id ON channels (id)
+sqlalchemy.engine.Engine - INFO - [no key 0.00003s] ()
+sqlalchemy.engine.Engine - INFO - 
+CREATE TABLE jobs (
+	id INTEGER NOT NULL, 
+	data JSON, 
+	PRIMARY KEY (id)
+)
+
+
+sqlalchemy.engine.Engine - INFO - [no key 0.00003s] ()
+sqlalchemy.engine.Engine - INFO - CREATE INDEX ix_jobs_id ON jobs (id)
+sqlalchemy.engine.Engine - INFO - [no key 0.00003s] ()
+sqlalchemy.engine.Engine - INFO - 
+CREATE TABLE payments (
+	id INTEGER NOT NULL, 
+	user_id INTEGER, 
+	type VARCHAR, 
+	timestamp DATETIME, 
+	txid VARCHAR, 
+	"confirmedAt" DATETIME, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(user_id) REFERENCES users (id)
+)
+
+
+sqlalchemy.engine.Engine - INFO - [no key 0.00003s] ()
+sqlalchemy.engine.Engine - INFO - CREATE INDEX ix_payments_id ON payments (id)
+sqlalchemy.engine.Engine - INFO - [no key 0.00003s] ()
+sqlalchemy.engine.Engine - INFO - 
+CREATE TABLE images (
+	id INTEGER NOT NULL, 
+	user_id INTEGER, 
+	data BINARY, 
+	"UUID" VARCHAR, 
+	url VARCHAR, 
+	count INTEGER, 
+	model VARCHAR, 
+	prompt VARCHAR, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(user_id) REFERENCES users (id)
+)
+
+
+sqlalchemy.engine.Engine - INFO - [no key 0.00003s] ()
+sqlalchemy.engine.Engine - INFO - CREATE INDEX ix_images_id ON images (id)
+sqlalchemy.engine.Engine - INFO - [no key 0.00004s] ()
+sqlalchemy.engine.Engine - INFO - COMMIT
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT users.id, users.username, users.email, users.user_id, users."stripeID", users."hiveID", users.credits, users.tier, users.banned 
+FROM users 
+WHERE users.user_id = ?
+sqlalchemy.engine.Engine - INFO - [generated in 0.00013s] (879714655356997692,)
+stripe - INFO - message='Request to Stripe api' method=post url=https://api.stripe.com/v1/customers
+stripe - INFO - message='Stripe API response' path=https://api.stripe.com/v1/customers response_code=200
+sqlalchemy.engine.Engine - INFO - SELECT users.id, users.username, users.email, users.user_id, users."stripeID", users."hiveID", users.credits, users.tier, users.banned 
+FROM users 
+WHERE users.user_id = ?
+sqlalchemy.engine.Engine - INFO - [cached since 0.3271s ago] (879714655356997692,)
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+discord.app_commands.tree - ERROR - Ignoring exception in command 'imagine'
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 828, in _do_call
+    return await self._callback(interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/bot.py", line 235, in imagine
+    user_credits = await discord_balance_prompt(user_id=user_id, username=username)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/stripe_integration.py", line 96, in discord_balance_prompt
+    credits = user.credits
+              ^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'credits'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/tree.py", line 1248, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 853, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 846, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'imagine' raised an exception: AttributeError: 'NoneType' object has no attribute 'credits'
+discord.client - INFO - logging in using static token
+discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: c3071794630a505868c16b388e80fef7).
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("users")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("guilds")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("channels")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("payments")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("images")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("jobs")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - COMMIT
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT users.id, users.username, users.email, users.user_id, users."stripeID", users."hiveID", users.credits, users.tier, users.banned 
+FROM users 
+WHERE users.user_id = ?
+sqlalchemy.engine.Engine - INFO - [generated in 0.00011s] (879714655356997692,)
+stripe - INFO - message='Request to Stripe api' method=post url=https://api.stripe.com/v1/customers
+stripe - INFO - message='Stripe API response' path=https://api.stripe.com/v1/customers response_code=200
+sqlalchemy.engine.Engine - INFO - SELECT users.id, users.username, users.email, users.user_id, users."stripeID", users."hiveID", users.credits, users.tier, users.banned 
+FROM users 
+WHERE users.user_id = ?
+sqlalchemy.engine.Engine - INFO - [cached since 0.344s ago] (879714655356997692,)
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+discord.app_commands.tree - ERROR - Ignoring exception in command 'imagine'
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 828, in _do_call
+    return await self._callback(interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/bot.py", line 235, in imagine
+    user_credits = await discord_balance_prompt(user_id=user_id, username=username)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/stripe_integration.py", line 100, in discord_balance_prompt
+    print(user, credits, user_id, username)
+          ^^^^
+UnboundLocalError: cannot access local variable 'credits' where it is not associated with a value
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/tree.py", line 1248, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 853, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 846, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'imagine' raised an exception: UnboundLocalError: cannot access local variable 'credits' where it is not associated with a value
+discord.client - INFO - logging in using static token
+discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: d73c0ee36533bbea65f4cf58b3a7f8c0).
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("users")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("guilds")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("channels")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("payments")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("images")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("jobs")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - COMMIT
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT users.id, users.username, users.email, users.user_id, users."stripeID", users."hiveID", users.credits, users.tier, users.banned 
+FROM users 
+WHERE users.user_id = ?
+sqlalchemy.engine.Engine - INFO - [generated in 0.00017s] (879714655356997692,)
+stripe - INFO - message='Request to Stripe api' method=post url=https://api.stripe.com/v1/customers
+stripe - INFO - message='Stripe API response' path=https://api.stripe.com/v1/customers response_code=200
+sqlalchemy.engine.Engine - INFO - SELECT users.id, users.username, users.email, users.user_id, users."stripeID", users."hiveID", users.credits, users.tier, users.banned 
+FROM users 
+WHERE users.user_id = ?
+sqlalchemy.engine.Engine - INFO - [cached since 0.3731s ago] (879714655356997692,)
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+discord.app_commands.tree - ERROR - Ignoring exception in command 'imagine'
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 828, in _do_call
+    return await self._callback(interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/bot.py", line 237, in imagine
+    if user_credits < 5:  # Assuming 5 credits are needed
+       ^^^^^^^^^^^^^^^^
+TypeError: '<' not supported between instances of 'NoneType' and 'int'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/tree.py", line 1248, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 853, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 842, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'imagine' raised an exception: TypeError: '<' not supported between instances of 'NoneType' and 'int'
+discord.client - INFO - logging in using static token
+discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: f26bc8955e913900e93b043ce4ca6d14).
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("users")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("guilds")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("channels")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("payments")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("images")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("jobs")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - COMMIT
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT users.id, users.username, users.email, users.user_id, users."stripeID", users."hiveID", users.credits, users.tier, users.banned 
+FROM users 
+WHERE users.user_id = ?
+sqlalchemy.engine.Engine - INFO - [generated in 0.00011s] (879714655356997692,)
+stripe - INFO - message='Request to Stripe api' method=post url=https://api.stripe.com/v1/customers
+stripe - INFO - message='Stripe API response' path=https://api.stripe.com/v1/customers response_code=200
+sqlalchemy.engine.Engine - INFO - SELECT users.id, users.username, users.email, users.user_id, users."stripeID", users."hiveID", users.credits, users.tier, users.banned 
+FROM users 
+WHERE users.user_id = ?
+sqlalchemy.engine.Engine - INFO - [cached since 0.2566s ago] (879714655356997692,)
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+discord.app_commands.tree - ERROR - Ignoring exception in command 'imagine'
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 828, in _do_call
+    return await self._callback(interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/bot.py", line 245, in imagine
+    await interaction.response.defer(ephemeral=True)
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/interactions.py", line 639, in defer
+    raise InteractionResponded(self._parent)
+discord.errors.InteractionResponded: This interaction has already been responded to before
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/tree.py", line 1248, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 853, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 846, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'imagine' raised an exception: InteractionResponded: This interaction has already been responded to before
+discord.client - INFO - logging in using static token
+discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: e41b0c9e0e60ee6155431ec86d429fab).
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("users")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("guilds")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("channels")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("payments")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("images")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("jobs")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - COMMIT
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT users.id, users.username, users.email, users.user_id, users."stripeID", users."hiveID", users.credits, users.tier, users.banned 
+FROM users 
+WHERE users.user_id = ?
+sqlalchemy.engine.Engine - INFO - [generated in 0.00022s] (879714655356997692,)
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+discord.app_commands.tree - ERROR - Ignoring exception in command 'imagine'
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 828, in _do_call
+    return await self._callback(interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/bot.py", line 235, in imagine
+    user_credits = await discord_balance_prompt(user_id=user_id, username=username)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/stripe_integration.py", line 98, in discord_balance_prompt
+    await create_DB_user(user_id, username, "discord")
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/stripe_integration.py", line 28, in create_DB_user
+    user = User(user_id=user_id, username=username, source=source)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: __init__() got an unexpected keyword argument 'source'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/tree.py", line 1248, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 853, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 842, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'imagine' raised an exception: TypeError: __init__() got an unexpected keyword argument 'source'
+discord.client - INFO - logging in using static token
+discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 1a7f7349d8258f4f59b53726b7744fee).
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("users")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("guilds")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("channels")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("payments")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("images")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("jobs")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - COMMIT
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT users.id, users.username, users.email, users.user_id, users."stripeID", users."hiveID", users.credits, users.tier, users.banned 
+FROM users 
+WHERE users.user_id = ?
+sqlalchemy.engine.Engine - INFO - [generated in 0.00013s] (879714655356997692,)
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+discord.app_commands.tree - ERROR - Ignoring exception in command 'imagine'
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 828, in _do_call
+    return await self._callback(interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/bot.py", line 235, in imagine
+    user_credits = await discord_balance_prompt(user_id=user_id, username=username)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/stripe_integration.py", line 98, in discord_balance_prompt
+    await create_DB_user(user_id, username, source="discord")
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/stripe_integration.py", line 28, in create_DB_user
+    user = User(user_id=user_id, username=username, source=source)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: __init__() got an unexpected keyword argument 'source'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/tree.py", line 1248, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 853, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 842, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'imagine' raised an exception: TypeError: __init__() got an unexpected keyword argument 'source'
+discord.client - INFO - logging in using static token
+discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: acda04b2221bfd563f40450c3a9ca755).
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("users")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("guilds")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("channels")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("payments")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("images")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("jobs")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - COMMIT
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT users.id, users.username, users.email, users.user_id, users."stripeID", users."hiveID", users.credits, users.tier, users.banned 
+FROM users 
+WHERE users.user_id = ?
+sqlalchemy.engine.Engine - INFO - [generated in 0.00011s] (879714655356997692,)
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+discord.app_commands.tree - ERROR - Ignoring exception in command 'imagine'
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 828, in _do_call
+    return await self._callback(interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/bot.py", line 235, in imagine
+    user_credits = await discord_balance_prompt(user_id=user_id, username=username)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/stripe_integration.py", line 98, in discord_balance_prompt
+    await create_DB_user(user_id, username)
+  File "/home/alex/Documents/ComfyUI-SDXL-DiscordBot2/stripe_integration.py", line 28, in create_DB_user
+    user = User(user_id=user_id, username=username)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: __init__() missing 1 required positional argument: 'credits'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/tree.py", line 1248, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 853, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/miniconda3/lib/python3.11/site-packages/discord/app_commands/commands.py", line 842, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'imagine' raised an exception: TypeError: __init__() missing 1 required positional argument: 'credits'
+discord.client - INFO - logging in using static token
+discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: d4dbc9f47b2a16928bc61d3c61d6d41e).
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("users")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("guilds")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("channels")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("payments")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("images")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("jobs")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - COMMIT
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - SELECT users.id, users.username, users.email, users.user_id, users."stripeID", users."hiveID", users.credits, users.tier, users.banned 
+FROM users 
+WHERE users.user_id = ?
+sqlalchemy.engine.Engine - INFO - [generated in 0.00025s] (879714655356997692,)
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - INSERT INTO users (username, email, user_id, "stripeID", "hiveID", credits, tier, banned) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+sqlalchemy.engine.Engine - INFO - [generated in 0.00024s] ('datarevised', None, 879714655356997692, None, None, 100, 0, 0)
+sqlalchemy.engine.Engine - INFO - COMMIT
+sqlalchemy.engine.Engine - INFO - SELECT users.id, users.username, users.email, users.user_id, users."stripeID", users."hiveID", users.credits, users.tier, users.banned 
+FROM users 
+WHERE users.user_id = ?
+sqlalchemy.engine.Engine - INFO - [cached since 0.01952s ago] (879714655356997692,)
+sqlalchemy.engine.Engine - INFO - ROLLBACK
+sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("users")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("guilds")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("channels")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("payments")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("images")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("jobs")
+sqlalchemy.engine.Engine - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - INFO - COMMIT
