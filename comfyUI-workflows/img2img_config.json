@@ -1,9 +1,12 @@
 {
     "1": {
       "inputs": {
-        "ckpt_name": "Proteus-RunDiffusion.safetensors"
+        "ckpt_name": "proteus-rundiffusionV2.5.safetensors"
       },
-      "class_type": "CheckpointLoaderSimple"
+      "class_type": "CheckpointLoaderSimple",
+      "_meta": {
+        "title": "Proteus V2.5 Checkpoint"
+      }
     },
     "2": {
       "inputs": {
@@ -13,7 +16,10 @@
           1
         ]
       },
-      "class_type": "CLIPTextEncode"
+      "class_type": "CLIPTextEncode",
+      "_meta": {
+        "title": "Positive Prompt"
+      }
     },
     "3": {
       "inputs": {
@@ -23,7 +29,10 @@
           1
         ]
       },
-      "class_type": "CLIPTextEncode"
+      "class_type": "CLIPTextEncode",
+      "_meta": {
+        "title": "Negative Prompt"
+      }
     },
     "4": {
       "inputs": {
@@ -57,7 +66,10 @@
         "image": "",
         "choose file to upload": "image"
       },
-      "class_type": "LoadImage"
+      "class_type": "LoadImage",
+      "_meta": {
+        "title": "Load Image"
+      }
     },
     "6": {
       "inputs": {

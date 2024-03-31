@@ -11,7 +11,7 @@ def perform_search(text="studio ghibli", recursion=0):
     if recursion > 10:
         return
     # force alnum
-    results = requests.get(f"https://imageapi.same.energy/search?text={text}&n=100")
+    results = requests.get(f"https://imageapi.same.energy/search?text=art masterpiece best quality Atmospheric  {text}&n=100")
     
     if results.status_code == 200:
         if len(results.text.splitlines()) > 1:
