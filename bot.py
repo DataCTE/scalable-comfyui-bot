@@ -11,6 +11,10 @@ from payment_service import *
 from utils import config
 from typing import Optional
 from stripe_integration import *
+import functools
+import sqlite3
+import logging
+
 
 # setting up the bot
 config = configparser.ConfigParser()
@@ -30,9 +34,7 @@ tree = discord.app_commands.CommandTree(client)
 if IMAGE_SOURCE == "LOCAL":
     server_address = config.get("LOCAL", "SERVER_ADDRESS")
     from imageGen import generate_images, upscale_image, generate_alternatives
-elif IMAGE_SOURCE == "API":
-    config.get["API", "API_KEY"]["API", "API_HOST"]
-    from apiImageGen import generate_images, upscale_image, generate_alternatives
+
 
 
 # sync the slash command to your server
@@ -42,6 +44,26 @@ async def on_ready():
     await tree.sync()
     print(f"Logged in as {client.user.name} ({client.user.id})")
 
+
+def get_user_credits(user_id: str):
+    conn = sqlite3.connect(DATABASE_URL)
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("""
+            SELECT credits FROM credits WHERE user_id = ?
+        """, (user_id,))
+        credits = cursor.fetchone()
+        return credits[0] if credits else None
+
+    except sqlite3.Error as e:
+        logger.error(f"Database error: {str(e)}")
+        return None
+
+    finally:
+        cursor.close()
+        conn.close()
+        print(credits)
 
 async def extract_index_from_id(custom_id):
     try:
@@ -84,18 +106,19 @@ class Buttons(discord.ui.View):
         # Determine if re-roll button should be on its own row
         reroll_row = 1 if total_buttons <= 21 else 0
 
-        # Dynamically add alternative buttons
+        # Inside the Buttons class __init__ method, adjust the button callbacks setup
         for idx, image in enumerate(self.images):
-            row = (idx + 1) // 5 + reroll_row  # Determine row based on index and re-roll row
-            self.reroll_image = self.reroll_image(count=idx + 1)
-            btn = ImageButton(f"V{idx + 1}", "♻️", row, self.reroll_image)
+            row = (idx + 1) // 5 + reroll_row
+            # Use functools.partial to correctly prepare the callback with necessary arguments
+            reroll_callback = functools.partial(self.reroll_image, count=idx + 1)
+            btn = ImageButton(f"V{idx + 1}", "♻️", row, reroll_callback)
             self.add_item(btn)
 
-        # Dynamically add upscale buttons
         for idx, image in enumerate(self.images):
-            row = (idx + len(self.images) + 1) // 5 + reroll_row  # Determine row based on index, number of alternative buttons, and re-roll row
-            self.reroll_image = self.reroll_image(count=idx + 1)
-            btn = ImageButton(f"U{idx + 1}", "⬆️", row, self.upscale_image)
+            row = (idx + len(self.images) + 1) // 5 + reroll_row
+            # Similarly adjust for upscale_image
+            upscale_callback = functools.partial(self.upscale_image, count=idx + 1)
+            btn = ImageButton(f"U{idx + 1}", "⬆️", row, upscale_callback)
             self.add_item(btn)
 
     @classmethod
@@ -141,8 +164,26 @@ class Buttons(discord.ui.View):
             await interaction.response.send_message(
                 f'{interaction.user.mention} asked me to re-imagine the image, this shouldn\'t take too long...'
             )
-            button.disabled = True
-            await interaction.message.edit(view=self)
+            #credit check
+            user_credits = int(get_user_credits(self.user_id))
+            if user_credits is None:
+               #add them to the db 
+                username=interaction.user.name
+                user_id=interaction.user.id
+                await create_DB_user(user_id, username) 
+            elif user_credits < 5:  # Assuming 5 credits are needed
+                payment_link = await discord_recharge_prompt(interaction.user.name, self.user_id)
+                if payment_link == "failed":
+                    await interaction.response.send_message(
+                        "Failed to create payment link or payment itself failed. Please try again later.",
+                        ephemeral=True
+                    )
+                    return
+                await interaction.response.send_message(
+                    f"You don't have enough credits. Please recharge your account: {payment_link}",
+                    ephemeral=True
+                )
+                
 
             # Retrieve the prompt from the database
             conn = sqlite3.connect(DATABASE_URL)
@@ -170,7 +211,6 @@ class Buttons(discord.ui.View):
                     width=1024,
                     height=1024,
                     model=self.model,
-                    image=self.url
                 )
 
                 # Create a new collage for the re-rolled image
@@ -183,6 +223,8 @@ class Buttons(discord.ui.View):
                     file=discord.File(fp=collage_path, filename="collage.png"),
                     view=Buttons(prompt, self.negative_prompt, new_UUID, interaction.user.id, collage_path, self.model)
                 )
+            #after successful reroll, deduct credits
+                await deduct_credits(self.user_id, 5)
 
             except sqlite3.Error as e:
                 print(f"Database error: {str(e)}")
@@ -198,7 +240,7 @@ class Buttons(discord.ui.View):
             return print("interaction failed")
         
     
-    async def upscale_image(self, interaction: discord.Interaction, button: discord.ui.Button):
+    async def upscale_image(self, interaction: discord.Interaction, button: discord.ui.Button, count: int):
         try:
             index = await extract_index_from_id(button.custom_id)
             if index is None:
@@ -208,17 +250,36 @@ class Buttons(discord.ui.View):
             await interaction.response.send_message(
                 f'{interaction.user.mention} asked me to upscale the image, this shouldn\'t take too long...'
             )
-            button.disabled = True
-            await interaction.message.edit(view=self)
+            # check credits
+            user_credits = int(get_user_credits(user_id))
+            if user_credits is None:
+               #add them to the db 
+                username=interaction.user.name
+                user_id=interaction.user.id
+                await create_DB_user(user_id, username) 
+               
+            elif user_credits < 1:  # Assuming 5 credits are needed
+                payment_link = await discord_recharge_prompt(interaction.user.name, self.user_id)
+                if payment_link == "failed":
+                    await interaction.response.send_message(
+                        "Failed to create payment link or payment itself failed. Please try again later.",
+                        ephemeral=True
+                    )
+                    return
+                await interaction.response.send_message(
+                    f"You don't have enough credits. Please recharge your account: {payment_link}",
+                    ephemeral=True
+                )
+                return
+            
 
             conn = sqlite3.connect(DATABASE_URL)
             cursor = conn.cursor()
 
             try:
                 cursor.execute("""
-                    SELECT * FROM images
-                    WHERE UUID = ?
-                    ORDER BY count
+                    SELECT prompt FROM images
+                    WHERE UUID = ? AND COUNT = ? LIMIT 1
                 """, (self.UUID,))
                 images = cursor.fetchall()
 
@@ -240,6 +301,8 @@ class Buttons(discord.ui.View):
                         content=final_message,
                         file=discord.File(fp=upscaled_image_path, filename="upscaled_image.png")
                     )
+                    #deduct credits
+                    await deduct_credits(self.user_id, 1)
                 else:
                     await interaction.followup.send("Invalid image index.")
 
@@ -281,18 +344,13 @@ async def imagine(
     username = interaction.user.name
     user_id = interaction.user.id
 
-    user_credits = await discord_balance_prompt(user_id=user_id, username=username)
+    user_credits = int(get_user_credits(user_id))
+    
 
     if user_credits is None:
         # Handle case where user credits couldn't be retrieved
-        # This could happen due to an error or if the user doesn't exist
-        # You might want to log this or handle it based on your application logic
-        await interaction.response.send_message(
-            print(user_credits, user_id, username),
-            "Failed to retrieve user credits. Please try again later.",
-            ephemeral=True
-        )
-        await interaction.response.defer(ephemeral=True)
+        await create_DB_user(user_id, username)
+
     elif user_credits < 5:  # Assuming 5 credits are needed
         payment_link = await discord_recharge_prompt(username, user_id)
         if payment_link == "failed":
@@ -300,7 +358,7 @@ async def imagine(
                 "Failed to create payment link or payment itself failed. Please try again later.",
                 ephemeral=True
             )
-            exit  # Make sure to fix this to properly exit the function
+           
         await interaction.response.send_message(
             f"You don't have enough credits. Please recharge your account: {payment_link}",
             ephemeral=True
@@ -341,6 +399,9 @@ async def imagine(
         )
 
     collage_path = await create_collage(UUID)
+    if collage_path is None:
+        print(collage_path)
+        return 
     buttons_view = await Buttons.create(prompt, negative_prompt, UUID, interaction.user.id, collage_path, model)
 
     file = discord.File(collage_path, filename="collage.png")
@@ -359,6 +420,13 @@ async def recharge(
 
 ):
     user_id = interaction.user.id
+    username = interaction.user.name
+
+    #Make sure they exist in the db
+    user_credits = int(get_user_credits(user_id))
+    if user_credits is None:
+        await create_DB_user(user_id, username)
+
     payment_link = await create_payment_link(user_id, await get_default_pricing(stripe_product_id))
     if payment_link == "failed":
         await interaction.response.send_message(
@@ -378,7 +446,11 @@ async def balance(
 ):
     user_id = interaction.user.id
     username = interaction.user.name
-    user_credits = await discord_balance_prompt(user_id=user_id,  username=username)
+    # make sure they exist in the db 
+    user_credits = int(get_user_credits(user_id))
+    if user_credits is None:
+        await create_DB_user(user_id, username)
+
     await interaction.response.send_message(
         f"Your current balance is: {user_credits}",
         ephemeral=True

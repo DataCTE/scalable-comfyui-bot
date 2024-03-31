@@ -356,7 +356,7 @@ async def generate_images(
     )
     if model_node:
         # Before setting the model, ensure the model name is adjusted to remove ".safetensors" if present
-        model_name_adjusted = model + ".safetensors"
+        model_name_adjusted = str(model) + ".safetensors"
         workflow = edit_given_nodes_properties(
             workflow, model_node, "ckpt_name", model_name_adjusted
         )
@@ -483,7 +483,7 @@ async def style_images(
     model: str,
 ):
     
-
+    print(f"Processing image: {attachment.filename}")
     input_dir = "input"
     if not os.path.exists(input_dir):
         os.makedirs(input_dir, exist_ok=True)
@@ -553,7 +553,7 @@ async def style_images(
     )
     if model_node:
         # Before setting the model, ensure the model name is adjusted to remove ".safetensors" if present
-        model_name_adjusted = model + ".safetensors"
+        model_name_adjusted = str(model) + ".safetensors"
         workflow = edit_given_nodes_properties(
             workflow, model_node, "ckpt_name", model_name_adjusted
         )
@@ -698,7 +698,7 @@ async def generate_alternatives(
     )
     if model_node:
         # Before setting the model, ensure the model name is adjusted to remove ".safetensors" if present
-        model_name_adjusted = model + ".safetensors"
+        model_name_adjusted = str(model) + ".safetensors"
         workflow = edit_given_nodes_properties(
             workflow, model_node, "ckpt_name", model_name_adjusted
         )
@@ -791,7 +791,7 @@ async def upscale_image(
 
     if model_node:
         # Before setting the model, ensure the model name is adjusted to remove ".safetensors" if present
-        model_name_adjusted = model + ".safetensors"
+        model_name_adjusted = str(model) + ".safetensors"
         workflow = edit_given_nodes_properties(
             workflow, model_node, "ckpt_name", model_name_adjusted
         )
