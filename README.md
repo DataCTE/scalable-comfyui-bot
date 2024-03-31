@@ -61,3 +61,4 @@
 
 ## Advanced setup
 For more advanced configuration and custom workflows visit the [wiki](https://github.com/dab-bot/ComfyUI-SDXL-DiscordBot/wiki/Advanced-config)
+# DataPusle_bot
