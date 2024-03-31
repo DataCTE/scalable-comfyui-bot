@@ -287,9 +287,10 @@ async def imagine(
 @tree.command(name="recharge", description="Recharge credits with Stripe")
 async def recharge(
     interaction: discord.Interaction,
-    username: str,
-    user_id: str,
+
 ):
+    username = interaction.user.name
+    user_id = interaction.user.id
     payment_link = await discord_recharge_prompt(username, user_id)
     if payment_link == "failed":
         await interaction.response.send_message(
@@ -306,9 +307,9 @@ async def recharge(
 @tree.command(name="balance", description="Check your credit balance")
 async def balance(
     interaction: discord.Interaction,
-    username: str,
-    user_id: str,
 ):
+    username = interaction.user.name
+    user_id = interaction.user.id
     user_credits = await StripeIntegration.discord_balance_prompt(username, user_id)
     await interaction.response.send_message(
         f"Your current balance is: {user_credits}",
