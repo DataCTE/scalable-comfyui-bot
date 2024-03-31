@@ -4,7 +4,24 @@ from stripe_integration import create_payment_link, get_default_pricing, verify_
 
 DATABASE_URL = "./config/database.sqlite"
 
-async def create_DB_user(user_id, username):
+async def create_DB_user(user_id:str, username: str):
+    """
+    Creates a new user in the database with the specified user_id and username.
+    
+    Parameters:
+    user_id (str): The user's ID to be created.
+    username (str): The user's username to be created.
+    ----------
+    Returns:
+    bool: True if the user was created successfully, False otherwise.
+    
+    --------
+    Example:
+    >>> create_DB_user("1234567890", "JohnDoe")
+    True
+    # User 1234567890 created successfully with the username JohnDoe
+
+    """
     conn = sqlite3.connect(DATABASE_URL)
     cursor = conn.cursor()
 
@@ -24,10 +41,23 @@ async def create_DB_user(user_id, username):
         cursor.close()
         conn.close()
 
-async def deduct_credits(user_id, amount):
-    """Deducts a specified amount of credits from the user's account."""
-    user_id = str(user_id)
+async def deduct_credits(user_id:str, amount:int):
+    """Deducts a specified amount of credits from the user's account.
+    
+    Parameters:
+    user_id (str): The user's ID whose credits are to be deducted.
+    amount (int): The amount of credits to be deducted.
+    ----------
+    Returns:
+    bool: True if the credits were deducted successfully, False otherwise.
+    
+    --------
+    Example:
+    >>> deduct_credits("1234567890", 50)
+    True
+    # Credits deducted successfully for user 1234567890 in the amount of 50
 
+    """
     conn = sqlite3.connect(DATABASE_URL)
     cursor = conn.cursor()
 
@@ -63,7 +93,24 @@ async def deduct_credits(user_id, amount):
         cursor.close()
         conn.close()
 
-async def ensure_stripe_customer_exists(user_id, username, source):
+async def ensure_stripe_customer_exists(user_id:str, username:str, source:str):
+    """Ensures that a Stripe customer exists for the specified user.
+    
+    Parameters:
+    user_id (str): The user's ID whose Stripe customer is to be ensured.
+    username (str): The user's username whose Stripe customer is to be ensured.
+    source (str): The source of the user.
+    ----------
+    Returns:
+    None
+    
+    --------
+    Example:
+    >>> ensure_stripe_customer_exists("1234567890", "JohnDoe", "discord")
+    None
+    # Stripe customer ensured for user 1234567890 with the username JohnDoe
+    """
+    
     conn = sqlite3.connect(DATABASE_URL)
     cursor = conn.cursor()
 
@@ -87,7 +134,22 @@ async def ensure_stripe_customer_exists(user_id, username, source):
         cursor.close()
         conn.close()
 
-async def discord_recharge_prompt(username, user_id):
+async def discord_recharge_prompt(user_id:str, username:str):
+    """Prompts the user to recharge their account. If the prompt is successful, a payment link is generated.
+
+    Parameters:
+    user_id (str): The user's ID to be prompted.
+    username (str): The user's username to be prompted.
+    ----------
+    Returns:
+    str: The payment link URL if the prompt was successful, "failed" otherwise.
+    
+    --------
+    Example:
+    >>> discord_recharge_prompt("1234567890", "JohnDoe")
+    "https://example.com"
+    # Payment link generated successfully for user 1234567890 with the username JohnDoe
+    """
     conn = sqlite3.connect(DATABASE_URL)
     cursor = conn.cursor()
 
@@ -127,7 +189,22 @@ async def discord_recharge_prompt(username, user_id):
         cursor.close()
         conn.close()
 
-async def discord_balance_prompt(user_id, username):
+async def discord_balance_prompt(user_id:str, username:str):
+    """Prompts the user to check their account balance.
+
+    Parameters:
+    user_id (str): The user's ID to be prompted.
+    username (str): The user's username to be prompted.
+    ----------
+    Returns:
+    str: The user's account balance if the prompt was successful, "failed" otherwise.
+
+    --------
+    Example:
+    >>> discord_balance_prompt("1234567890", "JohnDoe")
+    "100"
+    # Account balance checked successfully for user 1234567890 with the username JohnDoe
+    """
     conn = sqlite3.connect(DATABASE_URL)
     cursor = conn.cursor()
 
