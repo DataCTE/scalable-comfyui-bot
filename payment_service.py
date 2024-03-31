@@ -40,6 +40,57 @@ async def create_DB_user(user_id:str, username: str):
     finally:
         cursor.close()
         conn.close()
+async def add_credits(user_id:str, amount:int):
+    """Adds a specified amount of credits to the user's account.
+
+    Parameters:
+    user_id (str): The user's ID whose credits are to be added.
+    amount (int): The amount of credits to be added.
+    ----------
+    Returns:
+    bool: True if the credits were added successfully, False otherwise.
+    
+    --------
+    Example:
+    >>> add_credits("1234567890", 50)
+    True
+    # Credits added successfully for user 1234567890 in the amount of 50
+    """
+    conn = sqlite3.connect(DATABASE_URL)
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("""
+            SELECT * FROM users WHERE user_id = ?
+        """, (user_id,))
+        user = cursor.fetchone()
+
+        if user:
+            current_credits = user[3]  # Assuming credits is the 4th column in the users table
+            new_credits = current_credits + amount
+
+            cursor.execute("""
+                UPDATE credits SET credits = ? WHERE user_id = ?
+            """, (new_credits, user_id))
+            conn.commit()
+            print(f"Credits added successfully for user {user_id}")
+            return True
+        else:
+            print(f"User {user_id} not found")
+            return False
+
+    except sqlite3.Error as e:
+        print(f"Database error: {str(e)}")
+        return False
+
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+        return False
+
+    finally:
+        cursor.close()
+        conn.close()
+
 
 async def deduct_credits(user_id:str, amount:int):
     """Deducts a specified amount of credits from the user's account.
