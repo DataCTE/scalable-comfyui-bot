@@ -210,3 +210,19 @@ async def discord_balance_prompt(user_id:str, username:str):
     finally:
         cursor.close()
         conn.close()
+
+async def add_credits(user_id: str, amount: int):
+    conn = sqlite3.connect(DATABASE_URL)
+    cursor = conn.cursor()
+    try:
+        cursor.execute("""
+            UPDATE credits SET credits = credits + ? WHERE user_id = ?
+        """, (amount, user_id))
+        conn.commit()
+        return True
+    except sqlite3.Error as e:
+        print(f"Database error: {str(e)}")
+        return False
+    finally:
+        cursor.close()
+        conn.close()

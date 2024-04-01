@@ -40,11 +40,7 @@ if IMAGE_SOURCE == "LOCAL":
 
 
 
-@client.event
-async def on_ready():
-    init_db()  # Initialize DB
-    await tree.sync()
-    print(f"Logged in as {client.user.name} ({client.user.id})")
+
 
 
 
@@ -313,7 +309,33 @@ class Buttons(discord.ui.View):
         
 
 
+@client.event
+async def on_message(message):
+    if message.author == client.user:
+        return
+    print(message.content)
+    if message.content.startswith('!addcredits'):
+        await handle_addcredits(message)
 
+async def handle_addcredits(message):
+    authorized_users = ['879714655356997692', 'user_id_2']  # Replace with the user IDs of authorized users
+    if str(message.author.id) not in authorized_users:
+        await message.channel.send("You are not authorized to use this command.")
+        return
+
+    try:
+        _, amount, user_mention = message.content.split(' ', 2)
+        amount = int(amount)
+        user_id = user_mention.strip('<@!>') if user_mention.startswith('<@') else user_mention
+    except (ValueError, IndexError):
+        await message.channel.send("Invalid command format. Usage: !addcredits <amount> <@user>")
+        return
+
+    success = await add_credits(user_id, amount)
+    if success:
+        await message.channel.send(f"Successfully added {amount} credits to <@{user_id}>.")
+    else:
+        await message.channel.send(f"Failed to add credits to <@{user_id}>.")
 
 @tree.command(name="imagine", description="Generate an image based on input text")
 @app_commands.describe(prompt="Prompt for the image being generated")
@@ -461,6 +483,12 @@ def generate_bot_invite_link(client_id):
     )
     return invite_link
 
+
+@client.event
+async def on_ready():
+    init_db()  # Initialize DB
+    await tree.sync()  # Sync the slash commands
+    print(f"Logged in as {client.user.name} ({client.user.id})")
 
 # Example usage
 client_id = "1222513177699422279"  # Replace with your bot's client ID
