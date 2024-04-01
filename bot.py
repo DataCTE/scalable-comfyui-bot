@@ -14,6 +14,7 @@ from stripe_integration import *
 import functools
 import sqlite3
 import logging
+from discord.ext import commands
 # sync the slash command to your server
 
 
@@ -30,9 +31,10 @@ stripe_product_id = config.get("STRIPE", "PRODUCT_ID")
 
 
 stripe.api_key = stripe_api_key
-intents = discord.Intents.default()
-client = discord.Client(intents=intents)
-tree = discord.app_commands.CommandTree(client)
+intents = discord.Intents.all()
+intents.members = True  # Enable the members intent
+client = commands.Bot(command_prefix="!", intents=intents, application_id=1179756788032225301, tree_cls=discord.app_commands.CommandTree)
+
 
 if IMAGE_SOURCE == "LOCAL":
     server_address = config.get("LOCAL", "SERVER_ADDRESS")
@@ -311,11 +313,19 @@ class Buttons(discord.ui.View):
 
 @client.event
 async def on_message(message):
+    print("Message received")  # Debugging line
     if message.author == client.user:
+        print("Message is from the bot itself")  # Debugging line
         return
-    print(message.content)
+    print(f"Message content: {message.content}")  # Debugging line
     if message.content.startswith('!addcredits'):
+        print("Handling !addcredits command")  # Debugging line
         await handle_addcredits(message)
+    else:
+        print("Message does not start with !addcredits")  # Debugging line
+    await client.process_commands(message)
+    
+    await client.process_commands(message)  # Add this line
 
 async def handle_addcredits(message):
     authorized_users = ['879714655356997692', 'user_id_2']  # Replace with the user IDs of authorized users
@@ -331,13 +341,13 @@ async def handle_addcredits(message):
         await message.channel.send("Invalid command format. Usage: !addcredits <amount> <@user>")
         return
 
-    success = await add_credits(user_id, amount)
+    success = await add_credits(user_id, amount)  # Implement the add_credits function
     if success:
         await message.channel.send(f"Successfully added {amount} credits to <@{user_id}>.")
     else:
         await message.channel.send(f"Failed to add credits to <@{user_id}>.")
 
-@tree.command(name="imagine", description="Generate an image based on input text")
+@client.tree.command(name="imagine", description="Generate an image based on input text")
 @app_commands.describe(prompt="Prompt for the image being generated")
 @app_commands.describe(negative_prompt="Prompt for what you want to steer the AI away from")
 @app_commands.describe(batch_size="Number of images to generate" )
@@ -429,7 +439,7 @@ async def imagine(
     
     return UUID 
 
-@tree.command(name="recharge", description="Recharge credits with Stripe")
+@client.tree.command(name="recharge", description="Recharge credits with Stripe")
 async def recharge(
     interaction: discord.Interaction,
 
@@ -457,7 +467,7 @@ async def recharge(
    
     
 
-@tree.command(name="balance", description="Check your credit balance")
+@client.tree.command(name="balance", description="Check your credit balance")
 async def balance(
     interaction: discord.Interaction,
 ):
@@ -487,9 +497,8 @@ def generate_bot_invite_link(client_id):
 @client.event
 async def on_ready():
     init_db()  # Initialize DB
-    await tree.sync()  # Sync the slash commands
+    
     print(f"Logged in as {client.user.name} ({client.user.id})")
-
 # Example usage
 client_id = "1222513177699422279"  # Replace with your bot's client ID
 invite_link = generate_bot_invite_link(client_id)
