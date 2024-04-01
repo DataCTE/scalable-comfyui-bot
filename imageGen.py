@@ -1,5 +1,4 @@
 import websockets
-import uuid
 import json
 import random
 import urllib.request
@@ -81,7 +80,7 @@ def upload_image(filepath, subfolder=None, folder_type=None, overwrite=False):
 
 
 
-async def save_images(images, user_id, UUID, model, prompt):
+async def save_images(images, user_id, UUID_list, model, prompt):
     conn = sqlite3.connect(DATABASE_URL)
     cursor = conn.cursor()
 
@@ -98,9 +97,9 @@ async def save_images(images, user_id, UUID, model, prompt):
 
             # Insert the image data into the database
             cursor.execute("""
-                INSERT INTO images (url, data, user_id, UUID, count, model, prompt)
+                INSERT INTO images (url, data, user_id, UUID_list, count, model, prompt)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
-            """, (image_path, blob, user_id, UUID, count, model, prompt))
+            """, (image_path, blob, user_id, UUID_list, count, model, prompt))
 
             count += 1
 
@@ -151,16 +150,16 @@ async def get_image_from_database(image_id):
         conn.close()
 
 
-async def create_collage(UUID: str):
+async def create_collage(UUID_list: str):
     conn = sqlite3.connect(DATABASE_URL)
     cursor = conn.cursor()
 
     try:
         cursor.execute("""
             SELECT * FROM images
-            WHERE UUID = ?
+            WHERE UUID_list = ?
             ORDER BY count
-        """, (UUID,))
+        """, (UUID_list,))
         images = cursor.fetchall()
 
         # Open the first image to get its width and height
@@ -182,7 +181,7 @@ async def create_collage(UUID: str):
             collage.paste(img, (col * image_width, row * image_height))
 
         # Save the collage to a file
-        collage_path = f"collageimages/collage_{UUID}.png"
+        collage_path = f"collageimages/collage_{UUID_list}.png"
         collage.save(collage_path)
 
         return collage_path
@@ -202,7 +201,7 @@ async def create_collage(UUID: str):
 
 class ImageGenerator:
     def __init__(self):
-        self.client_id = str(uuid.uuid4())
+        self.client_id = str(UUID_list.UUID_list4())
         self.uri = f"ws://{server_address}/ws?clientId={self.client_id}"
         self.ws = None
 
@@ -295,7 +294,7 @@ async def evaluate_images_with_image_reward(prompt: str, img_list: list):
    
 
 async def generate_images(
-    UUID: str,
+    UUID_list: list,  # - todo : UUID_list str array (one per image)
     user_id: int,
     prompt: str,
     negative_prompt: str,
@@ -304,6 +303,9 @@ async def generate_images(
     height: int,
     model: str,
 ):
+    
+
+
 
     # Your existing logic to prepare for image generation...
     with open(text2img_config, "r") as file:
@@ -378,7 +380,7 @@ async def generate_images(
     
     
     await generator.close()
-    await save_images(images, user_id, UUID, model, prompt)
+    await save_images(images, user_id, UUID_list, model, prompt)
 
 
 """
@@ -483,7 +485,7 @@ logging.basicConfig(
 
 
 async def style_images(
-    UUID: str,
+    UUID_list: str,
     user_id: int,
     prompt: str,
     attachment: discord.Attachment,
@@ -630,11 +632,11 @@ async def style_images(
     print(f"Images generated: {images}")
     await generator.close()
     # Save the images to the database
-    await save_images(images, user_id, UUID, model, prompt)
+    await save_images(images, user_id, UUID_list, model, prompt)
 
 
 async def generate_alternatives(
-    UUID: str,
+    UUID_list: str,
     user_id: int,
     index: int,
     prompt: str,
@@ -644,7 +646,10 @@ async def generate_alternatives(
     height: int,
     model: str,
 ):
-    image_id = index + UUID
+    
+    #forasd
+
+    image_id = index + UUID_list
     #get image from db
     inputname = await get_image_from_database(image_id)
 
@@ -729,13 +734,13 @@ async def generate_alternatives(
     images = await generator.get_images(workflow)
     print(f"Images generated: {images}")
     await generator.close()
-    await save_images(images, user_id, UUID, model, prompt)
+    await save_images(images, user_id, UUID_list, model, prompt)
     
     return images
 
 
 async def upscale_image(
-    UUID: str,
+    UUID_list: str,
     user_id: int,
     image: PILImage.Image,
     prompt: str,
@@ -788,7 +793,7 @@ async def upscale_image(
     images = await generator.get_images(workflow)
     print(f"Images generated: {images}")
     await generator.close()
-    await save_images(images, user_id, UUID, model, prompt)
+    await save_images(images, user_id, UUID_list, model, prompt)
     
     return images[0]
 

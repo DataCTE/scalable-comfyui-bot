@@ -6,7 +6,7 @@ from PIL import Image
 from datetime import datetime
 from db import init_db
 from imageGen import *
-import uuid
+from UUID import uuid4
 from payment_service import *
 from utils import config
 from typing import Optional
@@ -94,9 +94,9 @@ class ImageButton(discord.ui.Button):
 
 
 class Buttons(discord.ui.View):
-    def __init__(self, prompt, negative_prompt, UUID, user_id, url, model, images, timeout=10000000000000):
+    def __init__(self, prompt, negative_prompt, UUID_list, user_id, url, model, images, timeout=10000000000000):
         super().__init__(timeout=timeout)
-        self.UUID = UUID  # Store the UUID
+        self.UUID_list = UUID_list  # Store the UUID_list
         self.prompt = prompt
         self.negative_prompt = negative_prompt
         self.user_id = user_id
@@ -129,7 +129,7 @@ class Buttons(discord.ui.View):
             self.add_item(btn)
 
     @classmethod
-    async def create(cls, prompt, negative_prompt, UUID, user_id, url, model):
+    async def create(cls, prompt, negative_prompt, UUID_list, user_id, url, model):
         def get_images():
             conn = sqlite3.connect(DATABASE_URL)
             cursor = conn.cursor()
@@ -137,9 +137,9 @@ class Buttons(discord.ui.View):
             try:
                 cursor.execute("""
                     SELECT * FROM images
-                    WHERE UUID = ? AND user_id = ?
+                    WHERE UUID_list = ? AND user_id = ?
                     ORDER BY count
-                """, (UUID, user_id))
+                """, (UUID_list, user_id))
                 images = cursor.fetchall()
                 return images
 
@@ -156,13 +156,13 @@ class Buttons(discord.ui.View):
                 conn.close()
 
         images = await asyncio.to_thread(get_images)
-        return cls(prompt, negative_prompt, UUID, user_id, url, model, images)
+        return cls(prompt, negative_prompt, UUID_list, user_id, url, model, images)
 
     
     async def reroll_image(self, interaction: discord.Interaction, button: discord.ui.Button, count: int):
         try:
             batch_size = 4
-            # Grab the button number and then convert that to count to grab with the UUID from the db
+            # Grab the button number and then convert that to count to grab with the UUID_list from the db
             index = await extract_index_from_id(button.custom_id)
             if index is None:
                 await interaction.response.send_message("Invalid custom_id format. Please ensure it contains a numeric index.")
@@ -201,17 +201,17 @@ class Buttons(discord.ui.View):
             try:
                 cursor.execute("""
                     SELECT prompt FROM images
-                    WHERE UUID = ? AND COUNT = ? LIMIT 1
-                """, (self.UUID, count))
+                    WHERE UUID_list = ? AND COUNT = ? LIMIT 1
+                """, (self.UUID_list, count))
                 result = cursor.fetchone()
                 prompt = result[0] if result else self.prompt  # Use the original prompt as a fallback
 
-                # Generate a new UUID for the re-rolled image
-                new_UUID = str(uuid.uuid4())
+                # Generate a new UUID_list for the re-rolled image
+                new_UUID_list = str(UUID_list.UUID_list4())
 
                 # Generate a new image with the retrieved prompt
                 await generate_alternatives(
-                    UUID=new_UUID,
+                    UUID_list=new_UUID_list,
                     index=index,
                     user_id=interaction.user.id,
                     prompt=prompt,
@@ -223,14 +223,14 @@ class Buttons(discord.ui.View):
                 )
 
                 # Create a new collage for the re-rolled image
-                collage_path = await create_collage(UUID=new_UUID)
+                collage_path = await create_collage(UUID_list=new_UUID_list)
 
                 # Construct the final message with user mention
                 final_message = f'{interaction.user.mention} asked me to re-imagine the image, here is what I imagined for them. "{prompt}", "{self.model}"'
                 await interaction.channel.send(
                     content=final_message,
                     file=discord.File(fp=collage_path, filename="collage.png"),
-                    view=Buttons(prompt, self.negative_prompt, new_UUID, interaction.user.id, collage_path, self.model)
+                    view=Buttons(prompt, self.negative_prompt, new_UUID_list, interaction.user.id, collage_path, self.model)
                 )
             #after successful reroll, deduct credits
                 amount = user_credits - 5 
@@ -291,8 +291,8 @@ class Buttons(discord.ui.View):
             try:
                 cursor.execute("""
                     SELECT prompt FROM images
-                    WHERE UUID = ? AND COUNT = ? LIMIT 1
-                """, (self.UUID,))
+                    WHERE UUID_list = ? AND COUNT = ? LIMIT 1
+                """, (self.UUID_list,))
                 images = cursor.fetchall()
 
                 if index < len(images):
@@ -405,16 +405,23 @@ async def imagine(
 
 
 
-    
 
-    UUID = str(uuid.uuid4())  # Generate unique hash for each image
+
+    
+    #UUID_list = str(UUID.UUID())  # Generate unique hash for each image
+
+    UUID_list = []
+
+    for i in batch_size:
+        UUID_list.append(uuid4())   # - todo > images as hashes
+
     prompt_gen = f"{prompt}, masterpiece, best quality"
 
     if attachment:
         #save input image 
         
         await style_images(
-            UUID=UUID,
+            UUID_list=UUID_list,
             user_id=interaction.user.id,
             prompt=prompt_gen,
             attachment=attachment,
@@ -426,7 +433,7 @@ async def imagine(
         )
     else:
         await generate_images(
-            UUID=UUID,
+            UUID_list=UUID_list,
             user_id=interaction.user.id,
             prompt=prompt_gen,
             negative_prompt=negative_prompt,
@@ -436,11 +443,11 @@ async def imagine(
             model=model,
         )
 
-    collage_path = await create_collage(UUID)
+    collage_path = await create_collage(UUID_list)
     if collage_path is None:
         print(collage_path)
         return 
-    buttons_view = await Buttons.create(prompt, negative_prompt, UUID, interaction.user.id, collage_path, model)
+    buttons_view = await Buttons.create(prompt, negative_prompt, UUID_list, interaction.user.id, collage_path, model)
 
     file = discord.File(collage_path, filename="collage.png")
     final_message = f'{interaction.user.mention}, here is what I imagined for you with "{prompt}", "{model}":'
@@ -454,7 +461,7 @@ async def imagine(
         await deduct_credits(user_id, amount)
         
     
-    return UUID 
+    return UUID_list 
 
 @tree.command(name="recharge", description="Recharge credits with Stripe")
 async def recharge(

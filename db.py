@@ -73,7 +73,7 @@ def create_tables(conn):
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id TEXT,
             data BLOB,
-            UUID TEXT,
+            UUID_list TEXT,
             url TEXT,
             count INTEGER,
             model TEXT,
