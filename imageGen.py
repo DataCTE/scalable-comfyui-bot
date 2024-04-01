@@ -33,6 +33,16 @@ img2img_config = config["LOCAL_IMG2IMG"]["CONFIG"]
 upscale_config = config["LOCAL_UPSCALE"]["CONFIG"]
 style_config = config["LOCAL_STYLE2IMG"]["CONFIG"]
 
+async def save_discord_attachment(attachment: discord.Attachment):
+    """Save the attachment from Discord to a specific directory with a unique filename."""
+    os.makedirs('input', exist_ok=True)  # Ensure the directory exists
+    random_int = random.randint(1000, 9999)
+    filename = f"inputimage_{random_int}.png"
+    filepath = os.path.join('input', filename)
+
+    # Save the attachment using the discord.py library's save method
+    await attachment.save(filepath)
+    return filepath
 
 def queue_prompt(prompt, client_id):
     p = {"prompt": prompt, "client_id": client_id}
@@ -327,7 +337,8 @@ async def generate_images(
         "Model Checkpoint", workflow, "title", whether_to_use_meta=True
     )
 
-    
+    if model == "AnimeP":
+        workflow = edit_given_nodes_properties( workflow ,ksampler_nodes, "sampler_name", "euler_ancestral")
 
     # Modify the prompt dictionary
     if prompt != None and prompt_nodes[0] != "":
@@ -483,28 +494,10 @@ async def style_images(
     model: str,
 ):
     
-    print(f"Processing image: {attachment.filename}")
-    input_dir = "input"
-    if not os.path.exists(input_dir):
-        os.makedirs(input_dir, exist_ok=True)
-        logging.info(f"Created directory: {input_dir}")
-
-    # Generate a unique filename for the attachment
-    random_number = random.randint(0, 10000000)
-    inputname = os.path.join(input_dir, f"attachment{random_number}.png")
-    print(f"Generated filename: {inputname}")
-    # Attempt to save the attachment to the generated filename
-    try:
-        with open(inputname, "wb") as file:
-            await attachment.save(file)
-    except Exception as e:
-        print(f"Error saving attachment: {e}")
-        # Consider how to handle this error in your bot's context
-        return
-
-    print(f"Processing image: {inputname}")
+   
+    # Save the attachment to a file
+    inputname = await save_discord_attachment(attachment)
     filename_without_directory = os.path.basename(inputname)
-    print(f"Filename without directory: {filename_without_directory}")
 
     # Load the workflow configuration
     with open(style_config, "r") as file:
@@ -531,7 +524,8 @@ async def style_images(
     neg_prompt_nodes = search_for_nodes_with_key(
         "Negative Prompt", workflow, "title", whether_to_use_meta=True
     )
-
+    if model == "AnimeP":
+        workflow = edit_given_nodes_properties( workflow ,ksampler_nodes, "sampler_name", "euler_ancestral")
     if prompt_nodes:
         workflow = edit_given_nodes_properties(workflow, prompt_nodes, "text", prompt)
     if neg_prompt_nodes:
@@ -705,7 +699,8 @@ async def generate_alternatives(
 
     default_width = 1024
     default_height = 1024
-
+    if model == "AnimeP":
+        workflow = edit_given_nodes_properties( workflow ,ksampler_nodes, "sampler_name", "euler_ancestral")
     # Modify the workflow nodes for width and height with provided values or defaults
     workflow = edit_given_nodes_properties(
         workflow,
@@ -749,21 +744,7 @@ async def upscale_image(
 ):
     
     # Ensure the 'input' directory exists
-    input_dir = "input"
-    if not os.path.exists(input_dir):
-        os.makedirs(input_dir, exist_ok=True)
-        logging.info(f"Created directory: {input_dir}")
-
-    # Generate a unique filename for the image
-    random_number = random.randint(0, 10000000)
-    inputname = os.path.join(input_dir, f"image{random_number}.png")
-    print(f"Generated filename: {inputname}")
-    # Save the image to the generated filename
-    image.save(inputname, format="PNG")
-
-    print(f"Processing image: {inputname}")
-    filename_without_directory = os.path.basename(inputname)
-    print(f"Filename without directory: {filename_without_directory}")
+    inputname = await save_discord_attachment(attachment)
 
     # Load the workflow configuration
     with open(upscale_config, "r") as file:

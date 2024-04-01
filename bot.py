@@ -13,9 +13,11 @@ from typing import Optional
 from stripe_integration import *
 import functools
 import sqlite3
-import logging
-from discord.ext import commands
-# sync the slash command to your server
+from transformers import VisionEncoderDecoderModel, ViTImageProcessor, AutoTokenizer
+import torch
+import asyncio
+
+
 
 
         
@@ -33,7 +35,8 @@ stripe_product_id = config.get("STRIPE", "PRODUCT_ID")
 stripe.api_key = stripe_api_key
 intents = discord.Intents.all()
 intents.members = True  # Enable the members intent
-client = commands.Bot(command_prefix="!", intents=intents, application_id=1179756788032225301, tree_cls=discord.app_commands.CommandTree)
+client = discord.Client(intents=intents)
+tree = discord.app_commands.CommandTree(client)
 
 
 if IMAGE_SOURCE == "LOCAL":
@@ -44,6 +47,27 @@ if IMAGE_SOURCE == "LOCAL":
 
 
 
+
+model = VisionEncoderDecoderModel.from_pretrained("nlpconnect/vit-gpt2-image-captioning")
+processor = ViTImageProcessor.from_pretrained("nlpconnect/vit-gpt2-image-captioning")
+tokenizer = AutoTokenizer.from_pretrained("nlpconnect/vit-gpt2-image-captioning")
+
+# Move the model to the GPU if available
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model.to(device)
+
+async def generate_caption(image):
+    # Convert the image to RGB format
+    image = image.convert("RGB")
+
+    # Process the image and generate the caption
+    pixel_values = processor(image, return_tensors="pt").pixel_values
+    pixel_values = pixel_values.to(device)  # Move the pixel values to the GPU
+
+    output = model.generate(pixel_values, max_length=50, num_beams=4)
+    caption = tokenizer.decode(output[0], skip_special_tokens=True)
+
+    return caption
 
 
 
@@ -310,44 +334,32 @@ class Buttons(discord.ui.View):
             print("Interaction already responded")
         
 
-
 @client.event
-async def on_message(message):
-    print("Message received")  # Debugging line
-    if message.author == client.user:
-        print("Message is from the bot itself")  # Debugging line
-        return
-    print(f"Message content: {message.content}")  # Debugging line
-    if message.content.startswith('!addcredits'):
-        print("Handling !addcredits command")  # Debugging line
-        await handle_addcredits(message)
+async def on_ready():
+    init_db()  # Initialize DB
+    await tree.sync()
+    print(f"Logged in as {client.user.name} ({client.user.id})")
+
+
+@tree.command(name="describe", description="Describe an image")
+@app_commands.describe(image="Image to describe")
+async def describe(interaction: discord.Interaction, image: discord.Attachment):
+    if image:
+        # Retrieve the image data from the attachment
+        image_data = await image.read()
+
+        # Open the image using Pillow
+        image = Image.open(BytesIO(image_data))
+
+        # Generate the caption using the pre-trained model
+        caption = await asyncio.to_thread(generate_caption, image)
+
+        # Send the generated caption as a response
+        await interaction.response.send_message(content=caption)
     else:
-        print("Message does not start with !addcredits")  # Debugging line
-    await client.process_commands(message)
-    
-    await client.process_commands(message)  # Add this line
+        await interaction.response.send_message("Please provide a valid image attachment.")
 
-async def handle_addcredits(message):
-    authorized_users = ['879714655356997692', 'user_id_2']  # Replace with the user IDs of authorized users
-    if str(message.author.id) not in authorized_users:
-        await message.channel.send("You are not authorized to use this command.")
-        return
-
-    try:
-        _, amount, user_mention = message.content.split(' ', 2)
-        amount = int(amount)
-        user_id = user_mention.strip('<@!>') if user_mention.startswith('<@') else user_mention
-    except (ValueError, IndexError):
-        await message.channel.send("Invalid command format. Usage: !addcredits <amount> <@user>")
-        return
-
-    success = await add_credits(user_id, amount)  # Implement the add_credits function
-    if success:
-        await message.channel.send(f"Successfully added {amount} credits to <@{user_id}>.")
-    else:
-        await message.channel.send(f"Failed to add credits to <@{user_id}>.")
-
-@client.tree.command(name="imagine", description="Generate an image based on input text")
+@tree.command(name="imagine", description="Generate an image based on input text")
 @app_commands.describe(prompt="Prompt for the image being generated")
 @app_commands.describe(negative_prompt="Prompt for what you want to steer the AI away from")
 @app_commands.describe(batch_size="Number of images to generate" )
@@ -399,11 +411,13 @@ async def imagine(
     prompt_gen = f"{prompt}, masterpiece, best quality"
 
     if attachment:
+        #save input image 
+        
         await style_images(
             UUID=UUID,
             user_id=interaction.user.id,
             prompt=prompt_gen,
-            attachment=attachment.url if attachment else None,
+            attachment=attachment,
             negative_prompt=negative_prompt,
             batch_size=batch_size,
             width=width,
@@ -432,14 +446,17 @@ async def imagine(
     final_message = f'{interaction.user.mention}, here is what I imagined for you with "{prompt}", "{model}":'
     
     await interaction.followup.send(content=final_message, file=file, view=buttons_view, ephemeral=False)
-    amount = user_credits - 5 
-    print(amount)
-    await deduct_credits(user_id, amount)
-    
+    if user_id == "879714655356997692":
+        print("User ID matches the specified value. Skipping credit deduction.")
+    else:
+        amount = user_credits - 5
+        print(amount)
+        await deduct_credits(user_id, amount)
+        
     
     return UUID 
 
-@client.tree.command(name="recharge", description="Recharge credits with Stripe")
+@tree.command(name="recharge", description="Recharge credits with Stripe")
 async def recharge(
     interaction: discord.Interaction,
 
@@ -467,7 +484,7 @@ async def recharge(
    
     
 
-@client.tree.command(name="balance", description="Check your credit balance")
+@tree.command(name="balance", description="Check your credit balance")
 async def balance(
     interaction: discord.Interaction,
 ):
@@ -494,11 +511,7 @@ def generate_bot_invite_link(client_id):
     return invite_link
 
 
-@client.event
-async def on_ready():
-    init_db()  # Initialize DB
-    
-    print(f"Logged in as {client.user.name} ({client.user.id})")
+
 # Example usage
 client_id = "1222513177699422279"  # Replace with your bot's client ID
 invite_link = generate_bot_invite_link(client_id)
