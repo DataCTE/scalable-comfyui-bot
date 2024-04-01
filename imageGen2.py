@@ -1,5 +1,5 @@
 import websockets
-import UUID_list
+import uuid
 import json
 import random
 import urllib.request
@@ -54,7 +54,7 @@ def upload_image(filepath, subfolder=None, folder_type=None, overwrite=False):
 
 class ImageGenerator:
     def __init__(self):
-        self.client_id = str(UUID_list.UUID_list4())
+        self.client_id = str(uuid.uuid4())
         self.uri = f"ws://{server_address}/ws?clientId={self.client_id}"
         self.ws = None
 
