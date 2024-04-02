@@ -490,8 +490,6 @@ logging.basicConfig(
 )
 
 
-
-
 async def style_images(
     UUID: str,
     user_id: int,
@@ -504,7 +502,6 @@ async def style_images(
     model: str,
 ):
     
-   
     # Save the attachment to a file
     inputname = await save_discord_attachment(attachment)
     filename_without_directory = os.path.basename(inputname)
@@ -654,11 +651,8 @@ async def generate_alternatives(
     height: int,
     model: str,
 ):
-    image_id = index + UUID
     #get image from db
-    inputname = await get_image_from_database(image_id)
-
-
+    inputname = await get_image_from_database(UUID)
 
     # Load the workflow configuration
     with open(img2img_config, "r") as file:
