@@ -1,6 +1,7 @@
 import discord
 import discord.ext
 from discord import app_commands
+from discord.app_commands import Choice
 import configparser
 from PIL import Image
 from datetime import datetime
@@ -41,9 +42,19 @@ tree = discord.app_commands.CommandTree(client)
 
 if IMAGE_SOURCE == "LOCAL":
     server_address = config.get("LOCAL", "SERVER_ADDRESS")
-    from imageGen import generate_images, upscale_image, generate_alternatives
+    from imageGen import generate_images, upscale_image, generate_alternatives, lora_images
 
 
+@client.event
+async def on_ready():
+    print(f'Logged in as {client.user.name} ({client.user.id})')
+    await tree.sync()
+    print("Command tree set")
+    init_db()
+    print("Database initialized")
+    client_id = "1222513177699422279"  # Replace with your bot's client ID
+    invite_link = generate_bot_invite_link(client_id)
+    print("Invite your bot using this link:", invite_link)
 
 
 
@@ -334,11 +345,7 @@ class Buttons(discord.ui.View):
             print("Interaction already responded")
         
 
-@client.event
-async def on_ready():
-    init_db()  # Initialize DB
-    await tree.sync()
-    print(f"Logged in as {client.user.name} ({client.user.id})")
+
 
 
 @tree.command(name="describe", description="Describe an image")
@@ -359,53 +366,57 @@ async def describe(interaction: discord.Interaction, image: discord.Attachment):
     else:
         await interaction.response.send_message("Please provide a valid image attachment.")
 
+
+# Assuming 'bot' is your commands.Bot or app_commands.CommandTree instance
 @tree.command(name="imagine", description="Generate an image based on input text")
 @app_commands.describe(prompt="Prompt for the image being generated")
 @app_commands.describe(negative_prompt="Prompt for what you want to steer the AI away from")
-@app_commands.describe(batch_size="Number of images to generate" )
-@app_commands.describe(width="width of the image")
-@app_commands.describe(height="height of the image" )
-@app_commands.describe(model="model to use")
-@app_commands.describe(attachment="attachment to use")
-@app_commands.describe(lora="predefined loras to call from")
+@app_commands.describe(batch_size="Number of images to generate")
+@app_commands.describe(width="Width of the image")
+@app_commands.describe(height="Height of the image")
+@app_commands.describe(attachment="Attachment to use")
+@app_commands.describe(model="Choose the model to use")
+@app_commands.choices(model=[
+    Choice(name="ProteusV1", value="proteus-rundiffusionV2.5"),
+    Choice(name="Anime", value="AnimeP")
+])
+@app_commands.describe(lora="Choose the lora to use")
+@app_commands.choices(lora=[
+    Choice(name="Detail", value="tweak-detail-xl"),
+    Choice(name="SythAnimeV2", value="AnimeSythenticV0.2"),
+    Choice(name="Artistic", value="xl_more_art-full_v1")
+])
 async def imagine(
-    interaction: discord.Interaction,
-    prompt: str,
-    negative_prompt: Optional[str] = None,
+    interaction: discord.Interaction, 
+    prompt: str, 
+    negative_prompt: str = None,
     batch_size: int = 4,
     width: int = 1024,
     height: int = 1024,
     model: str = "proteus-rundiffusionV2.5",
-    attachment: Optional[discord.Attachment] = None,
-    lora: Optional[str] = None,
+    attachment: discord.Attachment = None, 
+    lora: str = None
 ):
-    username = interaction.user.name
+    
     user_id = interaction.user.id
-
+    username = interaction.user.name
     user_credits = await discord_balance_prompt(user_id, username)
     
 
     if user_credits is None:
-        # Handle case where user credits couldn't be retrieved
-        create_DB_user(user_id, username) 
-
-    elif user_credits < 10:  # Assuming 5 credits are needed
+            # Create a new DB user if not found
+            create_DB_user(user_id, username) 
+    elif user_credits < 10:
+        # Handle insufficient credits
         payment_link = await discord_recharge_prompt(username, user_id)
         if payment_link == "failed":
-            await interaction.response.send_message(
-                "Failed to create payment link or payment itself failed. Please try again later.",
-                ephemeral=True
-            )
-           
-        await interaction.response.send_message(
-            f"You don't have enough credits. Please recharge your account: {payment_link}",
-            ephemeral=True
-        )
-        await interaction.response.defer(ephemeral=True)
-    else:
-        await interaction.response.defer(ephemeral=False)
+            await interaction.response.send_message("Failed to create payment link or payment itself failed. Please try again later.", ephemeral=True)
+            return
+        else:
+            await interaction.response.send_message(f"You don't have enough credits. Please recharge your account: {payment_link}", ephemeral=True)
+            return
 
-
+    await interaction.response.defer(ephemeral=False, thinking=True)
 
     
 
@@ -425,6 +436,18 @@ async def imagine(
             width=width,
             height=height,
             model=model,
+        )
+    if lora is not None:
+        await lora_images(
+            UUID=UUID,
+            user_id=interaction.user.id,
+            prompt=prompt_gen,
+            negative_prompt=negative_prompt,
+            batch_size=batch_size,
+            width=width,
+            height=height,
+            model=model,
+            lora=lora,
         )
     else:
         await generate_images(
@@ -446,7 +469,10 @@ async def imagine(
     buttons_view = await Buttons.create(prompt, negative_prompt, UUID, interaction.user.id, collage_path, model)
 
     file = discord.File(collage_path, filename="collage.png")
-    final_message = f'{interaction.user.mention}, here is what I imagined for you with "{prompt}", "{model}":'
+    if lora is not None:
+        final_message = f"{interaction.user.mention}, here is what I imagined for you with ```{prompt}, Lora: {lora}, Model: {model}```"
+    else:
+        final_message = f"{interaction.user.mention}, here is what I imagined for you with ```{prompt}, Model: {model}```"
     
     await interaction.followup.send(content=final_message, file=file, view=buttons_view, ephemeral=False)
     if user_id == "879714655356997692":
@@ -504,6 +530,17 @@ async def balance(
     )
     await interaction.response.defer(ephemeral=True)
 
+
+
+@tree.command(name='sync', description='Owner only')
+async def sync(interaction: discord.Interaction):
+    if interaction.user.id == 879714655356997692:
+        await tree.sync()
+        print('Command tree synced.')
+    else:
+        await interaction.response.send_message('You must be the owner to use this command!')
+
+
 def generate_bot_invite_link(client_id):
     base_url = "https://discord.com/api/oauth2/authorize"
     permissions = "8"  # Admin permissions
@@ -515,10 +552,4 @@ def generate_bot_invite_link(client_id):
 
 
 
-# Example usage
-client_id = "1222513177699422279"  # Replace with your bot's client ID
-invite_link = generate_bot_invite_link(client_id)
-print("Invite your bot using this link:", invite_link)
-
-# run the bot
 client.run(TOKEN)

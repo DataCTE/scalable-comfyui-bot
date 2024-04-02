@@ -32,6 +32,7 @@ text2img_config = config["LOCAL_TEXT2IMG"]["CONFIG"]
 img2img_config = config["LOCAL_IMG2IMG"]["CONFIG"]
 upscale_config = config["LOCAL_UPSCALE"]["CONFIG"]
 style_config = config["LOCAL_STYLE2IMG"]["CONFIG"]
+lora_config = config["LOCAL_LORA"]["CONFIG"]
 
 async def save_discord_attachment(attachment: discord.Attachment):
     """Save the attachment from Discord to a specific directory with a unique filename."""
@@ -266,13 +267,21 @@ def edit_given_nodes_properties(workflow, chosen_nodes, key, value):
     changes_made = False
     for node_key in chosen_nodes:
         if node_key in workflow:
-            workflow[node_key]["inputs"][key] = value
-            changes_made = True
+            # Split the key by '.' to handle nested keys
+            keys = key.split('.')
+            item = workflow[node_key]["inputs"]
+            for k in keys[:-1]:
+                item = item.get(k, {})
+            if keys[-1] in item:
+                item[keys[-1]] = value
+                changes_made = True
+            else:
+                print(f"Warning: Key {keys[-1]} not found in node {node_key}.")
         else:
             print(f"Warning: Node {node_key} not found in workflow.")
 
     if not changes_made:
-        raise ValueError("Cannot find the chosen nodes")
+        raise ValueError("Cannot find the chosen nodes or keys")
 
     return workflow
 
@@ -292,7 +301,103 @@ async def evaluate_images_with_image_reward(prompt: str, img_list: list):
     return best_image_path
 
 
+
+async def lora_images(
+    UUID: str,
+    user_id: int,
+    prompt: str,
+    negative_prompt: str,
+    batch_size: int,
+    width: int,
+    height: int,
+    model: str,
+    lora: str,
+):
+
+    # Your existing logic to prepare for image generation...
+    with open(lora_config, "r") as file:
+        workflow = json.load(file)
+
+    generator = ImageGenerator()
+    await generator.connect()
+
+    prompt_nodes = search_for_nodes_with_key(
+        "Positive Prompt", workflow, "title", whether_to_use_meta=True
+    )
+    latent_image_nodes = search_for_nodes_with_key(
+        "EmptyLatentImage", workflow, "class_type", whether_to_use_meta=False
+    )
+    ksampler_nodes = search_for_nodes_with_key(
+        "KSampler", workflow, "class_type", whether_to_use_meta=False
+    )
+    seed = search_for_nodes_with_key(
+        "KSampler", workflow, "class_type", whether_to_use_meta=False
+    )
+    widthnode = search_for_nodes_with_key(
+        "EmptyLatentImage", workflow, "class_type", whether_to_use_meta=False
+    )
+    heightnode = search_for_nodes_with_key(
+        "EmptyLatentImage", workflow, "class_type", whether_to_use_meta=False
+    )
+    neg_prompt_nodes = search_for_nodes_with_key(
+        "Negative Prompt", workflow, "title", whether_to_use_meta=True
+    )
+    model_node = search_for_nodes_with_key(
+        "Model Checkpoint", workflow, "title", whether_to_use_meta=True
+    )
+    lora_node = search_for_nodes_with_key(
+        "Lora Loader", workflow, "title", whether_to_use_meta=True
+    )
+
+    
+    lora += ".safetensors"
+    workflow = edit_given_nodes_properties(workflow, lora_node, "lora_name.content", lora)
+        
+
+    if model == "AnimeP":
+        workflow = edit_given_nodes_properties( workflow ,ksampler_nodes, "sampler_name", "euler_ancestral")
+
+    # Modify the prompt dictionary
    
+    workflow = edit_given_nodes_properties(workflow, prompt_nodes, "text", prompt)
+    
+    workflow = edit_given_nodes_properties(
+            workflow, neg_prompt_nodes, "text", negative_prompt
+        )
+
+    workflow = edit_given_nodes_properties(
+        workflow, latent_image_nodes, "batch_size", batch_size
+    )
+    workflow = edit_given_nodes_properties(workflow, ksampler_nodes, "steps", 50)
+    workflow = edit_given_nodes_properties(
+        workflow, seed, "seed", random.randint(0, 10000000)
+    )
+    default_width = 1024
+    default_height = 1024
+
+    # Modify the workflow nodes for width and height with provided values or defaults
+    workflow = edit_given_nodes_properties(
+        workflow, widthnode, "width", width if width is not None else default_width
+    )
+    workflow = edit_given_nodes_properties(
+        workflow, heightnode, "height", height if height is not None else default_height
+    )
+    if model_node:
+        # Before setting the model, ensure the model name is adjusted to remove ".safetensors" if present
+        model_name_adjusted = str(model) + ".safetensors"
+        workflow = edit_given_nodes_properties(
+            workflow, model_node, "ckpt_name", model_name_adjusted
+        )
+    with open("workflow.json", "w") as f:
+        json.dump(workflow, f)
+
+    images = await generator.get_images(workflow)
+    
+    
+    await generator.close()
+    await save_images(images, user_id, UUID, model, prompt)
+
+
 
 async def generate_images(
     UUID: str,

@@ -1,0 +1,157 @@
+{
+    "3": {
+      "inputs": {
+        "seed": 136075261085817,
+        "steps": 50,
+        "cfg": 7,
+        "sampler_name": "dpmpp_3m_sde_gpu",
+        "scheduler": "karras",
+        "denoise": 1,
+        "model": [
+          "82",
+          0
+        ],
+        "positive": [
+          "82",
+          1
+        ],
+        "negative": [
+          "82",
+          2
+        ],
+        "latent_image": [
+          "69",
+          0
+        ]
+      },
+      "class_type": "KSampler",
+      "_meta": {
+        "title": "KSampler"
+      }
+    },
+    "8": {
+      "inputs": {
+        "samples": [
+          "3",
+          0
+        ],
+        "vae": [
+          "82",
+          4
+        ]
+      },
+      "class_type": "VAEDecode",
+      "_meta": {
+        "title": "VAE Decode"
+      }
+    },
+    "60": {
+      "inputs": {
+        "filename_prefix": "final_output",
+        "images": [
+          "8",
+          0
+        ]
+      },
+      "class_type": "SaveImage",
+      "_meta": {
+        "title": "Save Image"
+      }
+    },
+    "69": {
+      "inputs": {
+        "width": 1024,
+        "height": 1024,
+        "batch_size": 4
+      },
+      "class_type": "EmptyLatentImage",
+      "_meta": {
+        "title": "Empty Latent Image"
+      }
+    },
+    "72": {
+      "inputs": {
+        "lora_name": {
+          "content": "boss_battle.safetensors",
+          "image": null,
+          "type": "loras"
+        },
+        "lora_weight": 1,
+        "force_fetch": false,
+        "enable_preview": false,
+        "append_loraname_if_empty": true
+      },
+      "class_type": "LoraLoaderStackedAdvanced",
+      "_meta": {
+        "title": "Lora Loader"
+      }
+    },
+    "78": {
+      "inputs": {
+        "selector": ":",
+        "weight": 1,
+        "ensure_comma": true,
+        "tags_list": [
+          "72",
+          1
+        ]
+      },
+      "class_type": "TagsSelector",
+      "_meta": {
+        "title": "TagsSelector"
+      }
+    },
+    "79": {
+      "inputs": {
+        "text": "boss battle, dark souls, masterpiece, detailed",
+        "suffix": [
+          "78",
+          0
+        ]
+      },
+      "class_type": "TextInputBasic",
+      "_meta": {
+        "title": "Positive Prompt"
+      }
+    },
+    "82": {
+      "inputs": {
+        "ckpt_name": "proteus-rundiffusionV2.5.safetensors",
+        "vae_name": "Baked VAE",
+        "clip_skip": -2,
+        "lora_name": "None",
+        "lora_model_strength": 1,
+        "lora_clip_strength": 1,
+        "positive": [
+          "79",
+          0
+        ],
+        "negative": [
+          "84",
+          0
+        ],
+        "token_normalization": "none",
+        "weight_interpretation": "comfy",
+        "empty_latent_width": 512,
+        "empty_latent_height": 448,
+        "batch_size": 1,
+        "lora_stack": [
+          "72",
+          2
+        ]
+      },
+      "class_type": "Efficient Loader",
+      "_meta": {
+        "title": "Efficient Loader"
+      }
+    },
+    "84": {
+      "inputs": {
+        "text": ""
+      },
+      "class_type": "TextInputBasic",
+      "_meta": {
+        "title": "Negative Prompt"
+      }
+    }
+  }
