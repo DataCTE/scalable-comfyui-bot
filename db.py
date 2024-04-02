@@ -73,7 +73,7 @@ def create_tables(conn):
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id TEXT,
             data BLOB,
-            UUID_list TEXT,
+            UUID TEXT,
             url TEXT,
             count INTEGER,
             model TEXT,
@@ -146,4 +146,3 @@ async def get_user_images(user_id: str):
     finally:
         cursor.close()
         conn.close()
-

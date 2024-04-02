@@ -39,7 +39,7 @@
     },
     "class_type": "CLIPTextEncode",
     "_meta": {
-      "title": "Positive Prompt"
+      "title": "CLIP Text Encode (Prompt)"
     }
   },
   "7": {
@@ -52,7 +52,7 @@
     },
     "class_type": "CLIPTextEncode",
     "_meta": {
-      "title": "Negative Prompt"
+      "title": "CLIP Text Encode (Prompt)"
     }
   },
   "8": {
@@ -106,7 +106,7 @@
   },
   "72": {
     "inputs": {
-      "weight": 0.7,
+      "weight": 0.7000000000000001,
       "weight_type": "style transfer (SDXL)",
       "start_at": 0,
       "end_at": 1,
@@ -141,7 +141,7 @@
         1
       ],
       "image": [
-        "75",
+        "76",
         0
       ]
     },
@@ -165,12 +165,27 @@
   },
   "75": {
     "inputs": {
-      "image": "",
+      "image": "Paint_0.png",
       "upload": "image"
     },
     "class_type": "LoadImage",
     "_meta": {
       "title": "Load Image"
+    }
+  },
+  "76": {
+    "inputs": {
+      "interpolation": "LANCZOS",
+      "crop_position": "center",
+      "sharpening": 0.15,
+      "image": [
+        "75",
+        0
+      ]
+    },
+    "class_type": "PrepImageForClipVision",
+    "_meta": {
+      "title": "Prep Image For ClipVision"
     }
   }
 }
