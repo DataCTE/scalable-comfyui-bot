@@ -355,7 +355,7 @@ async def generate_images(
     workflow = edit_given_nodes_properties(workflow, prompt_nodes, "text", prompt)
     
     workflow = edit_given_nodes_properties(
-    workflow, neg_prompt_nodes, "text", negative_prompt
+            workflow, neg_prompt_nodes, "text", negative_prompt
         )
 
     workflow = edit_given_nodes_properties(
