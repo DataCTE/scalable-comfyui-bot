@@ -407,9 +407,17 @@ async def describe(interaction: discord.Interaction, image: discord.Attachment):
 @app_commands.describe(batch_size="Number of images to generate" )
 @app_commands.describe(width="width of the image")
 @app_commands.describe(height="height of the image" )
-@app_commands.describe(model="model to use")
 @app_commands.describe(attachment="attachment to use")
-@app_commands.describe(lora="predefined loras to call from")
+@app_commands.choices(model=[
+    Choice(name="ProteusV1", value="proteus-rundiffusionV2.5"),
+    Choice(name="Anime", value="AnimeP")
+])
+@app_commands.describe(lora="Choose the lora to use")
+@app_commands.choices(lora=[
+    Choice(name="Detail", value="tweak-detail-xl"),
+    Choice(name="SythAnimeV2", value="AnimeSythenticV0.2"),
+    Choice(name="Artistic", value="XL_more_art-full_v1")
+])
 async def imagine(
     interaction: discord.Interaction, 
     prompt: str, 
@@ -421,6 +429,7 @@ async def imagine(
     attachment: discord.Attachment = None, 
     lora: str = None
 ):
+    user_id = interaction.user.id
     username = interaction.user.name
     user_credits = await discord_balance_prompt(user_id, username)
 
