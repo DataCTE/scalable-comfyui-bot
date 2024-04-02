@@ -449,6 +449,16 @@ async def imagine(
     else:
         await interaction.response.defer(ephemeral=False)
 
+
+    # ~Properly Implemnent UUID5 (If Collision Hashing Becomes An Issue) - todo - low priority
+    # Needs image seed returned early !!
+    # Concoct two strings (not good for byte range?) for the namespace and name, the seed should be used in one (20 effective max chars each?)
+    ''' # seed = getSeedFromServer();
+    namespace = interaction.user.id + prompt_gen + negative_prompt
+    name = seed + model  
+    UUID = str(uuid.uuid5(namespace, name))'''
+
+
     UUID = str(uuid.uuid4())  # Generate unique hash for each image
     prompt_gen = f"{prompt}, masterpiece, best quality"
 
