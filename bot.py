@@ -135,38 +135,8 @@ class Buttons(discord.ui.View):
                 
     @classmethod
     async def create(cls, prompt, negative_prompt, UUID, user_id, model, batch_size):
-        def get_images():
-            conn = sqlite3.connect(DATABASE_URL)
-            cursor = conn.cursor()
-
-            try:
-                cursor.execute(
-                    """
-                    SELECT * FROM images
-                    WHERE UUID = ? AND user_id = ?
-                    ORDER BY count
-                """,
-                    (UUID, user_id),
-                )
-                images = cursor.fetchall()
-                return images
-
-            except sqlite3.Error as e:
-                print(f"Database error: {str(e)}")
-                return []
-
-            except Exception as e:
-                print(f"An error occurred: {str(e)}")
-                return []
-
-            finally:
-                cursor.close()
-                conn.close()
-
-        images = await asyncio.to_thread(get_images)
-
-        return cls(prompt, negative_prompt, UUID, user_id, model, images, batch_size)
-    
+        return cls(prompt, negative_prompt, UUID, user_id, model, batch_size)
+        
     async def reroll_image(self, interaction: discord.Interaction, u_uuid):
         await interaction.response.defer()  # Acknowledge the interaction
         try:
