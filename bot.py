@@ -481,11 +481,8 @@ async def imagine(
             lora=lora,
         )
 
-    collage_path = await create_collage(UUID, batch_size)
+    collage_blob = await create_collage(UUID, batch_size)
 
-    if collage_path is None:
-        print(collage_path)
-        return
 
     buttons_view = await Buttons.create(
         prompt=prompt,
@@ -500,7 +497,7 @@ async def imagine(
     )
    
 
-    file = discord.File(collage_path, filename="collage.png")
+    file = discord.File(collage_blob, filename="collage.png")
     final_message = f"{interaction.user.mention}, here is what I imagined for you with ```{prompt}, {model}```"
 
     await interaction.followup.send(

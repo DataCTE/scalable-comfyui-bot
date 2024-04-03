@@ -197,7 +197,9 @@ async def create_collage(UUID: str, batch_size: int):
             img = PILImage.open(BytesIO(image))
             row, col = i // cols, i % cols
             collage.paste(img, (col * image_width, row * image_height))
+        
         collage_bytes = io.BytesIO(collage.tobytes())
+        
         # Update the database with the collage image ##TODO: pass dataclass with user info for collage database
         try:
             cursor.execute(
@@ -215,9 +217,6 @@ async def create_collage(UUID: str, batch_size: int):
             print(f"Database error: {str(e)}")
             return None
 
-        # Save the collage to a file
-        
-
     except sqlite3.Error as e:
         print(f"Database error: {str(e)}")
         return None
@@ -226,7 +225,8 @@ async def create_collage(UUID: str, batch_size: int):
         print(f"An error occurred: {str(e)}")
         return None
 
-   
+    finally:
+        return collage_bytes
 
 
 class ImageGenerator:
