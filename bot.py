@@ -262,7 +262,6 @@ class Buttons(discord.ui.View):
         await interaction.response.defer()  # Acknowledge the interaction
 
         try:
-           
             index = await extract_index_from_id(interaction.data["custom_id"])
             if index is None:
                 await interaction.followup.send("Invalid custom_id format. Please ensure it contains a numeric index.")

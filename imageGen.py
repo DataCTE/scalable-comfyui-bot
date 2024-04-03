@@ -198,8 +198,10 @@ async def create_collage(UUID: str, batch_size: int):
             row, col = i // cols, i % cols
             collage.paste(img, (col * image_width, row * image_height))
         
-        collage_bytes = io.BytesIO(collage.tobytes())
-        
+        collage_bytes = io.BytesIO()
+        collage.save(collage_bytes, format="PNG")
+        blob = collage_bytes.getvalue()
+
         # Update the database with the collage image ##TODO: pass dataclass with user info for collage database
         try:
             cursor.execute(
@@ -207,7 +209,7 @@ async def create_collage(UUID: str, batch_size: int):
                 INSERT INTO images (UUID, data)
                 VALUES (?, ?)
             """,
-                (UUID, collage_bytes.read()),
+                (UUID, blob),
             )
 
             conn.commit()
@@ -226,8 +228,7 @@ async def create_collage(UUID: str, batch_size: int):
         return None
 
     finally:
-        collage_bytes.seek(0) # Reset the BytesIO object's position to the beginning
-        return collage_bytes
+        return blob
 
 
 class ImageGenerator:
