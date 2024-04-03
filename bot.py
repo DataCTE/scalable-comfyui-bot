@@ -255,8 +255,8 @@ class Buttons(discord.ui.View):
                 cursor.close()
                 conn.close()
 
-        except discord.errors.InteractionResponded:
-            return print("interaction failed")
+        except discord.errors.InteractionResponded as e:
+            return print(f"{e}: interaction failed")
 
     async def upscale_image(self, interaction: discord.Interaction, u_uuid):
         await interaction.response.defer()  # Acknowledge the interaction
@@ -476,9 +476,6 @@ async def imagine(
         user_id=interaction.user.id,
         model=model,
         batch_size=batch_size,
-
-        
-
     )
    
 
