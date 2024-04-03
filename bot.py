@@ -168,8 +168,8 @@ class Buttons(discord.ui.View):
         return cls(prompt, negative_prompt, UUID, user_id, model, images, batch_size)
     
     async def reroll_image(self, interaction: discord.Interaction, u_uuid):
+        await interaction.response.defer()  # Acknowledge the interaction
         try:
-            await interaction.response.defer()  # Acknowledge the interaction
 
             index = await extract_index_from_id(interaction.data["custom_id"])
             if index is None:
