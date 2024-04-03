@@ -168,9 +168,10 @@ class Buttons(discord.ui.View):
         return cls(prompt, negative_prompt, UUID, user_id, model, images, batch_size)
     
     async def reroll_image(self, interaction: discord.Interaction, u_uuid):
-        try:
-            await interaction.response.defer()  # Acknowledge the interaction
+        await interaction.response.defer()  # Acknowledge the interaction
 
+        try:
+            
             index = await extract_index_from_id(interaction.data["custom_id"])
             if index is None:
                 await interaction.followup.send("Invalid custom_id format. Please ensure it contains a numeric index.")
@@ -267,9 +268,10 @@ class Buttons(discord.ui.View):
             return print("interaction failed")
 
     async def upscale_image(self, interaction: discord.Interaction, u_uuid):
-        try:
-            await interaction.response.defer()  # Acknowledge the interaction
+        await interaction.response.defer()  # Acknowledge the interaction
 
+        try:
+           
             index = await extract_index_from_id(interaction.data["custom_id"])
             if index is None:
                 await interaction.followup.send("Invalid custom_id format. Please ensure it contains a numeric index.")

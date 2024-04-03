@@ -6,7 +6,7 @@ import urllib.request
 import time
 import urllib.parse
 from PIL import Image as PILImage
-from db import  init_db
+from db import init_db
 from io import BytesIO
 from database_query_same_energy import perform_search
 import configparser
@@ -32,18 +32,19 @@ text2img_config = config["LOCAL_TEXT2IMG"]["CONFIG"]
 img2img_config = config["LOCAL_IMG2IMG"]["CONFIG"]
 upscale_config = config["LOCAL_UPSCALE"]["CONFIG"]
 style_config = config["LOCAL_STYLE2IMG"]["CONFIG"]
-lora_config = config["LOCAL_LORA"]["CONFIG"]
+
 
 async def save_discord_attachment(attachment: discord.Attachment):
     """Save the attachment from Discord to a specific directory with a unique filename."""
-    os.makedirs('input', exist_ok=True)  # Ensure the directory exists
+    os.makedirs("input", exist_ok=True)  # Ensure the directory exists
     random_int = random.randint(1000, 9999)
     filename = f"inputimage_{random_int}.png"
-    filepath = os.path.join('input', filename)
+    filepath = os.path.join("input", filename)
 
     # Save the attachment using the discord.py library's save method
     await attachment.save(filepath)
     return filepath
+
 
 def queue_prompt(prompt, client_id):
     p = {"prompt": prompt, "client_id": client_id}
@@ -80,28 +81,30 @@ def upload_image(filepath, subfolder=None, folder_type=None, overwrite=False):
     return response.json()
 
 
-
-
 async def save_images(images, user_id, UUID, model, prompt):
     conn = sqlite3.connect(DATABASE_URL)
     cursor = conn.cursor()
-
+    # TODO: fix the fucking uuid count passing through every wormhole known to man problem soon.TM
     try:
         count = 1
         for image in images:
+            u_uuid = f"{UUID}_{count}"
             img_byte_arr = io.BytesIO()
             image.save(img_byte_arr, format="PNG")  # Corrected save method
             blob = img_byte_arr.getvalue()
 
             # Save the image to a file and use the file path as the URL
-            image_path = f'output/image_{count}.png'
+            image_path = f"output/image_{count}.png"
             image.save(image_path)
 
             # Insert the image data into the database
-            cursor.execute("""
+            cursor.execute(
+                """
                 INSERT INTO images (url, data, user_id, UUID, count, model, prompt)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
-            """, (image_path, blob, user_id, UUID, count, model, prompt))
+            """,
+                (image_path, blob, user_id, u_uuid, count, model, prompt),
+            )
 
             count += 1
 
@@ -127,16 +130,19 @@ async def get_image_from_database(image_id):
 
     try:
         # Retrieve the image data from the database based on the image ID
-        cursor.execute("""
-            SELECT data FROM images WHERE id = ?
-        """, (image_id,))
+        cursor.execute(
+            """
+            SELECT data FROM images WHERE UUID = ?
+        """,
+            (image_id,),
+        )
         result = cursor.fetchone()
 
         if result:
             image_data = result[0]
             return image_data
         else:
-            print(f"Image with ID {image_id} not found in the database.")
+            print(f"Image with UUID {image_id} not found in the database.")
             return None
 
     except sqlite3.Error as e:
@@ -152,24 +158,38 @@ async def get_image_from_database(image_id):
         conn.close()
 
 
-async def create_collage(UUID: str):
+async def create_collage(UUID: str, batch_size: int):
     conn = sqlite3.connect(DATABASE_URL)
     cursor = conn.cursor()
+    images = []
 
     try:
-        cursor.execute("""
-            SELECT * FROM images
-            WHERE UUID = ?
-            ORDER BY count
-        """, (UUID,))
-        images = cursor.fetchall()
-
+        # TODO
+        batch_size_range = range(1, batch_size + 1)
+        for i in batch_size_range:
+            UUID_count = f"{UUID}_{i}"
+            cursor.execute(
+                """
+                SELECT data FROM images WHERE UUID = ?
+                """,
+                (UUID_count,),
+            )
+            result = cursor.fetchone()
+            if result is None:
+                print(f"No image data found for UUID: {UUID_count}")
+                continue
+            images.append(result[0])
         # Open the first image to get its width and height
-        first_image = PILImage.open(BytesIO(images[0][2]))  # Assuming image data is stored in the 3rd column
+        try:
+            first_image = PILImage.open(BytesIO(images[0]))
+        except Exception as e:
+            print(f"A PILImage error occurred: {str(e)}")
+            return None
+
         image_width, image_height = first_image.width, first_image.height
 
         # Determine the dimensions of the collage
-        num_images = len(images)
+        num_images = batch_size
         rows = cols = ceil(sqrt(num_images))
         collage_width, collage_height = cols * image_width, rows * image_height
 
@@ -178,9 +198,26 @@ async def create_collage(UUID: str):
 
         # Paste each image onto the collage
         for i, image in enumerate(images):
-            img = PILImage.open(BytesIO(image[2]))  # Assuming image data is stored in the 3rd column
+            img = PILImage.open(BytesIO(image))
             row, col = i // cols, i % cols
             collage.paste(img, (col * image_width, row * image_height))
+        collage_bytes = io.BytesIO(collage.tobytes())
+        # Update the database with the collage image ##TODO: pass dataclass with user info for collage database
+        try:
+            cursor.execute(
+                """
+                INSERT INTO images (UUID, data)
+                VALUES (?, ?)
+            """,
+                (UUID, collage_bytes.read()),
+            )
+
+            conn.commit()
+            conn.close()
+
+        except sqlite3.Error as e:
+            print(f"Database error: {str(e)}")
+            return None
 
         # Save the collage to a file
         collage_path = f"collageimages/collage_{UUID}.png"
@@ -196,9 +233,7 @@ async def create_collage(UUID: str):
         print(f"An error occurred: {str(e)}")
         return None
 
-    finally:
-        cursor.close()
-        conn.close()
+   
 
 
 class ImageGenerator:
@@ -267,21 +302,13 @@ def edit_given_nodes_properties(workflow, chosen_nodes, key, value):
     changes_made = False
     for node_key in chosen_nodes:
         if node_key in workflow:
-            # Split the key by '.' to handle nested keys
-            keys = key.split('.')
-            item = workflow[node_key]["inputs"]
-            for k in keys[:-1]:
-                item = item.get(k, {})
-            if keys[-1] in item:
-                item[keys[-1]] = value
-                changes_made = True
-            else:
-                print(f"Warning: Key {keys[-1]} not found in node {node_key}.")
+            workflow[node_key]["inputs"][key] = value
+            changes_made = True
         else:
             print(f"Warning: Node {node_key} not found in workflow.")
 
     if not changes_made:
-        raise ValueError("Cannot find the chosen nodes or keys")
+        raise ValueError("Cannot find the chosen nodes")
 
     return workflow
 
@@ -301,104 +328,6 @@ async def evaluate_images_with_image_reward(prompt: str, img_list: list):
     return best_image_path
 
 
-
-async def lora_images(
-    UUID: str,
-    user_id: int,
-    prompt: str,
-    negative_prompt: str,
-    batch_size: int,
-    width: int,
-    height: int,
-    model: str,
-    lora: str,
-):
-
-    # Your existing logic to prepare for image generation...
-    with open(lora_config, "r") as file:
-        workflow = json.load(file)
-
-    generator = ImageGenerator()
-    await generator.connect()
-
-    prompt_nodes = search_for_nodes_with_key(
-        "Positive Prompt", workflow, "title", whether_to_use_meta=True
-    )
-    latent_image_nodes = search_for_nodes_with_key(
-        "EmptyLatentImage", workflow, "class_type", whether_to_use_meta=False
-    )
-    ksampler_nodes = search_for_nodes_with_key(
-        "KSampler", workflow, "class_type", whether_to_use_meta=False
-    )
-    seed = search_for_nodes_with_key(
-        "KSampler", workflow, "class_type", whether_to_use_meta=False
-    )
-    widthnode = search_for_nodes_with_key(
-        "EmptyLatentImage", workflow, "class_type", whether_to_use_meta=False
-    )
-    heightnode = search_for_nodes_with_key(
-        "EmptyLatentImage", workflow, "class_type", whether_to_use_meta=False
-    )
-    neg_prompt_nodes = search_for_nodes_with_key(
-        "Negative Prompt", workflow, "title", whether_to_use_meta=True
-    )
-    model_node = search_for_nodes_with_key(
-        "Model Checkpoint", workflow, "title", whether_to_use_meta=True
-    )
-    lora_node = search_for_nodes_with_key(
-        "Lora Loader", workflow, "title", whether_to_use_meta=True
-    )
-
-    
-    lora += ".safetensors"
-    workflow = edit_given_nodes_properties(workflow, lora_node, "lora_name.content", lora)
-        
-
-    if model == "AnimeP":
-        workflow = edit_given_nodes_properties( workflow ,ksampler_nodes, "sampler_name", "euler_ancestral")
-
-    # Modify the prompt dictionary
-   
-    workflow = edit_given_nodes_properties(workflow, prompt_nodes, "text", prompt)
-    
-    workflow = edit_given_nodes_properties(
-            workflow, neg_prompt_nodes, "text", negative_prompt
-        )
-
-    workflow = edit_given_nodes_properties(
-        workflow, latent_image_nodes, "batch_size", batch_size
-    )
-    workflow = edit_given_nodes_properties(workflow, ksampler_nodes, "steps", 50)
-    workflow = edit_given_nodes_properties(
-        workflow, seed, "seed", random.randint(0, 10000000)
-    )
-    default_width = 1024
-    default_height = 1024
-
-    # Modify the workflow nodes for width and height with provided values or defaults
-    workflow = edit_given_nodes_properties(
-        workflow, widthnode, "width", width if width is not None else default_width
-    )
-    workflow = edit_given_nodes_properties(
-        workflow, heightnode, "height", height if height is not None else default_height
-    )
-    if model_node:
-        # Before setting the model, ensure the model name is adjusted to remove ".safetensors" if present
-        model_name_adjusted = str(model) + ".safetensors"
-        workflow = edit_given_nodes_properties(
-            workflow, model_node, "ckpt_name", model_name_adjusted
-        )
-    with open("workflow.json", "w") as f:
-        json.dump(workflow, f)
-
-    images = await generator.get_images(workflow)
-    
-    
-    await generator.close()
-    await save_images(images, user_id, UUID, model, prompt)
-
-
-
 async def generate_images(
     UUID: str,
     user_id: int,
@@ -410,7 +339,6 @@ async def generate_images(
     model: str,
     lora: str,
 ):
-
     # Your existing logic to prepare for image generation...
     with open(text2img_config, "r") as file:
         workflow = json.load(file)
@@ -449,19 +377,25 @@ async def generate_images(
     if lora is not None:
         lora += ".safetensors"
         workflow = edit_given_nodes_properties(workflow, lora_node, "lora_name", lora)
-        workflow = edit_given_nodes_properties(workflow, lora_node, "strength_model", "1")
-        workflow = edit_given_nodes_properties(workflow, lora_node, "strength_clip", "1")
+        workflow = edit_given_nodes_properties(
+            workflow, lora_node, "strength_model", "1"
+        )
+        workflow = edit_given_nodes_properties(
+            workflow, lora_node, "strength_clip", "1"
+        )
 
     if model == "AnimeP":
-        workflow = edit_given_nodes_properties( workflow ,ksampler_nodes, "sampler_name", "euler_ancestral")
+        workflow = edit_given_nodes_properties(
+            workflow, ksampler_nodes, "sampler_name", "euler_ancestral"
+        )
 
     # Modify the prompt dictionary
-   
+
     workflow = edit_given_nodes_properties(workflow, prompt_nodes, "text", prompt)
-    
+
     workflow = edit_given_nodes_properties(
-            workflow, neg_prompt_nodes, "text", negative_prompt
-        )
+        workflow, neg_prompt_nodes, "text", negative_prompt
+    )
 
     workflow = edit_given_nodes_properties(
         workflow, latent_image_nodes, "batch_size", batch_size
@@ -484,14 +418,13 @@ async def generate_images(
         # Before setting the model, ensure the model name is adjusted to remove ".safetensors" if present
         model_name_adjusted = str(model) + ".safetensors"
         workflow = edit_given_nodes_properties(
-            workflow, model_node, "ckpt_name", model_name_adjusted
+            workflow, model_node, "unet_name", model_name_adjusted
         )
     with open("workflow.json", "w") as f:
         json.dump(workflow, f)
 
     images = await generator.get_images(workflow)
-    
-    
+
     await generator.close()
     await save_images(images, user_id, UUID, model, prompt)
 
@@ -606,7 +539,6 @@ async def style_images(
     height: int,
     model: str,
 ):
-    
     # Save the attachment to a file
     inputname = await save_discord_attachment(attachment)
     filename_without_directory = os.path.basename(inputname)
@@ -637,7 +569,9 @@ async def style_images(
         "Negative Prompt", workflow, "title", whether_to_use_meta=True
     )
     if model == "AnimeP":
-        workflow = edit_given_nodes_properties( workflow ,ksampler_nodes, "sampler_name", "euler_ancestral")
+        workflow = edit_given_nodes_properties(
+            workflow, ksampler_nodes, "sampler_name", "euler_ancestral"
+        )
     if prompt_nodes:
         workflow = edit_given_nodes_properties(workflow, prompt_nodes, "text", prompt)
     if neg_prompt_nodes:
@@ -756,8 +690,15 @@ async def generate_alternatives(
     height: int,
     model: str,
 ):
-    #get image from db
-    inputname = await get_image_from_database(UUID)
+    # New UUID for the alternative image batch
+    new_UUID = str(uuid.uuid4())
+
+    # get image from db with input passed UUID
+    image_data = await get_image_from_database(UUID)
+    if image_data is None:
+        raise ValueError("Image data not found in the database.")
+
+    inputname = ""  ##TODO: Save the image data to a file
 
     # Load the workflow configuration
     with open(img2img_config, "r") as file:
@@ -809,7 +750,9 @@ async def generate_alternatives(
     default_width = 1024
     default_height = 1024
     if model == "AnimeP":
-        workflow = edit_given_nodes_properties( workflow ,ksampler_nodes, "sampler_name", "euler_ancestral")
+        workflow = edit_given_nodes_properties(
+            workflow, ksampler_nodes, "sampler_name", "euler_ancestral"
+        )
     # Modify the workflow nodes for width and height with provided values or defaults
     workflow = edit_given_nodes_properties(
         workflow,
@@ -834,27 +777,33 @@ async def generate_alternatives(
     workflow = edit_given_nodes_properties(
         workflow, styleimage_nodes, "image", filename_without_directory
     )  # Use file path directly
-    
+
     images = await generator.get_images(workflow)
     print(f"Images generated: {images}")
     await generator.close()
-    await save_images(images, user_id, UUID, model, prompt)
-    
+    await save_images(images, user_id, new_UUID, model, prompt)
+
     return images
 
+import asyncio
 
 async def upscale_image(
     UUID: str,
     user_id: int,
-    image: PILImage.Image,
+    image: object,
     prompt: str,
     negative_prompt: str,
-    model: str,
 ):
-    
-    # Ensure the 'input' directory exists
-    inputname = await save_discord_attachment(attachment)
+    os.makedirs("upscale", exist_ok=True)
 
+    # Await the image object if it's a coroutine
+    if asyncio.iscoroutine(image):
+        image = await image
+
+    # Save the image
+    inputname = "upscale/temp.png"
+    image.save(inputname)
+    filename_without_directory = os.path.basename(inputname)
     # Load the workflow configuration
     with open(upscale_config, "r") as file:
         workflow = json.load(file)
@@ -864,9 +813,6 @@ async def upscale_image(
 
     prompt_nodes = search_for_nodes_with_key(
         "Positive Prompt", workflow, "title", whether_to_use_meta=True
-    )
-    model_node = search_for_nodes_with_key(
-        "Model Checkpoint", workflow, "title", whether_to_use_meta=True
     )
     neg_prompt_nodes = search_for_nodes_with_key(
         "Negative Prompt", workflow, "title", whether_to_use_meta=True
@@ -879,12 +825,6 @@ async def upscale_image(
             workflow, neg_prompt_nodes, "text", negative_prompt
         )
 
-    if model_node:
-        # Before setting the model, ensure the model name is adjusted to remove ".safetensors" if present
-        model_name_adjusted = str(model) + ".safetensors"
-        workflow = edit_given_nodes_properties(
-            workflow, model_node, "ckpt_name", model_name_adjusted
-        )
 
     upload_image(filepath=inputname)
     file_input_nodes = search_for_nodes_with_key(
@@ -893,12 +833,12 @@ async def upscale_image(
     workflow = edit_given_nodes_properties(
         workflow, file_input_nodes, "image", filename_without_directory
     )  # Use file path directly
-    
+
     images = await generator.get_images(workflow)
     print(f"Images generated: {images}")
     await generator.close()
-    await save_images(images, user_id, UUID, model, prompt)
-    
+    model="Upscale"
+    await save_images(images, user_id, f"{UUID}_upscaled", model, prompt)
+
+
     return images[0]
-
-
