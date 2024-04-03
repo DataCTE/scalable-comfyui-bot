@@ -176,8 +176,7 @@ class Buttons(discord.ui.View):
             cursor = conn.cursor()
 
             try:
-                result = get_image_from_database(image_id=u_uuid)
-                # Use the original prompt as a fallback
+                result = await get_image_from_database(image_id=u_uuid)  # Await the coroutine
                 prompt = result[0] if result else self.prompt
 
                 # Generate a new image with the retrieved prompt
@@ -268,7 +267,7 @@ class Buttons(discord.ui.View):
             cursor = conn.cursor()
 
             try:
-                images = get_image_from_database(image_id=u_uuid)
+                images = await get_image_from_database(image_id=u_uuid)  # Await the coroutine
 
                 if index < len(images):
                     image = images[index]
