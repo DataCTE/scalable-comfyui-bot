@@ -228,7 +228,7 @@ async def create_collage(UUID: str, batch_size: int):
         return None
 
     finally:
-        return blob
+        return collage_bytes
 
 
 class ImageGenerator:

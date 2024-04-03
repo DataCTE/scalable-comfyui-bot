@@ -88,7 +88,7 @@ class ImageButton(discord.ui.Button):
         self.callback = callback
 
     async def callback(self, interaction: discord.Interaction):
-        await self.callback(interaction)
+        await self.callback(interaction, self)
 
 class Buttons(discord.ui.View):
     def __init__(
@@ -136,11 +136,9 @@ class Buttons(discord.ui.View):
     @classmethod
     async def create(cls, prompt, negative_prompt, UUID, user_id, model, batch_size):
         return cls(prompt, negative_prompt, UUID, user_id, model, batch_size)
-        
-    async def reroll_image(self, interaction: discord.Interaction, u_uuid):
-        await interaction.response.defer()  # Acknowledge the interaction
-        try:
 
+    async def reroll_image(self, interaction: discord.Interaction, u_uuid):
+        try:
             index = await extract_index_from_id(interaction.data["custom_id"])
             if index is None:
                 await interaction.followup.send("Invalid custom_id format. Please ensure it contains a numeric index.")
