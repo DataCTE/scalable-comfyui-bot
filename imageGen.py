@@ -198,9 +198,7 @@ async def create_collage(UUID: str, batch_size: int):
             row, col = i // cols, i % cols
             collage.paste(img, (col * image_width, row * image_height))
         
-        collage_bytes = io.BytesIO()
-        collage.save(collage_bytes, format="PNG")
-        collage_bytes.seek(0)
+        collage_bytes = io.BytesIO(collage.tobytes())
         
         # Update the database with the collage image ##TODO: pass dataclass with user info for collage database
         try:
