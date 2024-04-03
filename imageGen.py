@@ -685,7 +685,6 @@ async def style_images(
 async def generate_alternatives(
     UUID: str,
     user_id: int,
-    index: int,
     prompt: str,
     negative_prompt: str,
     batch_size: int,

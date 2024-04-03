@@ -140,10 +140,6 @@ class Buttons(discord.ui.View):
 
     async def reroll_image(self, interaction: discord.Interaction, u_uuid):
         try:
-            index = await extract_index_from_id(interaction.data["custom_id"])
-            if index is None:
-                await interaction.followup.send("Invalid custom_id format. Please ensure it contains a numeric index.")
-                return
 
             await interaction.followup.send(
                 f"{interaction.user.mention} asked me to re-imagine the image, this shouldn't take too long..."
@@ -183,7 +179,6 @@ class Buttons(discord.ui.View):
                 # Generate a new image with the retrieved prompt
                 new_uuid = await generate_alternatives(
                     UUID=u_uuid,
-                    index=index,
                     user_id=interaction.user.id,
                     prompt=prompt,
                     negative_prompt=self.negative_prompt,
@@ -232,10 +227,6 @@ class Buttons(discord.ui.View):
         await interaction.response.defer()  # Acknowledge the interaction
 
         try:
-            index = await extract_index_from_id(interaction.data["custom_id"])
-            if index is None:
-                await interaction.followup.send("Invalid custom_id format. Please ensure it contains a numeric index.")
-                return
 
             await interaction.followup.send(
                 f"{interaction.user.mention} asked me to upscale the image, this shouldn't take too long..."
@@ -270,42 +261,35 @@ class Buttons(discord.ui.View):
             cursor = conn.cursor()
 
             try:
-                images = await get_image_from_database(image_id=u_uuid)  # Await the coroutine
+                image = await get_image_from_database(image_id=u_uuid)  # Await the coroutine
 
-                print(f"LENGHT OF images array {images}")
+                print(f"LENGHT OF images array {len(image)} {type(image)}")
 
-                if index < len(images):
-                    image = images[index]
-                    image_data = image[
-                        2
-                    ]  # Assuming image data is stored in the 3rd column
 
-                    # Upscale image logic assumed to be defined elsewhere
-                    upscaled_image = await upscale_image(
-                        image_data, self.prompt, self.negative_prompt
-                    )
+                # Upscale image logic assumed to be defined elsewhere
+                upscaled_image = await upscale_image(
+                    image, self.prompt, self.negative_prompt
+                )
 
-                    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-                    upscaled_image_path = f"./out/upscaledImage_{timestamp}.png"
+                timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+                upscaled_image_path = f"./out/upscaledImage_{timestamp}.png"
 
-                    # Assuming upscaled_image has a .save() method
-                    upscaled_image.save(upscaled_image_path)
+                # Assuming upscaled_image has a .save() method
+                upscaled_image.save(upscaled_image_path)
 
-                    final_message = (
-                        f"{interaction.user.mention} here is your upscaled image"
-                    )
-                    await interaction.followup.send( 
-                        content=final_message,
-                        file=discord.File(
-                            fp=upscaled_image_path, filename="upscaled_image.png"
-                        ),
-                    )
-                    # deduct credits
-                    amount = user_credits - 5
-                    print(amount)
-                    await deduct_credits(user_id, amount)
-                else:
-                    await interaction.followup.send("Invalid image index.")
+                final_message = (
+                    f"{interaction.user.mention} here is your upscaled image"
+                )
+                await interaction.followup.send( 
+                    content=final_message,
+                    file=discord.File(
+                        fp=upscaled_image_path, filename="upscaled_image.png"
+                    ),
+                )
+                # deduct credits
+                amount = user_credits - 5
+                print(amount)
+                await deduct_credits(user_id, amount)
 
             except sqlite3.Error as e:
                 print(f"Database error: {str(e)}")
