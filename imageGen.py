@@ -93,17 +93,13 @@ async def save_images(images, user_id, UUID, model, prompt):
             image.save(img_byte_arr, format="PNG")  # Corrected save method
             blob = img_byte_arr.getvalue()
 
-            # Save the image to a file and use the file path as the URL
-            image_path = f"output/image_{count}.png"
-            image.save(image_path)
-
             # Insert the image data into the database
             cursor.execute(
                 """
-                INSERT INTO images (url, data, user_id, UUID, count, model, prompt)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO images (data, user_id, UUID, count, model, prompt)
+                VALUES (?, ?, ?, ?, ?, ?)
             """,
-                (image_path, blob, user_id, u_uuid, count, model, prompt),
+                (blob, user_id, u_uuid, count, model, prompt),
             )
 
             count += 1
