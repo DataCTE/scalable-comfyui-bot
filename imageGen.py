@@ -228,6 +228,7 @@ async def create_collage(UUID: str, batch_size: int):
         return None
 
     finally:
+        collage_bytes.seek(0)
         return collage_bytes
 
 
