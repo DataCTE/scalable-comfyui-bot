@@ -12,3 +12,4 @@ input/
 input_images/
 collageimages/
 bot.log
+.DS_Store
