@@ -1,12 +1,13 @@
+
 import discord
 import discord.ext
 from discord import app_commands
-from discord.app_commands import Choice
 import configparser
 from PIL import Image
 from datetime import datetime
 from db import init_db
 from imageGen import *
+from discord.app_commands import Choice
 import uuid
 from payment_service import *
 from utils import config
@@ -37,14 +38,12 @@ tree = discord.app_commands.CommandTree(client)
 
 if IMAGE_SOURCE == "LOCAL":
     server_address = config.get("LOCAL", "SERVER_ADDRESS")
-    from imageGen import generate_images, upscale_image, generate_alternatives, lora_images
+    from imageGen import generate_images, upscale_image, generate_alternatives
 
 
-
-
-
-
-model = VisionEncoderDecoderModel.from_pretrained("nlpconnect/vit-gpt2-image-captioning")
+model = VisionEncoderDecoderModel.from_pretrained(
+    "nlpconnect/vit-gpt2-image-captioning"
+)
 processor = ViTImageProcessor.from_pretrained("nlpconnect/vit-gpt2-image-captioning")
 tokenizer = AutoTokenizer.from_pretrained("nlpconnect/vit-gpt2-image-captioning")
 
@@ -67,10 +66,10 @@ async def generate_caption(image):
     return caption
 
 
-async def extract_index_from_id(custom_id):
+async def extract_index_from_id(button_id):
     try:
         # Extracting numeric part while assuming it might contain non-numeric characters
-        numeric_part = "".join([char for char in custom_id[1:] if char.isdigit()])
+        numeric_part = "".join([char for char in button_id if char.isdigit()])
         if not numeric_part:
             return None
         return int(numeric_part) - 1
@@ -79,15 +78,17 @@ async def extract_index_from_id(custom_id):
 
 
 class ImageButton(discord.ui.Button):
-    def __init__(self, label, emoji, row, callback):
+    def __init__(self, custom_id, emoji, row, col, callback):
         super().__init__(
-            label=label, style=discord.ButtonStyle.grey, emoji=emoji, row=row
+            label=custom_id,
+            emoji=emoji,
+            row=row,
+            style=discord.ButtonStyle.grey,
         )
-        self._callback = callback
+        self.callback = callback
 
     async def callback(self, interaction: discord.Interaction):
-        await self._callback(interaction, self)
-
+        await self.callback(interaction)
 
 class Buttons(discord.ui.View):
     def __init__(
@@ -96,46 +97,44 @@ class Buttons(discord.ui.View):
         negative_prompt,
         UUID,
         user_id,
-        url,
         model,
         images,
         timeout=10000000000000,
+        batch_size: int = 4,
     ):
         super().__init__(timeout=timeout)
         self.UUID = UUID  # Store the UUID
         self.prompt = prompt
         self.negative_prompt = negative_prompt
         self.user_id = user_id
-        self.url = url
         self.model = model
         self.images = images
+        self.batch_size = batch_size
 
-        total_buttons = (
-            len(self.images) * 2 + 1
-        )  # For both alternative and upscale buttons + re-roll button
-        if total_buttons > 25:  # Limit to 25 buttons
-            self.images = self.images[:12]  # Adjust to only use the first 12 images
-
-        # Determine if re-roll button should be on its own row
-        reroll_row = 1 if total_buttons <= 21 else 0
+        # Limit the batch size to 8
+        batch_size = min(batch_size, 8)
 
         # Inside the Buttons class __init__ method, adjust the button callbacks setup
-        for idx, image in enumerate(self.images):
-            row = (idx + 1) // 5 + reroll_row
+        reroll_row = 0  # Reroll buttons will be in the first row
+        upscale_row = 1  # Upscale buttons will be in the second row
+
+        for idx in range(batch_size):
+            count = idx + 1
+            u_uuid = f"{self.UUID}_{count}"
+            col = idx  # Each button gets its own column
+
             # Use functools.partial to correctly prepare the callback with necessary arguments
-            reroll_callback = functools.partial(self.reroll_image, count=idx + 1)
-            btn = ImageButton(f"V{idx + 1}", "♻️", row, reroll_callback)
+            reroll_callback = functools.partial(self.reroll_image, u_uuid=u_uuid)
+            btn = ImageButton(f"V{count}", "♻️", reroll_row, col, reroll_callback)
             self.add_item(btn)
 
-        for idx, image in enumerate(self.images):
-            row = (idx + len(self.images) + 1) // 5 + reroll_row
-            # Similarly adjust for upscale_image
-            upscale_callback = functools.partial(self.upscale_image, count=idx + 1)
-            btn = ImageButton(f"U{idx + 1}", "⬆️", row, upscale_callback)
-            self.add_item(btn)
-
+            if idx < 4:  # Only add upscale button for the first 4 images
+                upscale_callback = functools.partial(self.upscale_image, u_uuid=u_uuid)
+                btn = ImageButton(f"U{count}", "⬆️", upscale_row, col, upscale_callback)
+                self.add_item(btn)
+                
     @classmethod
-    async def create(cls, prompt, negative_prompt, UUID, user_id, url, model):
+    async def create(cls, prompt, negative_prompt, UUID, user_id, model, batch_size):
         def get_images():
             conn = sqlite3.connect(DATABASE_URL)
             cursor = conn.cursor()
@@ -166,25 +165,21 @@ class Buttons(discord.ui.View):
 
         images = await asyncio.to_thread(get_images)
 
-        return cls(prompt, negative_prompt, UUID, user_id, url, model, images)
-
-    async def reroll_image(
-        self, interaction: discord.Interaction, button: discord.ui.Button, count: int
-    ):
+        return cls(prompt, negative_prompt, UUID, user_id, model, images, batch_size)
+    
+    async def reroll_image(self, interaction: discord.Interaction, u_uuid):
         try:
-            batch_size = 4
-            # Grab the button number and then convert that to count to grab with the UUID from the db
-            index = await extract_index_from_id(button.custom_id)
+            await interaction.response.defer()  # Acknowledge the interaction
+
+            index = await extract_index_from_id(interaction.data["custom_id"])
             if index is None:
-                await interaction.response.send_message(
-                    "Invalid custom_id format. Please ensure it contains a numeric index."
-                )
+                await interaction.followup.send("Invalid custom_id format. Please ensure it contains a numeric index.")
                 return
 
-            await interaction.response.send_message(
+            await interaction.followup.send(
                 f"{interaction.user.mention} asked me to re-imagine the image, this shouldn't take too long..."
             )
-            # credit check
+                # credit check
             user_id = interaction.user.id
             username = interaction.user.name
             user_credits = await discord_balance_prompt(user_id, username)
@@ -215,51 +210,47 @@ class Buttons(discord.ui.View):
             try:
                 cursor.execute(
                     """
-                    SELECT prompt FROM images
-                    WHERE UUID = ? AND COUNT = ? LIMIT 1
+                    SELECT prompt, data FROM images
+                    WHERE UUID = ? LIMIT 1
                 """,
-                    (self.UUID, count),
+                    (u_uuid),
                 )
                 result = cursor.fetchone()
-                prompt = (
-                    result[0] if result else self.prompt
-                )  # Use the original prompt as a fallback
 
-                # Generate a new UUID for the re-rolled image
-                new_UUID = str(uuid.uuid4())
+                # Use the original prompt as a fallback
+                prompt = result[0] if result else self.prompt
 
                 # Generate a new image with the retrieved prompt
-                await generate_alternatives(
-                    UUID=new_UUID,
+                new_uuid = await generate_alternatives(
+                    UUID=u_uuid,
                     index=index,
                     user_id=interaction.user.id,
                     prompt=prompt,
                     negative_prompt=self.negative_prompt,
-                    batch_size=batch_size,
+                    batch_size=self.batch_size,
                     width=1024,
                     height=1024,
                     model=self.model,
                 )
 
                 # Create a new collage for the re-rolled image
-                collage_path = await create_collage(UUID=new_UUID)
+                collage_path = await create_collage(UUID=new_uuid, batch_size=self.batch_size)
 
                 # Construct the final message with user mention
                 final_message = f'{interaction.user.mention} asked me to re-imagine the image, here is what I imagined for them. "{prompt}", "{self.model}"'
-                await interaction.channel.send(
+                await interaction.followup.send( 
                     content=final_message,
                     file=discord.File(fp=collage_path, filename="collage.png"),
                     view=Buttons(
-                        prompt,
-                        self.negative_prompt,
-                        new_UUID,
-                        interaction.user.id,
-                        collage_path,
-                        self.model,
+                        prompt=self.negative_prompt,
+                        new_UUID=new_uuid,
+                        url=interaction.user.id,
+                        model=self.model,
+                        negative_prompt=self.negative_prompt,
                     ),
                 )
                 # after successful reroll, deduct credits
-                amount = user_credits - 10
+                amount = user_credits - 5
                 await deduct_credits(user_id, amount)
 
             except sqlite3.Error as e:
@@ -275,21 +266,19 @@ class Buttons(discord.ui.View):
         except discord.errors.InteractionResponded:
             return print("interaction failed")
 
-    async def upscale_image(
-        self, interaction: discord.Interaction, button: discord.ui.Button, count: int
-    ):
+    async def upscale_image(self, interaction: discord.Interaction, u_uuid):
         try:
-            index = await extract_index_from_id(button.custom_id)
+            await interaction.response.defer()  # Acknowledge the interaction
+
+            index = await extract_index_from_id(interaction.data["custom_id"])
             if index is None:
-                await interaction.response.send_message(
-                    "Invalid custom_id format. Please ensure it contains a numeric index."
-                )
+                await interaction.followup.send("Invalid custom_id format. Please ensure it contains a numeric index.")
                 return
 
-            await interaction.response.send_message(
+            await interaction.followup.send(
                 f"{interaction.user.mention} asked me to upscale the image, this shouldn't take too long..."
             )
-            # check credits
+                # check credits
             user_id = interaction.user.id
             username = interaction.user.name
             user_credits = await discord_balance_prompt(user_id, username)
@@ -322,9 +311,9 @@ class Buttons(discord.ui.View):
                 cursor.execute(
                     """
                     SELECT prompt FROM images
-                    WHERE UUID = ? AND COUNT = ? LIMIT 1
+                    WHERE UUID = ? LIMIT 1
                 """,
-                    (self.UUID,),
+                    (u_uuid),
                 )
                 images = cursor.fetchall()
 
@@ -348,7 +337,7 @@ class Buttons(discord.ui.View):
                     final_message = (
                         f"{interaction.user.mention} here is your upscaled image"
                     )
-                    await interaction.channel.send(
+                    await interaction.followup.send( 
                         content=final_message,
                         file=discord.File(
                             fp=upscaled_image_path, filename="upscaled_image.png"
@@ -375,7 +364,11 @@ class Buttons(discord.ui.View):
             print("Interaction already responded")
 
 
-
+@client.event
+async def on_ready():
+    init_db()  # Initialize DB
+    await tree.sync()
+    print(f"Logged in as {client.user.name} ({client.user.id})")
 
 
 @tree.command(name="describe", description="Describe an image")
@@ -399,8 +392,6 @@ async def describe(interaction: discord.Interaction, image: discord.Attachment):
         )
 
 
-
-# Assuming 'bot' is your commands.Bot or app_commands.CommandTree instance
 @tree.command(name="imagine", description="Generate an image based on input text")
 @app_commands.describe(prompt="Prompt for the image being generated")
 @app_commands.describe(negative_prompt="Prompt for what you want to steer the AI away from")
@@ -429,33 +420,35 @@ async def imagine(
     attachment: discord.Attachment = None, 
     lora: str = None
 ):
-    user_id = interaction.user.id
+    ## TODO: package parameters into a dataclass and build functions around it.
+   
     username = interaction.user.name
+    user_id = interaction.user.id
+
     user_credits = await discord_balance_prompt(user_id, username)
 
     if user_credits is None:
         # Handle case where user credits couldn't be retrieved
-        create_DB_user(user_id, username) 
+        create_DB_user(user_id, username)
 
     elif user_credits < 10:  # Assuming 5 credits are needed
         payment_link = await discord_recharge_prompt(username, user_id)
         if payment_link == "failed":
             await interaction.response.send_message(
                 "Failed to create payment link or payment itself failed. Please try again later.",
-                ephemeral=True
+                ephemeral=True,
             )
-           
+
         await interaction.response.send_message(
             f"You don't have enough credits. Please recharge your account: {payment_link}",
-            ephemeral=True
+            ephemeral=True,
         )
         await interaction.response.defer(ephemeral=True)
     else:
+        
         await interaction.response.defer(ephemeral=False)
-
-
-
-    
+        
+        
 
     UUID = str(uuid.uuid4())  # Generate unique hash for each image
     prompt_gen = f"{prompt}, masterpiece, best quality"
@@ -474,18 +467,6 @@ async def imagine(
             height=height,
             model=model,
         )
-    if lora is not None:
-        await lora_images(
-            UUID=UUID,
-            user_id=interaction.user.id,
-            prompt=prompt_gen,
-            negative_prompt=negative_prompt,
-            batch_size=batch_size,
-            width=width,
-            height=height,
-            model=model,
-            lora=lora,
-        )
     else:
         await generate_images(
             UUID=UUID,
@@ -499,26 +480,32 @@ async def imagine(
             lora=lora,
         )
 
-    collage_path = await create_collage(UUID)
+    collage_path = await create_collage(UUID, batch_size)
 
     if collage_path is None:
         print(collage_path)
         return
 
     buttons_view = await Buttons.create(
-        prompt,
-        negative_prompt,
-        UUID,
-        interaction.user.id,
-        collage_path,
-        model,
-        batch_size,
+        prompt=prompt,
+        negative_prompt=negative_prompt,
+        UUID=UUID,
+        user_id=interaction.user.id,
+        model=model,
+        batch_size=batch_size,
+
+        
+
     )
+   
 
     file = discord.File(collage_path, filename="collage.png")
-    final_message = f'{interaction.user.mention}, here is what I imagined for you with "{prompt}", "{model}":'
-    
-    await interaction.followup.send(content=final_message, file=file, view=buttons_view, ephemeral=False)
+    final_message = f"{interaction.user.mention}, here is what I imagined for you with ```{prompt}, {model}```"
+
+    await interaction.followup.send(
+        content=final_message, file=file, view=buttons_view, ephemeral=False
+    )
+
     if user_id == "879714655356997692":
         print("User ID matches the specified value. Skipping credit deduction.")
     else:
@@ -572,6 +559,7 @@ async def balance(
     )
     await interaction.response.defer(ephemeral=True)
 
+
 def generate_bot_invite_link(client_id):
     base_url = "https://discord.com/api/oauth2/authorize"
     permissions = "8"  # Admin permissions
@@ -582,4 +570,10 @@ def generate_bot_invite_link(client_id):
     return invite_link
 
 
+# Example usage
+client_id = "1222513177699422279"  # Replace with your bot's client ID
+invite_link = generate_bot_invite_link(client_id)
+print("Invite your bot using this link:", invite_link)
+
+# run the bot
 client.run(TOKEN)
