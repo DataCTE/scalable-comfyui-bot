@@ -89,7 +89,7 @@ class ImageButton(discord.ui.Button):
         self.inner_callback = callback
 
     async def callback(self, interaction: discord.Interaction):
-        await self.inner_callback(interaction, self)
+        await self.inner_callback(interaction)
 
 class Buttons(discord.ui.View):
     def __init__(
@@ -271,6 +271,8 @@ class Buttons(discord.ui.View):
 
             try:
                 images = await get_image_from_database(image_id=u_uuid)  # Await the coroutine
+
+                print(f"LENGHT OF images array {images}")
 
                 if index < len(images):
                     image = images[index]
