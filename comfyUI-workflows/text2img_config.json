@@ -62,22 +62,13 @@
         0
       ],
       "vae": [
-        "58",
-        2
+        "76",
+        0
       ]
     },
     "class_type": "VAEDecode",
     "_meta": {
       "title": "VAE Decode"
-    }
-  },
-  "58": {
-    "inputs": {
-      "ckpt_name": "proteus-rundiffusionV2.5.safetensors"
-    },
-    "class_type": "CheckpointLoaderSimple",
-    "_meta": {
-      "title": "Load Checkpoint"
     }
   },
   "60": {
@@ -110,17 +101,45 @@
       "strength_model": 0,
       "strength_clip": 0,
       "model": [
-        "58",
+        "73",
         0
       ],
       "clip": [
-        "58",
-        1
+        "74",
+        0
       ]
     },
     "class_type": "LoraLoader",
     "_meta": {
-      "title": "LoRA"
+      "title": "Load LoRA"
+    }
+  },
+  "73": {
+    "inputs": {
+      "unet_name": "proteus/diffusion_pytorch_model.safetensors"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {
+      "title": "Model Checkpoint"
+    }
+  },
+  "74": {
+    "inputs": {
+      "clip_name1": "text_encoder/model.safetensors",
+      "clip_name2": "text_encoder_2/model.safetensors"
+    },
+    "class_type": "DualCLIPLoader",
+    "_meta": {
+      "title": "DualCLIPLoader"
+    }
+  },
+  "76": {
+    "inputs": {
+      "vae_name": "sdxl_vae.safetensors"
+    },
+    "class_type": "VAELoader",
+    "_meta": {
+      "title": "Load VAE"
     }
   }
 }
