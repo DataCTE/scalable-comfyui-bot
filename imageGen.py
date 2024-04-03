@@ -226,6 +226,7 @@ async def create_collage(UUID: str, batch_size: int):
         return None
 
     finally:
+        collage_bytes.seek(0) # Reset the BytesIO object's position to the beginning
         return collage_bytes
 
 
