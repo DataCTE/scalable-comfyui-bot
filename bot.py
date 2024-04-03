@@ -208,15 +208,7 @@ class Buttons(discord.ui.View):
             cursor = conn.cursor()
 
             try:
-                cursor.execute(
-                    """
-                    SELECT prompt, data FROM images
-                    WHERE UUID = ? LIMIT 1
-                """,
-                    (u_uuid),
-                )
-                result = cursor.fetchone()
-
+                result = get_image_from_database(image_id=u_uuid)
                 # Use the original prompt as a fallback
                 prompt = result[0] if result else self.prompt
 
@@ -309,14 +301,7 @@ class Buttons(discord.ui.View):
             cursor = conn.cursor()
 
             try:
-                cursor.execute(
-                    """
-                    SELECT prompt FROM images
-                    WHERE UUID = ? LIMIT 1
-                """,
-                    (u_uuid),
-                )
-                images = cursor.fetchall()
+                images = get_image_from_database(image_id=u_uuid)
 
                 if index < len(images):
                     image = images[index]
