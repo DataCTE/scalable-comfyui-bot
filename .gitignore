@@ -13,4 +13,5 @@ input_images/
 collageimages/
 bot.log
 .DS_Store
+venv
 config/database.sqlite

@@ -3,6 +3,7 @@ import sqlite3
 import stripe
 from utils import config
 from datetime import datetime
+import traceback
 
 DATABASE_URL = "./config/database.sqlite"
 
@@ -91,9 +92,11 @@ async def verify_payment_links_job():
 
     except sqlite3.Error as e:
         print(f"Database error: {str(e)}")
+        print(traceback.format_exc())
 
     except Exception as e:
         print(f"An error occurred: {str(e)}")
+        print(traceback.format_exc())
 
     finally:
         cursor.close()

@@ -18,6 +18,7 @@ import sqlite3
 from transformers import VisionEncoderDecoderModel, ViTImageProcessor, AutoTokenizer
 import torch
 import asyncio
+import traceback
 
 
 # setting up the bot
@@ -214,9 +215,11 @@ class Buttons(discord.ui.View):
 
             except sqlite3.Error as e:
                 print(f"Database error: {str(e)}")
+                print(traceback.format_exc())
 
             except Exception as e:
                 print(f"An error occurred: {str(e)}")
+                print(traceback.format_exc())
 
             finally:
                 cursor.close()
@@ -304,9 +307,11 @@ class Buttons(discord.ui.View):
 
             except sqlite3.Error as e:
                 print(f"Database error: {str(e)}")
+                print(traceback.format_exc())
 
             except Exception as e:
                 print(f"An error occurred: {str(e)}")
+                print(traceback.format_exc())
 
             finally:
                 cursor.close()

@@ -1,6 +1,7 @@
 import sqlite3
 from datetime import datetime
 from stripe_integration import create_payment_link, get_default_pricing, verify_payment_links_job
+import traceback
 
 DATABASE_URL = "./config/database.sqlite"
 
@@ -69,9 +70,11 @@ async def deduct_credits(user_id: str, amount: int):
         
     except sqlite3.Error as e:
         print(f"Database error: {str(e)}")
+        print(traceback.format_exc())
         return False
     except Exception as e:
         print(f"An error occurred: {str(e)}")
+        print(traceback.format_exc())
         return False
     finally:
         cursor.close()
@@ -163,10 +166,12 @@ async def discord_recharge_prompt(user_id:str, username:str):
 
     except sqlite3.Error as e:
         print(f"Database error: {str(e)}")
+        print(traceback.format_exc())
         return "failed"
 
     except Exception as e:
         print(f"An error occurred: {str(e)}")
+        print(traceback.format_exc())
         return "failed"
 
     finally:
@@ -205,6 +210,7 @@ async def discord_balance_prompt(user_id:str, username:str):
 
     except Exception as e:
         print(f"An error occurred: {str(e)}")
+        print(traceback.format_exc())
         return None
 
     finally:

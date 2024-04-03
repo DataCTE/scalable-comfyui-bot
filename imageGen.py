@@ -23,6 +23,7 @@ import discord
 import logging
 import sqlite3
 from db import DATABASE_URL
+import traceback
 
 # Read the configuration
 config = configparser.ConfigParser()
@@ -109,10 +110,12 @@ async def save_images(images, user_id, UUID, model, prompt):
 
     except sqlite3.Error as e:
         print(f"Database error: {str(e)}")
+        print(traceback.format_exc())
         conn.rollback()
 
     except Exception as e:
         print(f"An error occurred: {str(e)}")
+        print(traceback.format_exc())
         conn.rollback()
 
     finally:
@@ -143,10 +146,12 @@ async def get_image_from_database(image_id):
 
     except sqlite3.Error as e:
         print(f"Database error: {str(e)}")
+        print(traceback.format_exc())
         return None
 
     except Exception as e:
         print(f"An error occurred: {str(e)}")
+        print(traceback.format_exc())
         return None
 
     finally:
@@ -221,10 +226,12 @@ async def create_collage(UUID: str, batch_size: int):
 
     except sqlite3.Error as e:
         print(f"Database error: {str(e)}")
+        print(traceback.format_exc())
         return None
 
     except Exception as e:
         print(f"An error occurred: {str(e)}")
+        print(traceback.format_exc())
         return None
 
     finally:

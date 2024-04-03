@@ -1,6 +1,7 @@
 import logging
 import sqlite3
 import os
+import traceback
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -116,9 +117,11 @@ async def save_image_generation(user_id: str, prompt: str, image_path: str):
 
     except sqlite3.Error as e:
         print(f"Database error: {str(e)}")
+        print(traceback.format_exc())
 
     except Exception as e:
         print(f"An error occurred: {str(e)}")
+        print(traceback.format_exc())
 
     finally:
         cursor.close()
@@ -137,10 +140,12 @@ async def get_user_images(user_id: str):
 
     except sqlite3.Error as e:
         print(f"Database error: {str(e)}")
+        print(traceback.format_exc())
         return []
 
     except Exception as e:
         print(f"An error occurred: {str(e)}")
+        print(traceback.format_exc())
         return []
 
     finally:
