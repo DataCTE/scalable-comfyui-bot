@@ -216,10 +216,7 @@ async def create_collage(UUID: str, batch_size: int):
             return None
 
         # Save the collage to a file
-        collage_path = f"collageimages/collage_{UUID}.png"
-        collage.save(collage_path)
-
-        return collage_path
+        
 
     except sqlite3.Error as e:
         print(f"Database error: {str(e)}")
