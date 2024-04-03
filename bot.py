@@ -85,10 +85,10 @@ class ImageButton(discord.ui.Button):
             row=row,
             style=discord.ButtonStyle.grey,
         )
-        self.callback = callback
+        self.inner_callback = callback
 
     async def callback(self, interaction: discord.Interaction):
-        await self.callback(interaction, self)
+        await self.inner_callback(interaction, self)
 
 class Buttons(discord.ui.View):
     def __init__(
