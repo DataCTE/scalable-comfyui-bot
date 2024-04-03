@@ -259,7 +259,7 @@ class ImageGenerator:
                     if data["node"] is None and data["prompt_id"] == prompt_id:
                         break
             except ValueError as e:
-                print("Incompatible response from ComfyUI")
+                print(f"Incompatible response from ComfyUI {e}")
 
         history = get_history(prompt_id)[prompt_id]
 
