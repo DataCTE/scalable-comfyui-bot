@@ -290,15 +290,13 @@ class Buttons(discord.ui.View):
                 await interaction.channel.send( 
                     content=final_message,
                     file=discord.File(
-                        fp=upscaled_image.read(), filename="upscaled_image.png"
+                        fp=io.BytesIO(image), filename="upscaled_image.png"
                     ),
                 )
                 # deduct credits
                 amount = user_credits - 5
                 print(amount)
                 await deduct_credits(user_id, amount)
-                #delte the file
-                os.remove(inputname)
 
             except sqlite3.Error as e:
                 print(f"Database error: {str(e)}")
