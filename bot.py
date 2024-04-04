@@ -277,10 +277,10 @@ class Buttons(discord.ui.View):
                     image=image, prompt=self.prompt, negative_prompt=self.negative_prompt, user_id=self.user_id, UUID=u_uuid
                 )
 
-                os.makedirs("input", exist_ok=True)
-                inputname = f"input/{u_uuid}.png"
-                with open(inputname, "wb") as file:
-                    file.write(upscaled_image)
+                # os.makedirs("input", exist_ok=True)
+                # inputname = f"input/{u_uuid}.png"
+                # with open(inputname, "wb") as file:
+                #     file.write(upscaled_image)
                 #convert to bytes
               
 
@@ -290,7 +290,7 @@ class Buttons(discord.ui.View):
                 await interaction.channel.send( 
                     content=final_message,
                     file=discord.File(
-                        fp=inputname, filename="upscaled_image.png"
+                        fp=upscaled_image.read(), filename="upscaled_image.png"
                     ),
                 )
                 # deduct credits
