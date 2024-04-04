@@ -86,6 +86,7 @@ async def save_images(images, user_id, UUID, model, prompt):
     conn = sqlite3.connect(DATABASE_URL)
     cursor = conn.cursor()
     # TODO: fix the fucking uuid count passing through every wormhole known to man problem soon.TM
+    print(f"{len(images)} {type(images)}")
     try:
         count = 1
         for image in images:
@@ -403,7 +404,7 @@ async def generate_images(
     workflow = edit_given_nodes_properties(
         workflow, latent_image_nodes, "batch_size", batch_size
     )
-    workflow = edit_given_nodes_properties(workflow, ksampler_nodes, "steps", 20)
+    workflow = edit_given_nodes_properties(workflow, ksampler_nodes, "steps", 30)
     workflow = edit_given_nodes_properties(
         workflow, seed, "seed", random.randint(0, 10000000)
     )

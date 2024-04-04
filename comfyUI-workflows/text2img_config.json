@@ -120,7 +120,7 @@
     },
     "class_type": "CheckpointLoaderSimple",
     "_meta": {
-      "title": "Load Checkpoint"
+      "title": "Model Checkpoint"
     }
   }
 }
