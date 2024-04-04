@@ -39,7 +39,7 @@ tree = discord.app_commands.CommandTree(client)
 
 if IMAGE_SOURCE == "LOCAL":
     server_address = config.get("LOCAL", "SERVER_ADDRESS")
-    from imageGen import generate_images, upscale_image, generate_alternatives
+    from imageGen import generate_images, upscale_image, generate_alternatives, get_image_from_database
 
 
 model = VisionEncoderDecoderModel.from_pretrained(
@@ -141,7 +141,7 @@ class Buttons(discord.ui.View):
     async def reroll_image(self, interaction: discord.Interaction, u_uuid):
         try:
 
-            await interaction.followup.send(
+            await interaction.channel.send(
                 f"{interaction.user.mention} asked me to re-imagine the image, this shouldn't take too long..."
             )
                 # credit check
@@ -177,7 +177,7 @@ class Buttons(discord.ui.View):
                 prompt = result[0] if result else self.prompt
 
                 # Generate a new image with the retrieved prompt
-                new_uuid = await generate_alternatives(
+                images = await generate_alternatives(
                     UUID=u_uuid,
                     user_id=interaction.user.id,
                     prompt=prompt,
@@ -187,18 +187,24 @@ class Buttons(discord.ui.View):
                     height=1024,
                     model=self.model,
                 )
+                await save_images(UUID=u_uuid, images=images)
 
                 # Create a new collage for the re-rolled image
-                collage_path = await create_collage(UUID=new_uuid, batch_size=self.batch_size)
+                collage_path = await create_collage(UUID=u_uuid, batch_size=self.batch_size)
+                #save to path 
+                os.makedirs("input", exist_ok=True)
+                inputname = f"input/{u_uuid}.png"
+                with open(inputname, "wb") as file:
+                    file.write(collage_path)
 
                 # Construct the final message with user mention
                 final_message = f'{interaction.user.mention} asked me to re-imagine the image, here is what I imagined for them. "{prompt}", "{self.model}"'
                 await interaction.followup.send( 
                     content=final_message,
-                    file=discord.File(fp=collage_path, filename="collage.png"),
+                    file=discord.File(fp=inputname, filename="collage.png"),
                     view=Buttons(
                         prompt=self.negative_prompt,
-                        new_UUID=new_uuid,
+                        UUID=u_uuid,
                         url=interaction.user.id,
                         model=self.model,
                         negative_prompt=self.negative_prompt,
@@ -228,7 +234,7 @@ class Buttons(discord.ui.View):
 
         try:
 
-            await interaction.followup.send(
+            await interaction.channel.send(
                 f"{interaction.user.mention} asked me to upscale the image, this shouldn't take too long..."
             )
                 # check credits
@@ -264,32 +270,35 @@ class Buttons(discord.ui.View):
                 image = await get_image_from_database(image_id=u_uuid)  # Await the coroutine
 
                 print(f"LENGHT OF images array {len(image)} {type(image)}")
-
+                
 
                 # Upscale image logic assumed to be defined elsewhere
                 upscaled_image = await upscale_image(
-                    image, self.prompt, self.negative_prompt
+                    image=image, prompt=self.prompt, negative_prompt=self.negative_prompt, user_id=self.user_id, UUID=u_uuid
                 )
 
-                timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-                upscaled_image_path = f"./out/upscaledImage_{timestamp}.png"
-
-                # Assuming upscaled_image has a .save() method
-                upscaled_image.save(upscaled_image_path)
+                os.makedirs("input", exist_ok=True)
+                inputname = f"input/{u_uuid}.png"
+                with open(inputname, "wb") as file:
+                    file.write(upscaled_image)
+                #convert to bytes
+              
 
                 final_message = (
                     f"{interaction.user.mention} here is your upscaled image"
                 )
-                await interaction.followup.send( 
+                await interaction.channel.send( 
                     content=final_message,
                     file=discord.File(
-                        fp=upscaled_image_path, filename="upscaled_image.png"
+                        fp=inputname, filename="upscaled_image.png"
                     ),
                 )
                 # deduct credits
                 amount = user_credits - 5
                 print(amount)
                 await deduct_credits(user_id, amount)
+                #delte the file
+                os.remove(inputname)
 
             except sqlite3.Error as e:
                 print(f"Database error: {str(e)}")
@@ -343,8 +352,10 @@ async def describe(interaction: discord.Interaction, image: discord.Attachment):
 @app_commands.describe(height="height of the image" )
 @app_commands.describe(attachment="attachment to use")
 @app_commands.choices(model=[
-    Choice(name="ProteusV1", value="proteus-rundiffusionV2.5"),
-    Choice(name="Anime", value="AnimeP")
+    Choice(name="ProteusV1", value="proteus-rundiffusionV2.3"),
+    Choice(name="ProteusV2", value="proteus-rundiffusionV2.5"),
+    Choice(name="Anime", value="AnimeP"),
+    Choice(name="Photo", value="RunDiffusion-XL-PhotoV3")
 ])
 @app_commands.describe(lora="Choose the lora to use")
 @app_commands.choices(lora=[
@@ -359,7 +370,7 @@ async def imagine(
     batch_size: int = 4,
     width: int = 1024,
     height: int = 1024,
-    model: str = "proteus-rundiffusionV2.5",
+    model: str = "proteus-rundiffusionV2.3",
     attachment: discord.Attachment = None, 
     lora: str = None
 ):
@@ -370,11 +381,19 @@ async def imagine(
 
     user_credits = await discord_balance_prompt(user_id, username)
 
+    if batch_size > 4:
+        await interaction.response.send_message(
+            "The maximum batch size is 4. Please try again with a smaller batch size.",
+            ephemeral=True,
+        )
+        return
+
     if user_credits is None:
         # Handle case where user credits couldn't be retrieved
         create_DB_user(user_id, username)
 
-    elif user_credits < 10:  # Assuming 5 credits are needed
+
+    if user_credits < 10:  # Assuming 5 credits are needed
         payment_link = await discord_recharge_prompt(username, user_id)
         if payment_link == "failed":
             await interaction.response.send_message(
@@ -394,7 +413,6 @@ async def imagine(
         
 
     UUID = str(uuid.uuid4())  # Generate unique hash for each image
-    prompt_gen = f"{prompt}, masterpiece, best quality"
 
     if attachment:
         # save input image
@@ -402,7 +420,7 @@ async def imagine(
         await style_images(
             UUID=UUID,
             user_id=interaction.user.id,
-            prompt=prompt_gen,
+            prompt=prompt,
             attachment=attachment,
             negative_prompt=negative_prompt,
             batch_size=batch_size,
@@ -414,7 +432,7 @@ async def imagine(
         await generate_images(
             UUID=UUID,
             user_id=interaction.user.id,
-            prompt=prompt_gen,
+            prompt=prompt,
             negative_prompt=negative_prompt,
             batch_size=batch_size,
             width=width,
@@ -435,7 +453,15 @@ async def imagine(
         batch_size=batch_size,
     )
    
-
+   
+    if model == "AnimeP":
+        model = "Anime"
+    elif model == "RunDiffusion-XL-PhotoV3":
+        model = "Photo"
+    elif model == "proteus-rundiffusionV2.3":
+        model = "ProteusV1"
+    elif model == "proteus-rundiffusionV2.5":
+        model = "ProteusV2"
     file = discord.File(collage_blob, filename="collage.png")
     final_message = f"{interaction.user.mention}, here is what I imagined for you with ```{prompt}, {model}```"
 
@@ -443,12 +469,10 @@ async def imagine(
         content=final_message, file=file, view=buttons_view, ephemeral=False
     )
 
-    if user_id == "879714655356997692":
-        print("User ID matches the specified value. Skipping credit deduction.")
-    else:
-        amount = user_credits - 10
-        print(amount)
-        await deduct_credits(user_id, amount)
+
+    amount = user_credits - 10
+    print(amount)
+    await deduct_credits(user_id, amount)
 
     return UUID
 

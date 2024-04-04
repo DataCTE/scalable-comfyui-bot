@@ -403,7 +403,7 @@ async def generate_images(
     workflow = edit_given_nodes_properties(
         workflow, latent_image_nodes, "batch_size", batch_size
     )
-    workflow = edit_given_nodes_properties(workflow, ksampler_nodes, "steps", 50)
+    workflow = edit_given_nodes_properties(workflow, ksampler_nodes, "steps", 20)
     workflow = edit_given_nodes_properties(
         workflow, seed, "seed", random.randint(0, 10000000)
     )
@@ -421,7 +421,7 @@ async def generate_images(
         # Before setting the model, ensure the model name is adjusted to remove ".safetensors" if present
         model_name_adjusted = str(model) + ".safetensors"
         workflow = edit_given_nodes_properties(
-            workflow, model_node, "unet_name", model_name_adjusted
+            workflow, model_node, "ckpt_name", model_name_adjusted
         )
     with open("workflow.json", "w") as f:
         json.dump(workflow, f)
@@ -700,7 +700,11 @@ async def generate_alternatives(
     if image_data is None:
         raise ValueError("Image data not found in the database.")
 
-    inputname = ""  ##TODO: Save the image data to a file
+     ##TODO: Save the image data to a file
+    os.makedirs("input", exist_ok=True)
+    inputname = f"input/{UUID}.png"
+    with open(inputname, "wb") as file:
+        file.write(image_data)
 
     # Load the workflow configuration
     with open(img2img_config, "r") as file:
@@ -716,7 +720,7 @@ async def generate_alternatives(
         "Model Checkpoint", workflow, "title", whether_to_use_meta=True
     )
     latent_image_nodes = search_for_nodes_with_key(
-        "EmptyLatentImage", workflow, "class_type", whether_to_use_meta=False
+        "RepeatLatentBatch", workflow, "class_type", whether_to_use_meta=False
     )
     ksampler_nodes = search_for_nodes_with_key(
         "KSampler", workflow, "class_type", whether_to_use_meta=False
@@ -736,7 +740,7 @@ async def generate_alternatives(
         )
 
     workflow = edit_given_nodes_properties(
-        workflow, latent_image_nodes, "batch_size", batch_size
+        workflow, latent_image_nodes, "amount", batch_size
     )
     workflow = edit_given_nodes_properties(workflow, ksampler_nodes, "steps", 50)
     workflow = edit_given_nodes_properties(
@@ -796,16 +800,18 @@ async def upscale_image(
     prompt: str,
     negative_prompt: str,
 ):
-    os.makedirs("upscale", exist_ok=True)
+    image_blob = await get_image_from_database(UUID)
 
-    # Await the image object if it's a coroutine
-    if asyncio.iscoroutine(image):
-        image = await image
+    os.makedirs("input", exist_ok=True)
 
-    # Save the image
-    inputname = "upscale/temp.png"
-    image.save(inputname)
+    # Save the image blob to a file
+    inputname = f"input/{UUID}.png"
+    with open(inputname, "wb") as file:
+        file.write(image_blob)
+
     filename_without_directory = os.path.basename(inputname)
+    
+   
     # Load the workflow configuration
     with open(upscale_config, "r") as file:
         workflow = json.load(file)
@@ -840,7 +846,11 @@ async def upscale_image(
     print(f"Images generated: {images}")
     await generator.close()
     model="Upscale"
-    await save_images(images, user_id, f"{UUID}_upscaled", model, prompt)
+    new_uuid=UUID + "_upscaled"
+    await save_images(images, user_id, new_uuid, model, prompt)
 
 
-    return images[0]
+    image_blob = get_image_from_database(new_uuid)
+
+
+    return image_blob

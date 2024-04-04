@@ -2,9 +2,9 @@
   "3": {
     "inputs": {
       "seed": 1079272804227755,
-      "steps": 50,
-      "cfg": 7,
-      "sampler_name": "dpmpp_3m_sde_gpu",
+      "steps": 20,
+      "cfg": 8,
+      "sampler_name": "euler_ancestral",
       "scheduler": "karras",
       "denoise": 1,
       "model": [
@@ -62,8 +62,8 @@
         0
       ],
       "vae": [
-        "76",
-        0
+        "77",
+        2
       ]
     },
     "class_type": "VAEDecode",
@@ -101,12 +101,12 @@
       "strength_model": 0,
       "strength_clip": 0,
       "model": [
-        "73",
+        "77",
         0
       ],
       "clip": [
-        "74",
-        0
+        "77",
+        1
       ]
     },
     "class_type": "LoraLoader",
@@ -114,32 +114,13 @@
       "title": "Load LoRA"
     }
   },
-  "73": {
+  "77": {
     "inputs": {
-      "unet_name": "proteus/diffusion_pytorch_model.safetensors"
+      "ckpt_name": "RunDiffusion-XL-PhotoV3.safetensors"
     },
-    "class_type": "UNETLoader",
+    "class_type": "CheckpointLoaderSimple",
     "_meta": {
-      "title": "Model Checkpoint"
-    }
-  },
-  "74": {
-    "inputs": {
-      "clip_name1": "text_encoder/model.safetensors",
-      "clip_name2": "text_encoder_2/model.safetensors"
-    },
-    "class_type": "DualCLIPLoader",
-    "_meta": {
-      "title": "DualCLIPLoader"
-    }
-  },
-  "76": {
-    "inputs": {
-      "vae_name": "sdxl_vae.safetensors"
-    },
-    "class_type": "VAELoader",
-    "_meta": {
-      "title": "Load VAE"
+      "title": "Load Checkpoint"
     }
   }
 }
