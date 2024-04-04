@@ -850,7 +850,7 @@ async def upscale_image(
     await save_images(images, user_id, new_uuid, model, prompt)
 
 
-    image_blob = get_image_from_database(new_uuid)
+    image_blob = await get_image_from_database(new_uuid)
 
 
     return image_blob
