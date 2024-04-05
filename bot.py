@@ -370,8 +370,8 @@ async def imagine(
     model: str = "proteus-rundiffusionV2.5",
     attachment: discord.Attachment = None, 
     lora: str = None,
-    cfg: int = 7,
-    steps: int = 20
+    cfg: int = 3.5,
+    steps: int = 50
 ):
     ## TODO: package parameters into a dataclass and build functions around it.
    
