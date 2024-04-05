@@ -381,7 +381,7 @@ async def generate_images(
         "Model Checkpoint", workflow, "title", whether_to_use_meta=True
     )
     lora_node = search_for_nodes_with_key(
-        "LoRA", workflow, "title", whether_to_use_meta=True
+        "LoraLoader", workflow, "class_type", whether_to_use_meta=False
     )
     
     if lora is not None:
@@ -400,7 +400,6 @@ async def generate_images(
         )
 
     # Modify the prompt dictionary
-    workflow = edit_given_nodes_properties(workflow, ksampler_nodes, "steps", steps)
 
     workflow = edit_given_nodes_properties(workflow, cfg_node, "cfg", cfg)
 
@@ -413,7 +412,7 @@ async def generate_images(
     workflow = edit_given_nodes_properties(
         workflow, latent_image_nodes, "batch_size", batch_size
     )
-    workflow = edit_given_nodes_properties(workflow, ksampler_nodes, "steps", 30)
+    workflow = edit_given_nodes_properties(workflow, ksampler_nodes, "steps", steps)
     workflow = edit_given_nodes_properties(
         workflow, seed, "seed", random.randint(0, 10000000)
     )

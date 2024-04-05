@@ -358,7 +358,7 @@ async def describe(interaction: discord.Interaction, image: discord.Attachment):
 @app_commands.choices(lora=[
     Choice(name="Detail", value="tweak-detail-xl"),
     Choice(name="SythAnimeV2", value="AnimeSythenticV0.2"),
-    Choice(name="Artistic", value="XL_more_art-full_v1")
+    Choice(name="Artistic", value="xl_more_art-full_v1")
 ])
 async def imagine(
     interaction: discord.Interaction, 
