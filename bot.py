@@ -347,6 +347,7 @@ async def describe(interaction: discord.Interaction, image: discord.Attachment):
 @app_commands.describe(height="height of the image" )
 @app_commands.describe(cfg="cfg to use")
 @app_commands.describe(attachment="attachment to use")
+@app_commands.describe(steps="steps to use")
 @app_commands.choices(model=[
     Choice(name="ProteusV1", value="proteus-rundiffusionV2.3"),
     Choice(name="ProteusV2", value="proteus-rundiffusionV2.5"),
@@ -369,7 +370,8 @@ async def imagine(
     model: str = "proteus-rundiffusionV2.5",
     attachment: discord.Attachment = None, 
     lora: str = None,
-    cfg: int = 7
+    cfg: int = 7,
+    steps: int = 20
 ):
     ## TODO: package parameters into a dataclass and build functions around it.
    
@@ -417,6 +419,7 @@ async def imagine(
         await style_images(
             UUID=UUID,
             cfg=cfg,
+            steps=steps,
             user_id=interaction.user.id,
             prompt=prompt,
             attachment=attachment,
@@ -430,6 +433,7 @@ async def imagine(
         await generate_images(
             UUID=UUID,
             cfg=cfg,
+            steps=steps,
             user_id=interaction.user.id,
             prompt=prompt,
             negative_prompt=negative_prompt,

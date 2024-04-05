@@ -343,6 +343,7 @@ async def generate_images(
     height: int,
     model: str,
     lora: str,
+    steps: int,
 ):
     # Your existing logic to prepare for image generation...
     with open(text2img_config, "r") as file:
@@ -382,7 +383,7 @@ async def generate_images(
     lora_node = search_for_nodes_with_key(
         "LoRA", workflow, "title", whether_to_use_meta=True
     )
-
+    
     if lora is not None:
         lora += ".safetensors"
         workflow = edit_given_nodes_properties(workflow, lora_node, "lora_name", lora)
@@ -399,6 +400,8 @@ async def generate_images(
         )
 
     # Modify the prompt dictionary
+    workflow = edit_given_nodes_properties(workflow, ksampler_nodes, "steps", steps)
+
     workflow = edit_given_nodes_properties(workflow, cfg_node, "cfg", cfg)
 
     workflow = edit_given_nodes_properties(workflow, prompt_nodes, "text", prompt)
@@ -548,6 +551,7 @@ async def style_images(
     batch_size: int,
     width: int,
     height: int,
+    steps: int,
     model: str,
 ):
     # Save the attachment to a file
@@ -560,6 +564,10 @@ async def style_images(
 
     generator = ImageGenerator()
     await generator.connect()
+
+    steps_node = search_for_nodes_with_key(
+        "kSampler", workflow, "class_type", whether_to_use_meta=False
+    )
 
     prompt_nodes = search_for_nodes_with_key(
         "Positive Prompt", workflow, "title", whether_to_use_meta=True
@@ -582,6 +590,7 @@ async def style_images(
     neg_prompt_nodes = search_for_nodes_with_key(
         "Negative Prompt", workflow, "title", whether_to_use_meta=True
     )
+
     if prompt_nodes:
         workflow = edit_given_nodes_properties(workflow, prompt_nodes, "text", prompt)
     if neg_prompt_nodes:
@@ -597,7 +606,7 @@ async def style_images(
     workflow = edit_given_nodes_properties(
         workflow, latent_image_nodes, "batch_size", batch_size
     )
-    workflow = edit_given_nodes_properties(workflow, ksampler_nodes, "steps", 30)
+    workflow = edit_given_nodes_properties(workflow, ksampler_nodes, "steps", steps)
     workflow = edit_given_nodes_properties(
         workflow, seed, "seed", random.randint(0, 10000000)
     )
