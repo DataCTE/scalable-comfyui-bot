@@ -370,7 +370,7 @@ async def imagine(
     model: str = "proteus-rundiffusionV2.5",
     attachment: discord.Attachment = None, 
     lora: str = None,
-    cfg: int = 3.5,
+    cfg: int = 4,
     steps: int = 50
 ):
     ## TODO: package parameters into a dataclass and build functions around it.
@@ -516,7 +516,7 @@ async def balance(
     # make sure they exist in the db
     user_credits = await discord_balance_prompt(user_id, username)
     if user_credits is None:
-        create_DB_user(user_id, username)
+       await create_DB_user(user_id, username)
 
     await interaction.response.send_message(
         f"Your current balance is: {user_credits}", ephemeral=True
