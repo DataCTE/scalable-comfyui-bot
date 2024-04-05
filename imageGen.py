@@ -335,6 +335,7 @@ async def evaluate_images_with_image_reward(prompt: str, img_list: list):
 async def generate_images(
     UUID: str,
     user_id: int,
+    cfg: int,
     prompt: str,
     negative_prompt: str,
     batch_size: int,
@@ -349,6 +350,10 @@ async def generate_images(
 
     generator = ImageGenerator()
     await generator.connect()
+
+    cfg_node = search_for_nodes_with_key(
+        "KSampler", workflow, "class_type", whether_to_use_meta=False
+    )
 
     prompt_nodes = search_for_nodes_with_key(
         "Positive Prompt", workflow, "title", whether_to_use_meta=True
@@ -394,6 +399,7 @@ async def generate_images(
         )
 
     # Modify the prompt dictionary
+    workflow = edit_given_nodes_properties(workflow, cfg_node, "cfg", cfg)
 
     workflow = edit_given_nodes_properties(workflow, prompt_nodes, "text", prompt)
 
@@ -535,6 +541,7 @@ logging.basicConfig(
 async def style_images(
     UUID: str,
     user_id: int,
+    cfg: int,
     prompt: str,
     attachment: discord.Attachment,
     negative_prompt: str,
@@ -556,6 +563,9 @@ async def style_images(
 
     prompt_nodes = search_for_nodes_with_key(
         "Positive Prompt", workflow, "title", whether_to_use_meta=True
+    )
+    cfg_node = search_for_nodes_with_key(
+        "KSampler", workflow, "class_type", whether_to_use_meta=False
     )
     model_node = search_for_nodes_with_key(
         "Model Checkpoint", workflow, "title", whether_to_use_meta=True
@@ -591,6 +601,7 @@ async def style_images(
     workflow = edit_given_nodes_properties(
         workflow, seed, "seed", random.randint(0, 10000000)
     )
+    workflow = edit_given_nodes_properties(workflow, cfg_node, "cfg", cfg)
     if model_node:
         # Before setting the model, ensure the model name is adjusted to remove ".safetensors" if present
         model_name_adjusted = str(model) + ".safetensors"
