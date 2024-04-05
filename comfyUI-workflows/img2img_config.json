@@ -38,9 +38,9 @@
       "inputs": {
         "seed": 1007246773846082,
         "steps": 35,
-        "cfg": 8,
-        "sampler_name": "dpmpp_2s_ancestral",
-        "scheduler": "karras",
+        "cfg": 7,
+        "sampler_name": "euler_ancestral",
+        "scheduler": "normal",
         "denoise": 0.5,
         "model": [
           "1",

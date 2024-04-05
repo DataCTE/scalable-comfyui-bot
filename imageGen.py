@@ -572,10 +572,6 @@ async def style_images(
     neg_prompt_nodes = search_for_nodes_with_key(
         "Negative Prompt", workflow, "title", whether_to_use_meta=True
     )
-    if model == "AnimeP":
-        workflow = edit_given_nodes_properties(
-            workflow, ksampler_nodes, "sampler_name", "euler_ancestral"
-        )
     if prompt_nodes:
         workflow = edit_given_nodes_properties(workflow, prompt_nodes, "text", prompt)
     if neg_prompt_nodes:
@@ -591,7 +587,7 @@ async def style_images(
     workflow = edit_given_nodes_properties(
         workflow, latent_image_nodes, "batch_size", batch_size
     )
-    workflow = edit_given_nodes_properties(workflow, ksampler_nodes, "steps", 50)
+    workflow = edit_given_nodes_properties(workflow, ksampler_nodes, "steps", 30)
     workflow = edit_given_nodes_properties(
         workflow, seed, "seed", random.randint(0, 10000000)
     )
@@ -743,7 +739,7 @@ async def generate_alternatives(
     workflow = edit_given_nodes_properties(
         workflow, latent_image_nodes, "amount", batch_size
     )
-    workflow = edit_given_nodes_properties(workflow, ksampler_nodes, "steps", 50)
+    workflow = edit_given_nodes_properties(workflow, ksampler_nodes, "steps", 30)
     workflow = edit_given_nodes_properties(
         workflow, seed, "seed", random.randint(0, 10000000)
     )
@@ -756,10 +752,6 @@ async def generate_alternatives(
 
     default_width = 1024
     default_height = 1024
-    if model == "AnimeP":
-        workflow = edit_given_nodes_properties(
-            workflow, ksampler_nodes, "sampler_name", "euler_ancestral"
-        )
     # Modify the workflow nodes for width and height with provided values or defaults
     workflow = edit_given_nodes_properties(
         workflow,

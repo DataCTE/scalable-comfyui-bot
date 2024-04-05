@@ -187,25 +187,22 @@ class Buttons(discord.ui.View):
                     height=1024,
                     model=self.model,
                 )
-                await save_images(UUID=u_uuid, images=images)
+                await save_images(UUID=u_uuid, images=images, user_id=interaction.user.id, model=self.model, prompt=prompt)
 
                 # Create a new collage for the re-rolled image
                 collage_path = await create_collage(UUID=u_uuid, batch_size=self.batch_size)
-                #save to path 
-                os.makedirs("input", exist_ok=True)
-                inputname = f"input/{u_uuid}.png"
-                with open(inputname, "wb") as file:
-                    file.write(collage_path)
+                
 
                 # Construct the final message with user mention
                 final_message = f'{interaction.user.mention} asked me to re-imagine the image, here is what I imagined for them. "{prompt}", "{self.model}"'
-                await interaction.followup.send( 
+                await interaction.channel.send( 
                     content=final_message,
-                    file=discord.File(fp=inputname, filename="collage.png"),
+                    file=discord.File(fp=collage_path, filename="collage.png"),
                     view=Buttons(
+                        images=images,
                         prompt=self.negative_prompt,
                         UUID=u_uuid,
-                        url=interaction.user.id,
+                        user_id=interaction.user.id,
                         model=self.model,
                         negative_prompt=self.negative_prompt,
                     ),
@@ -368,7 +365,7 @@ async def imagine(
     batch_size: int = 4,
     width: int = 1024,
     height: int = 1024,
-    model: str = "proteus-rundiffusionV2.3",
+    model: str = "proteus-rundiffusionV2.5",
     attachment: discord.Attachment = None, 
     lora: str = None
 ):
