@@ -4,8 +4,17 @@ import stripe
 from utils import config
 from datetime import datetime
 import traceback
+import pathlib
+import json
 
 DATABASE_URL = "./config/database.sqlite"
+
+PAYMENT_CONFIG_JSON = "./config/payment.json"
+
+def payment_parameter(parameter, default=None):
+    with pathlib.Path(PAYMENT_CONFIG_JSON).open('rb') as fp:
+        return json.loads(fp.read()).get(parameter)
+    return default
 
 async def run_in_executor(func, *args, **kwargs):
     loop = asyncio.get_running_loop()
@@ -28,14 +37,14 @@ async def create_payment_link(user_id, price_id, customer_id=None):
         line_items=[{'price': price_id, 'quantity': 1}],
         metadata={'user_id': str(user_id), 'customer_id': customer_id or ''}
     )
-    return payment_link.url
+    return payment_link
 
 async def get_default_pricing(stripe_product_id):
     price = await run_in_executor(stripe.Price.retrieve, id=stripe_product_id)
     return price
 
 def get_credit_per_usd():
-    return config['credits']['stripe']['credits_per_dollar']
+    return payment_parameter('credits_per_dollar')
 
 async def get_credit_amount_per_price_id(price_id):
     price_object = await run_in_executor(stripe.Price.retrieve, price_id)
@@ -52,7 +61,7 @@ async def verify_payment_links_job():
     try:
         cursor.execute("""
             SELECT * FROM payments
-            WHERE confirmed_at IS NULL AND type = 'stripe_payment_link'
+            WHERE confirmedAt IS NULL AND type = 'stripe_payment_link'
         """)
         unconfirmed_payments = cursor.fetchall()
         unconfirmed_links = [payment[4] for payment in unconfirmed_payments]  # Assuming txid is the 5th column in the payments table
@@ -70,20 +79,20 @@ async def verify_payment_links_job():
                 credits = get_total_credit_amount(total_usd)
 
                 cursor.execute("""
-                    SELECT * FROM users WHERE id = ?
+                    SELECT * FROM credits WHERE user_id = ?
                 """, (user_id,))
-                user = cursor.fetchone()
+                user_credit = cursor.fetchone()
 
                 payment_to_confirm = next((p for p in unconfirmed_payments if p[4] == payment_link), None)  # Assuming txid is the 5th column in the payments table
                 if payment_to_confirm:
-                    updated_credits = user[3] + credits  # Assuming credits is the 4th column in the users table
+                    updated_credits = user_credit[2] + credits  # Assuming credits is the 4th column in the users table
                     cursor.execute("""
-                        UPDATE users SET credits = ? WHERE id = ?
-                    """, (updated_credits, user_id))
+                        UPDATE credits SET credits = ? WHERE id = ?
+                    """, (updated_credits, user_credit[0]))
 
                     confirmed_at = datetime.now()
                     cursor.execute("""
-                        UPDATE payments SET confirmed_at = ? WHERE id = ?
+                        UPDATE payments SET confirmedAt = ? WHERE id = ?
                     """, (confirmed_at, payment_to_confirm[0]))  # Assuming id is the 1st column in the payments table
 
                     conn.commit()

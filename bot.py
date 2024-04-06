@@ -1,3 +1,5 @@
+import logging
+logging.basicConfig()
 
 import discord
 import discord.ext
@@ -19,6 +21,9 @@ from transformers import VisionEncoderDecoderModel, ViTImageProcessor, AutoToken
 import torch
 import asyncio
 import traceback
+from discord.ext import tasks
+from stripe_integration import verify_payment_links_job
+import time
 
 
 # setting up the bot
@@ -316,6 +321,7 @@ async def on_ready():
     init_db()  # Initialize DB
     await tree.sync()
     print(f"Logged in as {client.user.name} ({client.user.id})")
+    task_test.start()
 
 
 @tree.command(name="describe", description="Describe an image")
@@ -499,14 +505,25 @@ async def recharge(
     payment_link = await create_payment_link(
         user_id, await get_default_pricing(stripe_product_id)
     )
-    if payment_link == "failed":
+    payment_link_url = payment_link.url
+
+    if payment_link_url == "failed":
         await interaction.response.send_message(
             f"Failed to create payment link or payment itself failed. Please try again later.",
             ephemeral=True,
         )
         exit
+
+    conn = sqlite3.connect(DATABASE_URL)
+    cursor = conn.cursor()
+    cursor.execute("""
+        INSERT INTO payments (user_id, type, timestamp, txid)
+        VALUES (?, ?, ?, ?)
+    """, (user_id, "stripe_payment_link", datetime.now(), payment_link.id))
+    conn.commit()
+
     await interaction.response.send_message(
-        f"Recharge your account: {payment_link}", ephemeral=True
+        f"Recharge your account: {payment_link.url}", ephemeral=True
     )
     await interaction.response.defer(ephemeral=True)
 
@@ -537,6 +554,16 @@ def generate_bot_invite_link(client_id):
     )
     return invite_link
 
+
+JOB_LOGGER = logging.getLogger("datapulse_jobs")
+
+@tasks.loop(seconds=15)
+async def task_test():
+    JOB_LOGGER.info("Stripe Events Check Started")
+    start_time = time.perf_counter()
+    await verify_payment_links_job()
+    end_time = time.perf_counter()
+    JOB_LOGGER.info(f"Stripe Events Check Done: {end_time - start_time} seconds")
 
 # Example usage
 client_id = "1222513177699422279"  # Replace with your bot's client ID
