@@ -375,7 +375,7 @@ async def imagine(
     batch_size: int = 4,
     width: int = 1024,
     height: int = 1024,
-    model: str = "proteus-animep",
+    model: str = "RunDiffusion-XL-PhotoV3",
     attachment: discord.Attachment = None, 
     lora: str = None,
     cfg: float = 3.5,
@@ -569,6 +569,8 @@ async def task_test():
 client_id = "1222513177699422279"  # Replace with your bot's client ID
 invite_link = generate_bot_invite_link(client_id)
 print("Invite your bot using this link:", invite_link)
+
+logging.getLogger('stripe').setLevel(logging.WARNING)
 
 # run the bot
 client.run(TOKEN)

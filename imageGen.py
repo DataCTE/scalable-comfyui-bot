@@ -27,6 +27,8 @@ import traceback
 from itertools import cycle
 from collections import defaultdict
 
+IMG_LOGGER = logging.getLogger("Datapulse.imageGen")
+IMG_LOGGER.info("Importing imageGen")
 
 # Read the configuration
 config = configparser.ConfigParser()
@@ -45,6 +47,7 @@ text2imgV3_config = config["LOCAL_TEXT2IMGV3"]["CONFIG"]
 host_iter = cycle(cluster_hosts)
 
 def get_host():
+    # global host_iter
     if (backend_mode == 'cluster'):
         return next(host_iter)
     else:
@@ -258,6 +261,8 @@ async def create_collage(UUID: str, batch_size: int):
 
 class ImageGenerator:
     def __init__(self, host=server_address):
+        IMG_LOGGER.info(f"Starting a Generator instance for Host {host}")
+
         self.client_id = str(uuid.uuid4())
         self.host = host
         self.uri = f"ws://{host}/ws?clientId={self.client_id}"
@@ -380,7 +385,7 @@ async def generate_images(
         )
         workflow = edit_given_nodes_properties(workflow, cfg_node, "cfg", cfg)
 
-    generator = ImageGenerator()
+    generator = ImageGenerator(host=get_host())
     await generator.connect()
 
    
@@ -472,96 +477,6 @@ async def generate_images(
     await save_images(images, user_id, UUID, model, prompt)
 
 
-"""
-async def generate_images(prompt: str,negative_prompt: str,batch_size:int, width:int, height:int, model:str):
-    with open(text2img_config, 'r') as file:
-      workflow = json.load(file)
-
-    generator = ImageGenerator()
-    await generator.connect()
-
-    prompt_nodes = search_for_nodes_with_key('Positive Prompt', workflow, 'title', whether_to_use_meta=True)
-    latent_image_nodes = search_for_nodes_with_key('EmptyLatentImage', workflow, 'class_type', whether_to_use_meta=False)
-    ksampler_nodes = search_for_nodes_with_key('KSampler', workflow, 'class_type', whether_to_use_meta=False)
-    seed = search_for_nodes_with_key('KSampler', workflow, 'class_type', whether_to_use_meta=False)
-    widthnode=search_for_nodes_with_key('EmptyLatentImage', workflow, 'class_type', whether_to_use_meta=False)
-    heightnode=search_for_nodes_with_key('EmptyLatentImage', workflow, 'class_type', whether_to_use_meta=False)
-    neg_prompt_nodes = search_for_nodes_with_key('Negative Prompt', workflow, 'title', whether_to_use_meta=True)
-    model_node = search_for_nodes_with_key('Model Checkpoint', workflow, 'title', whether_to_use_meta=True)
-
-    # Modify the prompt dictionary
-    if(prompt != None and prompt_nodes[0] != ''):
-        workflow = edit_given_nodes_properties(workflow, prompt_nodes, 'text', prompt)
-    if neg_prompt_nodes:
-        workflow = edit_given_nodes_properties(workflow, neg_prompt_nodes, 'text', negative_prompt)
-
-    workflow = edit_given_nodes_properties(workflow, latent_image_nodes, 'batch_size', batch_size)
-    workflow = edit_given_nodes_properties(workflow, ksampler_nodes, 'steps', 50)
-    workflow = edit_given_nodes_properties(workflow, seed, 'seed', random.randint(0, 10000000))
-    default_width = 1024
-    default_height = 1024
-
-    # Modify the workflow nodes for width and height with provided values or defaults
-    workflow = edit_given_nodes_properties(workflow, widthnode, 'width', width if width is not None else default_width)
-    workflow = edit_given_nodes_properties(workflow, heightnode, 'height', height if height is not None else default_height)
-    if model_node:
-        # Before setting the model, ensure the model name is adjusted to remove ".safetensors" if present
-        model_name_adjusted = model + '.safetensors'
-        workflow = edit_given_nodes_properties(workflow, model_node, 'ckpt_name', model_name_adjusted)
-    
-    
-    results = perform_search(prompt)
-    
-    saved_image_paths = []
-    os.makedirs("input_images", exist_ok=True)
-
-    if isinstance(results, list) and all(isinstance(item, bytes) for item in results):
-        for i, image_data in enumerate(results, start=1):
-            image_name = f"input_images/image_{i}_{random.randint(0, 10000000)}.png"
-            with open(image_name, 'wb') as file:
-                file.write(image_data)
-            saved_image_paths.append(image_name)
-
-    # Load the ImageReward model
-    model = reward.load("ImageReward-v1.0")
-
-    # Evaluate the saved images
-    with torch.no_grad():
-        ranking, rewards = model.inference_rank(prompt, saved_image_paths)
-
-    # Get the best image's path
-    best_image_path = saved_image_paths[ranking[0]]
-    
-    print(f"The best-rated image is at: {best_image_path}")
-
-    
-    # Upload the best image
-    upload_image(filepath=best_image_path)
-    time.sleep(1)
-    best_image_filename = os.path.basename(best_image_path)
-    workflow = edit_given_nodes_properties(workflow, image_load_nodes, 'image', best_image_filename)
-    
-    # Dump workflow into json
-    with open("workflow.json", 'w') as f:
-        json.dump(workflow, f)
-    
-    # Modify batch size
-
-    # if(negative_prompt != None and neg_prompt_nodes[0] != ''): TODO Implement negative prompt
-    #   for node in neg_prompt_nodes:
-    #       DO STUFF
-    # if(rand_seed_nodes[0] != ''):
-    #   for node in rand_seed_nodes:
-    #       index_of_property = search_for_input_field(workflow["nodes"][node], "seed")
-    #       workflow["nodes"][node]["inputs"][index_of_property] = random.randint(0, 100000000)
-
-    images = await generator.get_images(workflow)
-    await generator.close()
-
-    return images 
-"""
-
-
 # Setup basic logging
 logging.basicConfig(
     level=logging.INFO,
@@ -592,7 +507,7 @@ async def style_images(
     with open(style_config, "r") as file:
         workflow = json.load(file)
 
-    generator = ImageGenerator()
+    generator = ImageGenerator(host=get_host())
     await generator.connect()
 
 
@@ -852,7 +767,7 @@ async def upscale_image(
     with open(upscale_config, "r") as file:
         workflow = json.load(file)
 
-    generator = ImageGenerator()
+    generator = ImageGenerator(host=get_host())
     await generator.connect()
 
     prompt_nodes = search_for_nodes_with_key(
