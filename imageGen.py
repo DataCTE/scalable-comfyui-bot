@@ -34,7 +34,7 @@ config.read("config.properties")
 
 backend_mode = config["LOCAL"]["TYPE"] or "cluster"
 server_address = config["LOCAL"]["SERVER_ADDRESS"]
-cluster_hosts = config["COMFY_CLUSTER"]["SERVER_ADDRESSES"].split(";")
+cluster_hosts = config["COMFY_CLUSTER"]["SERVER_ADDRESSES"].split(",")
 
 text2img_config = config["LOCAL_TEXT2IMG"]["CONFIG"]
 img2img_config = config["LOCAL_IMG2IMG"]["CONFIG"]
