@@ -372,8 +372,8 @@ async def imagine(
     model: str = "proteus-animep",
     attachment: discord.Attachment = None, 
     lora: str = None,
-    cfg: int = 3,
-    steps: int = 50
+    cfg: float = 3.5,
+    steps: int = 30
 ):
     ## TODO: package parameters into a dataclass and build functions around it.
    
