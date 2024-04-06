@@ -351,6 +351,8 @@ async def describe(interaction: discord.Interaction, image: discord.Attachment):
 @app_commands.choices(model=[
     Choice(name="ProteusV1", value="proteus-rundiffusionV2.3"),
     Choice(name="ProteusV2", value="proteus-rundiffusionV2.5"),
+    Choice(name="ProteusV3", value="proteus-animep"),
+    Choice(name="ProteusPlayground", value="playground-v2.5-1024px-aesthetic"),
     Choice(name="Anime", value="AnimeP"),
     Choice(name="Photo", value="RunDiffusion-XL-PhotoV3")
 ])
@@ -367,10 +369,10 @@ async def imagine(
     batch_size: int = 4,
     width: int = 1024,
     height: int = 1024,
-    model: str = "proteus-rundiffusionV2.5",
+    model: str = "proteus-animep",
     attachment: discord.Attachment = None, 
     lora: str = None,
-    cfg: int = 4,
+    cfg: int = 3,
     steps: int = 50
 ):
     ## TODO: package parameters into a dataclass and build functions around it.
@@ -465,6 +467,8 @@ async def imagine(
         model = "ProteusV1"
     elif model == "proteus-rundiffusionV2.5":
         model = "ProteusV2"
+    elif model == "proteus-animep":
+        model = "ProteusV3"
     file = discord.File(collage_blob, filename="collage.png")
     final_message = f"{interaction.user.mention}, here is what I imagined for you with ```{prompt}, {model}```"
 

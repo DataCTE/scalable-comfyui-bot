@@ -105,8 +105,8 @@
         0
       ],
       "clip": [
-        "77",
-        1
+        "78",
+        0
       ]
     },
     "class_type": "LoraLoader",
@@ -121,6 +121,19 @@
     "class_type": "CheckpointLoaderSimple",
     "_meta": {
       "title": "Model Checkpoint"
+    }
+  },
+  "78": {
+    "inputs": {
+      "stop_at_clip_layer": -2,
+      "clip": [
+        "77",
+        1
+      ]
+    },
+    "class_type": "CLIPSetLastLayer",
+    "_meta": {
+      "title": "CLIP Set Last Layer"
     }
   }
 }

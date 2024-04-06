@@ -33,6 +33,7 @@ text2img_config = config["LOCAL_TEXT2IMG"]["CONFIG"]
 img2img_config = config["LOCAL_IMG2IMG"]["CONFIG"]
 upscale_config = config["LOCAL_UPSCALE"]["CONFIG"]
 style_config = config["LOCAL_STYLE2IMG"]["CONFIG"]
+text2imgV3_config = config["LOCAL_TEXT2IMGV3"]["CONFIG"]
 
 
 async def save_discord_attachment(attachment: discord.Attachment):
@@ -345,17 +346,28 @@ async def generate_images(
     lora: str,
     steps: int,
 ):
-    # Your existing logic to prepare for image generation...
-    with open(text2img_config, "r") as file:
-        workflow = json.load(file)
+    if model == "ProteusPlayGround2.5":
+        with open(text2imgV3_config, "r") as file:
+            workflow = json.load(file)
+    if model == "playground-v2.5-1024px-aesthetic":
+        with open(text2imgV3_config, "r") as file:
+            workflow = json.load(file)
+        cfg_node = search_for_nodes_with_key(
+        "KSampler", workflow, "class_type", whether_to_use_meta=False
+        )
+        workflow = edit_given_nodes_properties(workflow, cfg_node, "cfg", "3.5")
+    else:
+        with open(text2img_config, "r") as file:
+            workflow = json.load(file)
+        cfg_node = search_for_nodes_with_key(
+        "KSampler", workflow, "class_type", whether_to_use_meta=False
+        )
+        workflow = edit_given_nodes_properties(workflow, cfg_node, "cfg", cfg)
 
     generator = ImageGenerator()
     await generator.connect()
 
-    cfg_node = search_for_nodes_with_key(
-        "KSampler", workflow, "class_type", whether_to_use_meta=False
-    )
-
+   
     prompt_nodes = search_for_nodes_with_key(
         "Positive Prompt", workflow, "title", whether_to_use_meta=True
     )
@@ -394,14 +406,14 @@ async def generate_images(
             workflow, lora_node, "strength_clip", "1"
         )
 
-    if model == "AnimeP":
-        workflow = edit_given_nodes_properties(
-            workflow, ksampler_nodes, "sampler_name", "euler_ancestral"
-        )
+
 
     # Modify the prompt dictionary
 
-    workflow = edit_given_nodes_properties(workflow, cfg_node, "cfg", cfg)
+    workflow = edit_given_nodes_properties(
+            workflow, ksampler_nodes, "sampler_name", "heun"
+    )
+
 
     workflow = edit_given_nodes_properties(workflow, prompt_nodes, "text", prompt)
 
@@ -564,9 +576,6 @@ async def style_images(
     generator = ImageGenerator()
     await generator.connect()
 
-    steps_node = search_for_nodes_with_key(
-        "kSampler", workflow, "class_type", whether_to_use_meta=False
-    )
 
     prompt_nodes = search_for_nodes_with_key(
         "Positive Prompt", workflow, "title", whether_to_use_meta=True
@@ -597,11 +606,7 @@ async def style_images(
             workflow, neg_prompt_nodes, "text", negative_prompt
         )
 
-    """
-    if(negative_prompt != None and neg_prompt_nodes[0] != ''): # TODO Implement negative prompt
-        for node in neg_prompt_nodes:
-            workflow[node]["inputs"]["text"] = negative_prompt
-    """
+
     workflow = edit_given_nodes_properties(
         workflow, latent_image_nodes, "batch_size", batch_size
     )
