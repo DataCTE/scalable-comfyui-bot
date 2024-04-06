@@ -28,7 +28,9 @@ import traceback
 # Read the configuration
 config = configparser.ConfigParser()
 config.read("config.properties")
+
 server_address = config["LOCAL"]["SERVER_ADDRESS"]
+
 text2img_config = config["LOCAL_TEXT2IMG"]["CONFIG"]
 img2img_config = config["LOCAL_IMG2IMG"]["CONFIG"]
 upscale_config = config["LOCAL_UPSCALE"]["CONFIG"]
@@ -62,6 +64,15 @@ def get_image(filename, subfolder, folder_type):
         "http://{}/view?{}".format(server_address, url_values)
     ) as response:
         return response.read()
+
+def get_image_(filename, subfolder, folder_type, server_address):
+    data = {"filename": filename, "subfolder": subfolder, "type": folder_type}
+    url_values = urllib.parse.urlencode(data)
+    with urllib.request.urlopen(
+        "http://{}/view?{}".format(server_address, url_values)
+    ) as response:
+        return response.read()
+
 
 
 def get_history(prompt_id):
@@ -277,10 +288,21 @@ class ImageGenerator:
         for node_id in history["outputs"]:
             node_output = history["outputs"][node_id]
             if "images" in node_output:
-                for image in node_output["images"]:
-                    image_data = get_image(
-                        image["filename"], image["subfolder"], image["type"]
+                for i, image in enumerate(node_output["images"]):
+                    
+                    server_address = "192.168.1.1:8000"
+                    ip, port = server_address.split(":")
+                    new_port = int(port) + (100 * i) 
+                    clusterServer = f"{ip}:{new_port}"                
+                    
+
+                    image_data = get_image_(
+                        image["filename"], image["subfolder"], image["type"], clusterServer
                     )
+
+                    # image_data = get_image()
+
+
                     if "final_output" in image["filename"]:
                         pil_image = PILImage.open(BytesIO(image_data))
                         output_images.append(pil_image)
