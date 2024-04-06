@@ -24,16 +24,31 @@ import logging
 import sqlite3
 from db import DATABASE_URL
 import traceback
+from itertools import cycle
+from collections import defaultdict
+
 
 # Read the configuration
 config = configparser.ConfigParser()
 config.read("config.properties")
+
+backend_mode = config["LOCAL"]["TYPE"] or "cluster"
 server_address = config["LOCAL"]["SERVER_ADDRESS"]
+cluster_hosts = config["COMFY_CLUSTER"]["SERVER_ADDRESSES"].split(";")
+
 text2img_config = config["LOCAL_TEXT2IMG"]["CONFIG"]
 img2img_config = config["LOCAL_IMG2IMG"]["CONFIG"]
 upscale_config = config["LOCAL_UPSCALE"]["CONFIG"]
 style_config = config["LOCAL_STYLE2IMG"]["CONFIG"]
 text2imgV3_config = config["LOCAL_TEXT2IMGV3"]["CONFIG"]
+
+host_iter = cycle(cluster_hosts)
+
+def get_host():
+    if (backend_mode == 'cluster'):
+        return next(host_iter)
+    else:
+        return server_address
 
 
 async def save_discord_attachment(attachment: discord.Attachment):
@@ -48,31 +63,31 @@ async def save_discord_attachment(attachment: discord.Attachment):
     return filepath
 
 
-def queue_prompt(prompt, client_id):
+def queue_prompt(prompt, client_id, host=server_address):
     p = {"prompt": prompt, "client_id": client_id}
     data = json.dumps(p).encode("utf-8")
-    req = urllib.request.Request("http://{}/prompt".format(server_address), data=data)
+    req = urllib.request.Request("http://{}/prompt".format(host), data=data)
     return json.loads(urllib.request.urlopen(req).read())
 
 
-def get_image(filename, subfolder, folder_type):
+def get_image(filename, subfolder, folder_type, host=server_address):
     data = {"filename": filename, "subfolder": subfolder, "type": folder_type}
     url_values = urllib.parse.urlencode(data)
     with urllib.request.urlopen(
-        "http://{}/view?{}".format(server_address, url_values)
+        "http://{}/view?{}".format(host, url_values)
     ) as response:
         return response.read()
 
 
-def get_history(prompt_id):
+def get_history(prompt_id, host=server_address):
     with urllib.request.urlopen(
-        "http://{}/history/{}".format(server_address, prompt_id)
+        "http://{}/history/{}".format(host, prompt_id)
     ) as response:
         return json.loads(response.read())
 
 
-def upload_image(filepath, subfolder=None, folder_type=None, overwrite=False):
-    url = f"http://{server_address}/upload/image"
+def upload_image(filepath, subfolder=None, folder_type=None, overwrite=False, host=server_address):
+    url = f"http://{host}/upload/image"
     files = {"image": open(filepath, "rb")}
     data = {"overwrite": str(overwrite).lower()}
     if subfolder:
@@ -242,9 +257,10 @@ async def create_collage(UUID: str, batch_size: int):
 
 
 class ImageGenerator:
-    def __init__(self):
+    def __init__(self, host=server_address):
         self.client_id = str(uuid.uuid4())
-        self.uri = f"ws://{server_address}/ws?clientId={self.client_id}"
+        self.host = host
+        self.uri = f"ws://{host}/ws?clientId={self.client_id}"
         self.ws = None
 
     async def connect(self):
@@ -254,7 +270,7 @@ class ImageGenerator:
         if not self.ws:
             await self.connect()
 
-        prompt_id = queue_prompt(prompt, self.client_id)["prompt_id"]
+        prompt_id = queue_prompt(prompt, self.client_id, host=self.host)["prompt_id"]
         currently_Executing_Prompt = None
         output_images = []
         async for out in self.ws:
@@ -272,14 +288,14 @@ class ImageGenerator:
             except ValueError as e:
                 print(f"Incompatible response from ComfyUI {e}")
 
-        history = get_history(prompt_id)[prompt_id]
+        history = get_history(prompt_id, self.host)[prompt_id]
 
         for node_id in history["outputs"]:
             node_output = history["outputs"][node_id]
             if "images" in node_output:
                 for image in node_output["images"]:
                     image_data = get_image(
-                        image["filename"], image["subfolder"], image["type"]
+                        image["filename"], image["subfolder"], image["type"], host=self.host
                     )
                     if "final_output" in image["filename"]:
                         pil_image = PILImage.open(BytesIO(image_data))
@@ -642,7 +658,7 @@ async def style_images(
         height if height is not None else default_height,
     )
 
-    upload_image(filepath=inputname)
+    upload_image(filepath=inputname, host=generator.host)
     styleimage_nodes = search_for_nodes_with_key(
         "Load Image", workflow, "title", whether_to_use_meta=True
     )
@@ -734,7 +750,7 @@ async def generate_alternatives(
     with open(img2img_config, "r") as file:
         workflow = json.load(file)
 
-    generator = ImageGenerator()
+    generator = ImageGenerator(host=get_host())
     await generator.connect()
 
     prompt_nodes = search_for_nodes_with_key(
