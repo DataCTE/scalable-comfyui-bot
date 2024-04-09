@@ -345,6 +345,18 @@ async def describe(interaction: discord.Interaction, image: discord.Attachment):
         )
 
 
+@tree.command(name="drain_database", description="Debloats the images table, saving the images outside the sqlite database")
+@app_commands.checks.has_permissions(administrator=True)
+async def drain_database(interaction: discord.Interaction):
+    conn = sqlite3.connect(DATABASE_URL)
+    cursor = conn.cursor()
+    cursor.execute('SELECT * from images WHERE data IS NOT NULL')
+    all = cursor.fetchall()
+    for (id, user_id, data, uuid, url, count, model, prompt) in all:
+        pathlib.Path(f'./generated_images/{uuid}.png').write_bytes(data)
+        cursor.execute('UPDATE images SET data = NULL where id = ?', (id,))
+        conn.commit()
+
 @tree.command(name="imagine", description="Generate an image based on input text")
 @app_commands.describe(prompt="Prompt for the image being generated")
 @app_commands.describe(negative_prompt="Prompt for what you want to steer the AI away from")
@@ -396,7 +408,7 @@ async def imagine(
         # Handle case where user credits couldn't be retrieved
         create_DB_user(user_id, username)
 
-    user_credits = await discord_balance_prompt(user_id, username)]
+    user_credits = await discord_balance_prompt(user_id, username)
 
     if user_credits < 10:  # Assuming 5 credits are needed
         payment_link = await discord_recharge_prompt(username, user_id)
