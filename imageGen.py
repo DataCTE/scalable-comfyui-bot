@@ -187,6 +187,7 @@ async def create_collage(UUID: str, batch_size: int):
     conn = sqlite3.connect(DATABASE_URL)
     cursor = conn.cursor()
     images = []
+    result = None
 
     try:
         # TODO
