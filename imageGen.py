@@ -367,23 +367,13 @@ async def generate_images(
     lora: str,
     steps: int,
 ):
-    if model == "ProteusPlayGround2.5":
-        with open(text2imgV3_config, "r") as file:
+   
+    with open(text2img_config, "r") as file:
             workflow = json.load(file)
-    if model == "playground-v2.5-1024px-aesthetic":
-        with open(text2imgV3_config, "r") as file:
-            workflow = json.load(file)
-        cfg_node = search_for_nodes_with_key(
+    cfg_node = search_for_nodes_with_key(
         "KSampler", workflow, "class_type", whether_to_use_meta=False
         )
-        workflow = edit_given_nodes_properties(workflow, cfg_node, "cfg", "3.5")
-    else:
-        with open(text2img_config, "r") as file:
-            workflow = json.load(file)
-        cfg_node = search_for_nodes_with_key(
-        "KSampler", workflow, "class_type", whether_to_use_meta=False
-        )
-        workflow = edit_given_nodes_properties(workflow, cfg_node, "cfg", cfg)
+    workflow = edit_given_nodes_properties(workflow, cfg_node, "cfg", cfg)
 
     generator = ImageGenerator(host=get_host())
     await generator.connect()
@@ -435,12 +425,13 @@ async def generate_images(
     # Modify the prompt dictionary
 
     workflow = edit_given_nodes_properties(
-            workflow, ksampler_nodes, "sampler_name", "heun"
+            workflow, ksampler_nodes, "sampler_name", "dpmpp_3m_sde_gpu"
         )
 
 
     workflow = edit_given_nodes_properties(workflow, prompt_nodes, "text", prompt)
-
+    if negative_prompt is None:
+        negative_prompt = "watermark"
     workflow = edit_given_nodes_properties(
         workflow, neg_prompt_nodes, "text", negative_prompt
     )

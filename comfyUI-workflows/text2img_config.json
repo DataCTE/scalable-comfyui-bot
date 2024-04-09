@@ -5,14 +5,14 @@
       "steps": 20,
       "cfg": 8,
       "sampler_name": "euler_ancestral",
-      "scheduler": "normal",
+      "scheduler": "karras",
       "denoise": 1,
       "model": [
         "70",
         0
       ],
       "positive": [
-        "6",
+        "79",
         0
       ],
       "negative": [
@@ -27,19 +27,6 @@
     "class_type": "KSampler",
     "_meta": {
       "title": "KSampler"
-    }
-  },
-  "6": {
-    "inputs": {
-      "text": "anime boy, surrealistic, masterpiece, best quality, floating cubes, ",
-      "clip": [
-        "70",
-        1
-      ]
-    },
-    "class_type": "CLIPTextEncode",
-    "_meta": {
-      "title": "Positive Prompt"
     }
   },
   "7": {
@@ -97,7 +84,7 @@
   },
   "70": {
     "inputs": {
-      "lora_name": "80s scarface.safetensors",
+      "lora_name": "AnimeSythenticV1.1.safetensors",
       "strength_model": 0,
       "strength_clip": 0,
       "model": [
@@ -105,8 +92,8 @@
         0
       ],
       "clip": [
-        "78",
-        0
+        "77",
+        1
       ]
     },
     "class_type": "LoraLoader",
@@ -116,24 +103,26 @@
   },
   "77": {
     "inputs": {
-      "ckpt_name": "RunDiffusion-XL-PhotoV3.safetensors"
+      "ckpt_name": "ProteusMobius.safetensors"
     },
     "class_type": "CheckpointLoaderSimple",
     "_meta": {
       "title": "Model Checkpoint"
     }
   },
-  "78": {
+  "79": {
     "inputs": {
-      "stop_at_clip_layer": -2,
+      "text": "",
+      "model_repo": "LykosAI/GPT-Prompt-Expansion-Fooocus-v2",
+      "temperature": 1,
       "clip": [
-        "77",
+        "70",
         1
       ]
     },
-    "class_type": "CLIPSetLastLayer",
+    "class_type": "GPT2PNode",
     "_meta": {
-      "title": "CLIP Set Last Layer"
+      "title": "Positive Prompt"
     }
   }
 }

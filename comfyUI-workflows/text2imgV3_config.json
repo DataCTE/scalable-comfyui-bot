@@ -5,7 +5,7 @@
         "steps": 50,
         "cfg": 3.5,
         "sampler_name": "euler_ancestral",
-        "scheduler": "normal",
+        "scheduler": "karras",
         "denoise": 1,
         "model": [
           "79",

@@ -355,18 +355,15 @@ async def describe(interaction: discord.Interaction, image: discord.Attachment):
 @app_commands.describe(attachment="attachment to use")
 @app_commands.describe(steps="steps to use")
 @app_commands.choices(model=[
-    Choice(name="ProteusV1", value="proteus-rundiffusionV2.3"),
-    Choice(name="ProteusV2", value="proteus-rundiffusionV2.5"),
-    Choice(name="ProteusV3", value="proteus-animep"),
-    Choice(name="ProteusPlayground", value="playground-v2.5-1024px-aesthetic"),
-    Choice(name="Anime", value="AnimeP"),
-    Choice(name="Photo", value="RunDiffusion-XL-PhotoV3")
+    Choice(name="ProteusMobiusPhoto", value="ProteusMobiusPhoto"),
+    Choice(name="ProteusMobiusAnime", value="ProteusMobiusAnime"),
+    Choice(name="ProteusMobiusRAW", value="ProteusMobius"),
 ])
 @app_commands.describe(lora="Choose the lora to use")
 @app_commands.choices(lora=[
     Choice(name="Detail", value="tweak-detail-xl"),
     Choice(name="SythAnimeV2", value="AnimeSythenticV0.2"),
-    Choice(name="Artistic", value="xl_more_art-full_v1")
+    Choice(name="Artistic", value="xl_more_art-full_v1"),
 ])
 async def imagine(
     interaction: discord.Interaction, 
@@ -375,10 +372,10 @@ async def imagine(
     batch_size: int = 4,
     width: int = 1024,
     height: int = 1024,
-    model: str = "RunDiffusion-XL-PhotoV3",
+    model: str = "ProteusMobius",
     attachment: discord.Attachment = None, 
     lora: str = None,
-    cfg: float = 3.5,
+    cfg: float = 7.5,
     steps: int = 30
 ):
     ## TODO: package parameters into a dataclass and build functions around it.
@@ -465,16 +462,8 @@ async def imagine(
     )
    
    
-    if model == "AnimeP":
-        model = "Anime"
-    elif model == "RunDiffusion-XL-PhotoV3":
-        model = "Photo"
-    elif model == "proteus-rundiffusionV2.3":
-        model = "ProteusV1"
-    elif model == "proteus-rundiffusionV2.5":
-        model = "ProteusV2"
-    elif model == "proteus-animep":
-        model = "ProteusV3"
+    if model == "ProteusMobius":
+        model = "ProteusMobiusRAW"
     file = discord.File(collage_blob, filename="collage.png")
     final_message = f"{interaction.user.mention}, here is what I imagined for you with ```{prompt}, {model}```"
 
