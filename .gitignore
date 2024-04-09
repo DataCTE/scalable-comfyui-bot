@@ -15,3 +15,4 @@ bot.log
 .DS_Store
 venv
 config/database.sqlite
+generated_images/*.png

@@ -26,6 +26,7 @@ from db import DATABASE_URL
 import traceback
 from itertools import cycle
 from collections import defaultdict
+import pathlib
 
 IMG_LOGGER = logging.getLogger("Datapulse.imageGen")
 IMG_LOGGER.info("Importing imageGen")
@@ -114,14 +115,16 @@ async def save_images(images, user_id, UUID, model, prompt):
             image.save(img_byte_arr, format="PNG")  # Corrected save method
             blob = img_byte_arr.getvalue()
 
+            pathlib.Path(f'./generated_images/{u_uuid}.png').write_bytes(blob)
+
             # Insert the image data into the database
-            cursor.execute(
-                """
-                INSERT INTO images (data, user_id, UUID, count, model, prompt)
-                VALUES (?, ?, ?, ?, ?, ?)
-            """,
-                (blob, user_id, u_uuid, count, model, prompt),
-            )
+            # cursor.execute(
+            #     """
+            #     INSERT INTO images (user_id, UUID, count, model, prompt)
+            #     VALUES (?, ?, ?, ?, ?, ?)
+            # """,
+            #     (user_id, u_uuid, count, model, prompt),
+            # )
 
             count += 1
 
@@ -149,13 +152,14 @@ async def get_image_from_database(image_id):
 
     try:
         # Retrieve the image data from the database based on the image ID
-        cursor.execute(
-            """
-            SELECT data FROM images WHERE UUID = ?
-        """,
-            (image_id,),
-        )
-        result = cursor.fetchone()
+        # cursor.execute(
+        #     """
+        #     SELECT data FROM images WHERE UUID = ?
+        # """,
+        #     (image_id,),
+        # )
+        result = pathlib.Path(f'./generated_images/{image_id}.png').read_bytes()
+        #result = cursor.fetchone()
 
         if result:
             image_data = result[0]
@@ -189,13 +193,14 @@ async def create_collage(UUID: str, batch_size: int):
         batch_size_range = range(1, batch_size + 1)
         for i in batch_size_range:
             UUID_count = f"{UUID}_{i}"
-            cursor.execute(
-                """
-                SELECT data FROM images WHERE UUID = ?
-                """,
-                (UUID_count,),
-            )
-            result = cursor.fetchone()
+            # cursor.execute(
+            #     """
+            #     SELECT data FROM images WHERE UUID = ?
+            #     """,
+            #     (UUID_count,),
+            # )
+            result = pathlib.Path(f'./generated_images/{UUID_count}.png').read_bytes()
+            #result = cursor.fetchone()
             if result is None:
                 print(f"No image data found for UUID: {UUID_count}")
                 continue
@@ -229,13 +234,15 @@ async def create_collage(UUID: str, batch_size: int):
 
         # Update the database with the collage image ##TODO: pass dataclass with user info for collage database
         try:
-            cursor.execute(
-                """
-                INSERT INTO images (UUID, data)
-                VALUES (?, ?)
-            """,
-                (UUID, blob),
-            )
+            # cursor.execute(
+            #     """
+            #     INSERT INTO images (UUID, data)
+            #     VALUES (?, ?)
+            # """,
+            #     (UUID, blob),
+            # )
+
+            result = pathlib.Path(f'./generated_images/{UUID}.png').write_bytes(blob)
 
             conn.commit()
             conn.close()

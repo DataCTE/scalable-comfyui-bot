@@ -396,6 +396,7 @@ async def imagine(
         # Handle case where user credits couldn't be retrieved
         create_DB_user(user_id, username)
 
+    user_credits = await discord_balance_prompt(user_id, username)]
 
     if user_credits < 10:  # Assuming 5 credits are needed
         payment_link = await discord_recharge_prompt(username, user_id)
