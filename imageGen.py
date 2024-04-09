@@ -200,12 +200,12 @@ async def create_collage(UUID: str, batch_size: int):
             #     """,
             #     (UUID_count,),
             # )
-            result = pathlib.Path(f'./generated_images/{UUID_count}.png').read_bytes()
+            single_result = pathlib.Path(f'./generated_images/{UUID_count}.png').read_bytes()
             #result = cursor.fetchone()
-            if result is None:
+            if single_result is None:
                 print(f"No image data found for UUID: {UUID_count}")
                 continue
-            images.append(result[0])
+            images.append(single_result)
         # Open the first image to get its width and height
         try:
             first_image = PILImage.open(BytesIO(images[0]))
