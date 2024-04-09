@@ -354,8 +354,12 @@ async def drain_database(interaction: discord.Interaction):
     all = cursor.fetchall()
     for (id, user_id, data, uuid, url, count, model, prompt) in all:
         pathlib.Path(f'./generated_images/{uuid}.png').write_bytes(data)
+        await asyncio.sleep(0)
         cursor.execute('UPDATE images SET data = NULL where id = ?', (id,))
-        conn.commit()
+        await asyncio.sleep(0)
+    conn.commit()
+    interaction.channel.send("Alright, database drained into files.")
+    
 
 @tree.command(name="imagine", description="Generate an image based on input text")
 @app_commands.describe(prompt="Prompt for the image being generated")
