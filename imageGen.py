@@ -243,7 +243,8 @@ async def create_collage(UUID: str, batch_size: int):
             #     (UUID, blob),
             # )
 
-            result = pathlib.Path(f'./generated_images/{UUID}.png').write_bytes(blob)
+            result = f'./generated_images/{UUID}.png'
+            pathlib.Path(result).write_bytes(blob)
 
             conn.commit()
             conn.close()
