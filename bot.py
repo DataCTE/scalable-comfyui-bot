@@ -179,7 +179,7 @@ class Buttons(discord.ui.View):
 
             try:
                 result = await get_image_from_database(image_id=u_uuid)  # Await the coroutine
-                prompt = result[0] if result else self.prompt
+                prompt = result if result else self.prompt
 
                 # Generate a new image with the retrieved prompt
                 images = await generate_alternatives(
@@ -270,8 +270,6 @@ class Buttons(discord.ui.View):
 
             try:
                 image = await get_image_from_database(image_id=u_uuid)  # Await the coroutine
-
-                print(f"LENGHT OF images array {len(image)} {type(image)}")
                 
 
                 # Upscale image logic assumed to be defined elsewhere

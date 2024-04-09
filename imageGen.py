@@ -162,7 +162,7 @@ async def get_image_from_database(image_id):
         #result = cursor.fetchone()
 
         if result:
-            image_data = result[0]
+            image_data = result
             return image_data
         else:
             print(f"Image with UUID {image_id} not found in the database.")
