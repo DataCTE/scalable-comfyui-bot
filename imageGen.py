@@ -144,6 +144,32 @@ async def save_images(images, user_id, UUID, model, prompt):
         cursor.close()
         conn.close()
 
+async def get_prompt_from_database(image_id):
+    conn = sqlite3.connect(DATABASE_URL)
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute(
+            """
+            SELECT prompt FROM images WHERE UUID = ?
+            """,
+            (image_id,),
+        )
+        return cursor.fetchone()[0]
+
+    except sqlite3.Error as e:
+        print(f"Database error: {str(e)}")
+        print(traceback.format_exc())
+        return None
+
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+        print(traceback.format_exc())
+        return None
+
+    finally:
+        cursor.close()
+        conn.close()
 
 async def get_image_from_database(image_id):
     conn = sqlite3.connect(DATABASE_URL)

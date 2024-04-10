@@ -44,7 +44,7 @@ tree = discord.app_commands.CommandTree(client)
 
 if IMAGE_SOURCE == "LOCAL":
     server_address = config.get("LOCAL", "SERVER_ADDRESS")
-    from imageGen import generate_images, upscale_image, generate_alternatives, get_image_from_database
+    from imageGen import generate_images, upscale_image, generate_alternatives, get_image_from_database, get_prompt_from_database
 
 
 
@@ -154,8 +154,7 @@ class Buttons(discord.ui.View):
             cursor = conn.cursor()
 
             try:
-                result = await get_image_from_database(image_id=u_uuid)  # Await the coroutine
-                prompt = result if result else self.prompt
+                prompt = await get_prompt_from_database(image_id=u_uuid) # yis
 
                 # Generate a new image with the retrieved prompt
                 images = await generate_alternatives(
