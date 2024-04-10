@@ -47,30 +47,6 @@ if IMAGE_SOURCE == "LOCAL":
     from imageGen import generate_images, upscale_image, generate_alternatives, get_image_from_database
 
 
-model = VisionEncoderDecoderModel.from_pretrained(
-    "nlpconnect/vit-gpt2-image-captioning"
-)
-processor = ViTImageProcessor.from_pretrained("nlpconnect/vit-gpt2-image-captioning")
-tokenizer = AutoTokenizer.from_pretrained("nlpconnect/vit-gpt2-image-captioning")
-
-# Move the model to the GPU if available
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model.to(device)
-
-
-async def generate_caption(image):
-    # Convert the image to RGB format
-    image = image.convert("RGB")
-
-    # Process the image and generate the caption
-    pixel_values = processor(image, return_tensors="pt").pixel_values
-    pixel_values = pixel_values.to(device)  # Move the pixel values to the GPU
-
-    output = model.generate(pixel_values, max_length=50, num_beams=4)
-    caption = tokenizer.decode(output[0], skip_special_tokens=True)
-
-    return caption
-
 
 async def extract_index_from_id(button_id):
     try:

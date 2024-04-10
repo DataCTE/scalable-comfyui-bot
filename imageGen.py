@@ -16,7 +16,6 @@ import requests
 import torch
 import ImageReward as reward
 import io
-from sqlalchemy.future import select
 from math import ceil, sqrt
 import aiofiles
 import discord
@@ -425,7 +424,7 @@ async def generate_images(
             workflow, lora_node, "strength_clip", "1"
         )
 
-    if model == "AnimeP":
+    if model == "ProteusMobiusAnime":
         workflow = edit_given_nodes_properties(
             workflow, ksampler_nodes, "sampler_name", "euler_ancestral"
         )
