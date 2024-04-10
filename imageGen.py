@@ -117,13 +117,13 @@ async def save_images(images, user_id, UUID, model, prompt):
             pathlib.Path(f'./generated_images/{u_uuid}.png').write_bytes(blob)
 
             # Insert the image data into the database
-            # cursor.execute(
-            #     """
-            #     INSERT INTO images (user_id, UUID, count, model, prompt)
-            #     VALUES (?, ?, ?, ?, ?, ?)
-            # """,
-            #     (user_id, u_uuid, count, model, prompt),
-            # )
+            cursor.execute(
+                """
+                 INSERT INTO images (user_id, UUID, count, model, prompt)
+                 VALUES (?, ?, ?, ?, ?)
+                """,
+                 (user_id, u_uuid, count, model, prompt),
+            )
 
             count += 1
 
@@ -151,9 +151,9 @@ async def get_prompt_from_database(image_id):
     try:
         cursor.execute(
             """
-            SELECT prompt FROM images WHERE UUID = ?
+            SELECT prompt, FROM images WHERE UUID = ?
             """,
-            (image_id,),
+            (image_id),
         )
         return cursor.fetchone()[0]
 
