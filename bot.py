@@ -176,6 +176,7 @@ class Buttons(discord.ui.View):
 
                 # Construct the final message with user mention
                 final_message = f'{interaction.user.mention} asked me to re-imagine the image, here is what I imagined for them. "{prompt}", "{self.model}"'
+                await interaction.delete_original_response()
                 await interaction.channel.send( 
                     content=final_message,
                     file=discord.File(fp=collage_path, filename="collage.png"),
