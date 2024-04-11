@@ -1,11 +1,11 @@
 {
     "1": {
       "inputs": {
-        "ckpt_name": "proteus-rundiffusionV2.5.safetensors"
+        "ckpt_name": "ProteusMobius.safetensors"
       },
       "class_type": "CheckpointLoaderSimple",
       "_meta": {
-        "title": "Proteus V2.5 Checkpoint"
+        "title": "Model Checkpoint"
       }
     },
     "2": {
