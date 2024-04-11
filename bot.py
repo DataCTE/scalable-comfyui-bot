@@ -121,7 +121,8 @@ class Buttons(discord.ui.View):
 
     async def reroll_image(self, interaction: discord.Interaction, u_uuid):
         try:
-            await interaction.followup.send(f"{interaction.user.mention} asked me to re-imagine the image, this shouldn't take too long...")
+            await interaction.response.send_message(f"{interaction.user.mention} asked me to re-imagine the image, this shouldn't take too long...")
+            # await interaction.followup.send(f"{interaction.user.mention} asked me to re-imagine the image, this shouldn't take too long...")
             # await interaction.channel.send(
             #     f"{interaction.user.mention} asked me to re-imagine the image, this shouldn't take too long..."
             # )
