@@ -151,7 +151,7 @@ async def get_prompt_from_database(image_id):
     try:
         cursor.execute(
             """
-            SELECT prompt, FROM images WHERE UUID = ?
+            SELECT prompt FROM images WHERE UUID = ?
             """,
             (image_id),
         )
