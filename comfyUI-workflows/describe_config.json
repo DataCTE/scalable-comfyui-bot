@@ -1,0 +1,42 @@
+{
+    "14": {
+      "inputs": {
+        "model": "llama/llava-v1.5-7b-Q4_K",
+        "mm_proj": "llama/llava-v1.5-7b-mmproj-Q4_0",
+        "prompt": "Please describe this image in 10 to 20 words including the style if anime, photorealistic, 3D and so on.",
+        "max_tokens": 40,
+        "temperature": 0.2,
+        "image": [
+          "17",
+          0
+        ]
+      },
+      "class_type": "LlavaCaptioner",
+      "_meta": {
+        "title": "LLaVA Captioner 🌊"
+      }
+    },
+    "17": {
+      "inputs": {
+        "image": "1d85b216-254a-404e-a9e4-762e186526bf_4.png",
+        "upload": "image"
+      },
+      "class_type": "LoadImage",
+      "_meta": {
+        "title": "Load Image"
+      }
+    },
+    "18": {
+      "inputs": {
+        "text": [
+          "14",
+          0
+        ],
+        "PreviewTextNode_0": "A woman wearing a blue shirt and hat is sitting on the ground with her legs crossed, holding a bag."
+      },
+      "class_type": "PreviewTextNode",
+      "_meta": {
+        "title": "Preview Text Node"
+      }
+    }
+  }

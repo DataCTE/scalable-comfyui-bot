@@ -26,6 +26,7 @@ import traceback
 from itertools import cycle
 from collections import defaultdict
 import pathlib
+from utils import ensure_folder
 
 IMG_LOGGER = logging.getLogger("Datapulse.imageGen")
 IMG_LOGGER.info("Importing imageGen")
@@ -43,6 +44,7 @@ img2img_config = config["LOCAL_IMG2IMG"]["CONFIG"]
 upscale_config = config["LOCAL_UPSCALE"]["CONFIG"]
 style_config = config["LOCAL_STYLE2IMG"]["CONFIG"]
 text2imgV3_config = config["LOCAL_TEXT2IMGV3"]["CONFIG"]
+describe_config = "./comfyUI-workflows/describe_config.json"
 
 host_iter = cycle(cluster_hosts)
 
@@ -303,6 +305,37 @@ class ImageGenerator:
 
     async def connect(self):
         self.ws = await websockets.connect(self.uri)
+    
+    async def get_output(self, prompt):
+        output = None
+        if not self.ws:
+            await self.connect()
+        prompt_id = queue_prompt(prompt, self.client_id, host=self.host)["prompt_id"]
+        currently_Executing_Prompt = None
+        async for out in self.ws:
+            try:
+                message = json.loads(out)
+                if message["type"] == "execution_start":
+                    currently_Executing_Prompt = message["data"]["prompt_id"]
+                if (
+                    message["type"] == "executing"
+                    and prompt_id == currently_Executing_Prompt
+                ):
+                    data = message["data"]
+                    if data["node"] is None and data["prompt_id"] == prompt_id:
+                        break
+            except ValueError as e:
+                IMG_LOGGER.warn(f"Incompatible response from ComfyUI {e}")
+
+        history = get_history(prompt_id, self.host)[prompt_id]
+
+        for node_id in history["outputs"]:
+            node_output = history["outputs"][node_id]
+            node_string = node_output.get("string")
+            if node_string:
+                output = node_string[0]
+
+        return output
 
     async def get_images(self, prompt):
         if not self.ws:
@@ -660,6 +693,34 @@ async def style_images(
     # Save the images to the database
     await save_images(images, user_id, UUID, model, prompt)
 
+async def describe_image(uuid, attachment: discord.Attachment, user_id: int):
+    workflow = None
+    with open(describe_config, "r") as file:
+        workflow = json.load(file)
+
+    ensure_folder('./captioned_images')
+    stored_image_path = f'./captioned_images/{uuid}.png'
+    attachment.save(stored_image_path)
+
+    generator = ImageGenerator(host=get_host())
+    await generator.connect()
+    upload_image(filepath=stored_image_path)
+    styleimage_nodes = search_for_nodes_with_key(
+        "Load Image", workflow, "title", whether_to_use_meta=True
+    )
+    workflow = edit_given_nodes_properties(
+        workflow, styleimage_nodes, "image", stored_image_path.split('/')[-1]
+    )  # Use file path directly
+
+    with open("workflow.json", 'w') as fp:
+        json.dump(workflow, fp)
+
+    caption_output = await generator.get_output(workflow)
+    pathlib.Path(f'./captioned_images/{uuid}.txt').write_text(caption_output, 'utf-8')
+    IMG_LOGGER.info(f"image described: {caption_output}")
+    await generator.close()
+    return caption_output
+    
 
 async def generate_alternatives(
     UUID: str,

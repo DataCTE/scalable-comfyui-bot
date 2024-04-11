@@ -44,7 +44,7 @@ tree = discord.app_commands.CommandTree(client)
 
 if IMAGE_SOURCE == "LOCAL":
     server_address = config.get("LOCAL", "SERVER_ADDRESS")
-    from imageGen import generate_images, upscale_image, generate_alternatives, get_image_from_database, get_prompt_from_database
+    from imageGen import generate_images, upscale_image, generate_alternatives, get_image_from_database, get_prompt_from_database, describe_image
 
 
 
@@ -121,7 +121,6 @@ class Buttons(discord.ui.View):
 
     async def reroll_image(self, interaction: discord.Interaction, u_uuid):
         try:
-
             await interaction.channel.send(
                 f"{interaction.user.mention} asked me to re-imagine the image, this shouldn't take too long..."
             )
@@ -306,12 +305,13 @@ async def describe(interaction: discord.Interaction, image: discord.Attachment):
 
         # Open the image using Pillow
         image = Image.open(BytesIO(image_data))
+        imguuid = uuid.uuid4()
 
         # Generate the caption using the pre-trained model
-        caption = await asyncio.to_thread(generate_caption, image)
+        await interaction.response.send_message("🧐 Analyzing your image!")
+        caption = await describe_image(imguuid, image, interaction.user.id)
+        await interaction.followup.send(content=f"<@{interaction.user.id}> 🧐 I finished analyzing your image!\n```\n{caption}\n```", allowed_mentions=discord.AllowedMentions(users=True,replied_user=True))
 
-        # Send the generated caption as a response
-        await interaction.response.send_message(content=caption)
     else:
         await interaction.response.send_message(
             "Please provide a valid image attachment."

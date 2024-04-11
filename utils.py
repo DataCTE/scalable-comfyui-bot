@@ -1,6 +1,6 @@
 import os
 import configparser
-
+import pathlib
 
 def config():
     # Check for the existence of the config file and create default if it doesn't exist
@@ -39,4 +39,5 @@ def generate_default_config():
     with open("config.properties", "w") as configfile:
         config.write(configfile)
 
-
+def ensure_folder(folder_path):
+    pathlib.Path(folder_path).mkdir(exist_ok=True)
