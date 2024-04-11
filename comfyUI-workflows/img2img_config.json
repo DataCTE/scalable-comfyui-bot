@@ -37,11 +37,11 @@
     "4": {
       "inputs": {
         "seed": 1007246773846082,
-        "steps": 35,
+        "steps": 20,
         "cfg": 7,
         "sampler_name": "euler_ancestral",
         "scheduler": "normal",
-        "denoise": 0.5,
+        "denoise": 0.6,
         "model": [
           "1",
           0
