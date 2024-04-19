@@ -354,7 +354,7 @@ async def imagine(
 ):
     await interaction.response.defer(ephemeral=False)
     user_id = interaction.user.id
-    await interaction.response.send_message("Generating your instant dream, one second please!...")
+    #await interaction.response.send_message("Generating your instant dream, one second please!...")
     UUID = str(uuid.uuid4())  # Generate unique hash for each image
 
     await sigmafied_image_generation(
