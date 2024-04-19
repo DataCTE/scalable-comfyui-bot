@@ -40,6 +40,7 @@ server_address = config["LOCAL"]["SERVER_ADDRESS"]
 cluster_hosts = config["COMFY_CLUSTER"]["SERVER_ADDRESSES"].split(",")
 
 text2img_config = config["LOCAL_TEXT2IMG"]["CONFIG"]
+sigmafiedtext2img_config = "comfyUI-workflows/pixarttext2img_config.json"
 img2img_config = config["LOCAL_IMG2IMG"]["CONFIG"]
 upscale_config = config["LOCAL_UPSCALE"]["CONFIG"]
 style_config = config["LOCAL_STYLE2IMG"]["CONFIG"]
@@ -430,7 +431,7 @@ async def sigmafied_image_generation(
     steps: int,
 ):
    
-    with open(text2img_config, "r") as file:
+    with open(sigmafiedtext2img_config, "r") as file:
             workflow = json.load(file)
     cfg_node = search_for_nodes_with_key(
         "Core", workflow, "title", whether_to_use_meta=True
