@@ -433,7 +433,7 @@ async def sigmafied_image_generation(
     with open(text2img_config, "r") as file:
             workflow = json.load(file)
     cfg_node = search_for_nodes_with_key(
-        "Core", workflow, "class_type", whether_to_use_meta=False
+        "Core", workflow, "title", whether_to_use_meta=True
         )
     workflow = edit_given_nodes_properties(workflow, cfg_node, "cfg", cfg)
 
