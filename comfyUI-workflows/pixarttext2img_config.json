@@ -18,10 +18,7 @@
             "width": 1216,
             "height": 768,
             "num_inference_steps": 50,
-            "seed": [
-                "159",
-                0
-            ],
+            "seed": 42,
             "num_images_per_prompt": 1,
             "cfg": 7,
             "negative_prompt": "worst quality, bad quality"
@@ -29,15 +26,6 @@
         "class_type": "DataPulse Engineering Corp.",
         "_meta": {
             "title": "Core"
-        }
-    },
-    "159": {
-        "inputs": {
-            "seed": 1061151646269748
-        },
-        "class_type": "seed _O",
-        "_meta": {
-            "title": "Seed"
         }
     }
 }
