@@ -419,6 +419,78 @@ async def evaluate_images_with_image_reward(prompt: str, img_list: list):
     best_image_path = img_list[best_image_idx]
     return best_image_path
 
+async def sigmafied_image_generation(
+    UUID: str,
+    user_id: int,
+    cfg: float,
+    prompt: str,
+    negative_prompt: str,
+    width: int,
+    height: int,
+    steps: int,
+):
+   
+    with open(text2img_config, "r") as file:
+            workflow = json.load(file)
+    cfg_node = search_for_nodes_with_key(
+        "Core", workflow, "class_type", whether_to_use_meta=False
+        )
+    workflow = edit_given_nodes_properties(workflow, cfg_node, "cfg", cfg)
+
+    generator = ImageGenerator(host=get_host())
+    await generator.connect()
+
+   
+    prompt_nodes = search_for_nodes_with_key(
+        "Core", workflow, "title", whether_to_use_meta=True
+    )
+    ksampler_nodes = search_for_nodes_with_key(
+        "Core", workflow, "title", whether_to_use_meta=True
+    )
+    seed = search_for_nodes_with_key(
+        "Core", workflow, "title", whether_to_use_meta=True
+    )
+    widthnode = search_for_nodes_with_key(
+        "Core", workflow, "title", whether_to_use_meta=True
+    )
+    heightnode = search_for_nodes_with_key(
+        "Core", workflow, "title", whether_to_use_meta=True
+    )
+    neg_prompt_nodes = search_for_nodes_with_key(
+        "Core", workflow, "title", whether_to_use_meta=True
+    )
+
+
+    workflow = edit_given_nodes_properties(workflow, prompt_nodes, "prompt", prompt)
+    if negative_prompt is None:
+        negative_prompt = "watermark"
+    workflow = edit_given_nodes_properties(
+        workflow, neg_prompt_nodes, "negative_prompt", negative_prompt
+    )
+
+    workflow = edit_given_nodes_properties(workflow, ksampler_nodes, "num_inference_steps", steps)
+    workflow = edit_given_nodes_properties(
+        workflow, seed, "seed", random.randint(0, 10000000)
+    )
+    default_width = 1024
+    default_height = 1024
+
+    # Modify the workflow nodes for width and height with provided values or defaults
+    workflow = edit_given_nodes_properties(
+        workflow, widthnode, "width", width if width is not None else default_width
+    )
+    workflow = edit_given_nodes_properties(
+        workflow, heightnode, "height", height if height is not None else default_height
+    )
+
+    with open("workflow_sigmafied.json", "w") as f:
+        json.dump(workflow, f)
+
+    images = await generator.get_images(workflow)
+
+    await generator.close()
+    await save_images(images, user_id, UUID, "sigma", prompt)
+
 
 async def generate_images(
     UUID: str,

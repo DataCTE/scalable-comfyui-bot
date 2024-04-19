@@ -1,0 +1,43 @@
+{
+    "66": {
+        "inputs": {
+            "filename_prefix": "ComfyUI_PixArt",
+            "images": [
+                "157",
+                0
+            ]
+        },
+        "class_type": "SaveImage",
+        "_meta": {
+            "title": "Image"
+        }
+    },
+    "157": {
+        "inputs": {
+            "prompt": "A samurai standing on top of a hill overlooking Tokyo city, with a red sky, in an epic and cinematic style. The concept art is in the style of Yoji Shinkawa and Dominik Mayer, at sunset time, with a dark atmosphere and intricate details, featuring cinematic lighting for an ultra realistic effect",
+            "width": 1216,
+            "height": 768,
+            "num_inference_steps": 50,
+            "seed": [
+                "159",
+                0
+            ],
+            "num_images_per_prompt": 1,
+            "cfg": 7,
+            "negative_prompt": "worst quality, bad quality"
+        },
+        "class_type": "DataPulse Engineering Corp.",
+        "_meta": {
+            "title": "Core"
+        }
+    },
+    "159": {
+        "inputs": {
+            "seed": 1061151646269748
+        },
+        "class_type": "seed _O",
+        "_meta": {
+            "title": "Seed"
+        }
+    }
+}

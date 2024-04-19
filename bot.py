@@ -44,7 +44,7 @@ tree = discord.app_commands.CommandTree(client)
 
 if IMAGE_SOURCE == "LOCAL":
     server_address = config.get("LOCAL", "SERVER_ADDRESS")
-    from imageGen import generate_images, upscale_image, generate_alternatives, get_image_from_database, get_prompt_from_database, describe_image
+    from imageGen import generate_images, upscale_image, generate_alternatives, get_image_from_database, get_prompt_from_database, describe_image, sigmafied_image_generation
 
 
 
@@ -335,7 +335,46 @@ async def drain_database(interaction: discord.Interaction):
         await asyncio.sleep(0)
     conn.commit()
     interaction.channel.send("Alright, database drained into files.")
-    
+
+@tree.command(name="dream", description="Produces an almost instant dream")
+@app_commands.describe(prompt="Prompt for the image being generated")
+@app_commands.describe(negative_prompt="Prompt for what you want to steer the AI away from")
+@app_commands.describe(width="width of the image")
+@app_commands.describe(height="height of the image" )
+@app_commands.describe(cfg="cfg to use")
+@app_commands.describe(steps="steps to use")
+async def imagine(
+    interaction: discord.Interaction, 
+    prompt: str,
+    negative_prompt: str = None,
+    width: int = 1024,
+    height: int = 1024,
+    cfg: float = 7.5,
+    steps: int = 30
+):
+    await interaction.response.defer(ephemeral=False)
+    user_id = interaction.user.id
+    await interaction.response.send_message("Generating your instant dream, one second please!...")
+    UUID = str(uuid.uuid4())  # Generate unique hash for each image
+
+    await sigmafied_image_generation(
+        UUID=UUID,
+        cfg=cfg,
+        steps=steps,
+        user_id=user_id,
+        prompt=prompt,
+        negative_prompt=negative_prompt,
+        width=width,
+        height=height,
+    )
+
+    file = discord.File(f'./generated_images/{UUID}_1.png', filename="collage.png")
+    final_message = f"{interaction.user.mention}, here is what I imagined for you with \n```\n{prompt}\n```"
+
+    await interaction.delete_original_response()
+    await interaction.channel.send(
+        content=final_message, file=file, ephemeral=False
+    )
 
 @tree.command(name="imagine", description="Generate an image based on input text")
 @app_commands.describe(prompt="Prompt for the image being generated")
