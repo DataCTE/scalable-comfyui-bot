@@ -1,40 +1,92 @@
 {
-  "3": {
+  "6": {
     "inputs": {
-      "seed": 1079272804227755,
-      "steps": 20,
-      "cfg": 8,
-      "sampler_name": "euler_ancestral",
-      "scheduler": "karras",
-      "denoise": 1,
-      "model": [
-        "70",
-        0
-      ],
-      "positive": [
-        "79",
-        0
-      ],
-      "negative": [
-        "7",
-        0
-      ],
-      "latent_image": [
-        "69",
+      "text": "A split image. On the left side is an avocado chair, with the caption 'DALL-E'. On the right is a red sphere on top of a blue box. The blue box has green text which says 'SD3 zero-shot'.",
+      "clip": [
+        "275",
         0
       ]
     },
-    "class_type": "KSampler",
+    "class_type": "CLIPTextEncode",
     "_meta": {
-      "title": "KSampler"
+      "title": "Positive Prompt"
     }
   },
-  "7": {
+  "13": {
     "inputs": {
-      "text": "nsfw, low quality, worst quality, normal quality,",
-      "clip": [
+      "shift": 3,
+      "model": [
+        "252",
+        0
+      ]
+    },
+    "class_type": "ModelSamplingSD3",
+    "_meta": {
+      "title": "ModelSamplingSD3"
+    }
+  },
+  "67": {
+    "inputs": {
+      "conditioning": [
+        "71",
+        0
+      ]
+    },
+    "class_type": "ConditioningZeroOut",
+    "_meta": {
+      "title": "ConditioningZeroOut"
+    }
+  },
+  "68": {
+    "inputs": {
+      "start": 0.1,
+      "end": 1,
+      "conditioning": [
+        "67",
+        0
+      ]
+    },
+    "class_type": "ConditioningSetTimestepRange",
+    "_meta": {
+      "title": "ConditioningSetTimestepRange"
+    }
+  },
+  "69": {
+    "inputs": {
+      "conditioning_1": [
+        "68",
+        0
+      ],
+      "conditioning_2": [
         "70",
-        1
+        0
+      ]
+    },
+    "class_type": "ConditioningCombine",
+    "_meta": {
+      "title": "Conditioning (Combine)"
+    }
+  },
+  "70": {
+    "inputs": {
+      "start": 0,
+      "end": 0.1,
+      "conditioning": [
+        "71",
+        0
+      ]
+    },
+    "class_type": "ConditioningSetTimestepRange",
+    "_meta": {
+      "title": "ConditioningSetTimestepRange"
+    }
+  },
+  "71": {
+    "inputs": {
+      "text": "watermark, worst, bad, distorted, malformed, deformed, artifacts",
+      "clip": [
+        "275",
+        0
       ]
     },
     "class_type": "CLIPTextEncode",
@@ -42,14 +94,14 @@
       "title": "Negative Prompt"
     }
   },
-  "8": {
+  "231": {
     "inputs": {
       "samples": [
-        "3",
+        "271",
         0
       ],
       "vae": [
-        "77",
+        "252",
         2
       ]
     },
@@ -58,20 +110,46 @@
       "title": "VAE Decode"
     }
   },
-  "60": {
+  "252": {
     "inputs": {
-      "filename_prefix": "final_output",
-      "images": [
-        "8",
+      "ckpt_name": "sd3_medium_incl_clips_t5xxlfp8.safetensors"
+    },
+    "class_type": "CheckpointLoaderSimple",
+    "_meta": {
+      "title": "Model Checkpoint"
+    }
+  },
+  "271": {
+    "inputs": {
+      "seed": 1047178867982657,
+      "steps": 32,
+      "cfg": 4.5,
+      "sampler_name": "dpmpp_2m",
+      "scheduler": "sgm_uniform",
+      "denoise": 1,
+      "model": [
+        "13",
+        0
+      ],
+      "positive": [
+        "6",
+        0
+      ],
+      "negative": [
+        "69",
+        0
+      ],
+      "latent_image": [
+        "273",
         0
       ]
     },
-    "class_type": "SaveImage",
+    "class_type": "KSampler",
     "_meta": {
-      "title": "Save Image"
+      "title": "KSampler"
     }
   },
-  "69": {
+  "273": {
     "inputs": {
       "width": 1024,
       "height": 1024,
@@ -82,47 +160,42 @@
       "title": "Empty Latent Image"
     }
   },
-  "70": {
+  "274": {
     "inputs": {
-      "lora_name": "AnimeSythenticV1.1.safetensors",
-      "strength_model": 0,
-      "strength_clip": 0,
-      "model": [
-        "77",
+      "filename_prefix": "final_output",
+      "images": [
+        "231",
         0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "Save Image"
+    }
+  },
+  "275": {
+    "inputs": {
+      "sd3_clip": [
+        "252",
+        1
       ],
-      "clip": [
-        "77",
+      "sdxl_clip": [
+        "276",
         1
       ]
     },
-    "class_type": "LoraLoader",
+    "class_type": "SD3ClipSwap",
     "_meta": {
-      "title": "Load LoRA"
+      "title": "SD3 Clip Swap"
     }
   },
-  "77": {
+  "276": {
     "inputs": {
-      "ckpt_name": "ProteusMobius.safetensors"
+      "ckpt_name": "mobius.safetensors"
     },
     "class_type": "CheckpointLoaderSimple",
     "_meta": {
       "title": "Model Checkpoint"
-    }
-  },
-  "79": {
-    "inputs": {
-      "text": "",
-      "model_repo": "LykosAI/GPT-Prompt-Expansion-Fooocus-v2",
-      "temperature": 1,
-      "clip": [
-        "70",
-        1
-      ]
-    },
-    "class_type": "GPT2PNode",
-    "_meta": {
-      "title": "Positive Prompt"
     }
   }
 }
