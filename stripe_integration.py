@@ -1,6 +1,6 @@
 import asyncio
 import sqlite3
-import stripe
+#import stripe
 from utils import config
 from datetime import datetime
 import traceback
@@ -10,6 +10,8 @@ import json
 DATABASE_URL = "./config/database.sqlite"
 
 PAYMENT_CONFIG_JSON = "./config/payment.json"
+
+stripe = {}
 
 def payment_parameter(parameter, default=None):
     with pathlib.Path(PAYMENT_CONFIG_JSON).open('rb') as fp:

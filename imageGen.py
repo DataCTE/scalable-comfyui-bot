@@ -380,45 +380,156 @@ class ImageGenerator:
             await self.ws.close()
 
 
-def search_for_nodes_with_key(value, workflow, key, whether_to_use_meta=False) -> list:
+def search_for_nodes_with_key(value, workflow, key, whether_to_use_meta=False):
     results = []
     for node_key, node in workflow.items():
-        node_content = (
-            node["_meta"] if whether_to_use_meta and "_meta" in node else node
-        )
-        if node_content.get(key) == value:
-            results.append(node_key)
+        if whether_to_use_meta:
+            if "_meta" in node and key in node["_meta"] and node["_meta"][key] == value:
+                results.append(node_key)
+        else:
+            if key in node and node[key] == value:
+                results.append(node_key)
+            elif key == "class_type" and "class_type" in node and node["class_type"] == value:
+                results.append(node_key)
+    print(f"Found nodes for {key}={value}: {results}")  # Debug print
     return results
-
 
 def edit_given_nodes_properties(workflow, chosen_nodes, key, value):
     changes_made = False
+    print(f"Editing nodes: {chosen_nodes}, key: {key}, value: {value}")  # Debug print
     for node_key in chosen_nodes:
         if node_key in workflow:
-            workflow[node_key]["inputs"][key] = value
-            changes_made = True
+            print(f"Node {node_key} structure: {workflow[node_key]}")  # Debug print
+            if "inputs" in workflow[node_key] and key in workflow[node_key]["inputs"]:
+                workflow[node_key]["inputs"][key] = value
+                changes_made = True
+                print(f"Changed node {node_key}")  # Debug print
+            else:
+                print(f"Warning: Key '{key}' not found in inputs of node {node_key}.")
         else:
             print(f"Warning: Node {node_key} not found in workflow.")
 
     if not changes_made:
-        raise ValueError("Cannot find the chosen nodes")
+        raise ValueError("Cannot find the chosen nodes or the specified key in their inputs")
 
     return workflow
 
+async def generate_pixart_900m(
+    UUID: str,
+    user_id: int,
+    prompt: str,
+    negative_prompt: str,
+    seed: int,
+    steps: int,
+    cfg: float,
+    width: int,
+    height: int
+):
+    with open("900M.json", "r") as file:
+        workflow = json.load(file)
 
-async def evaluate_images_with_image_reward(prompt: str, img_list: list):
-    """
-    Evaluates a list of image file paths using ImageReward and returns the best image path.
-    :param prompt: The prompt used for generating the images.
-    :param img_list: A list of paths to the generated images.
-    :return: Path to the best-rated image according to ImageReward.
-    """
-    model = reward.load("ImageReward-v1.0")
-    with torch.no_grad():
-        ranking, rewards = model.inference_rank(prompt, img_list)
-    best_image_idx = ranking[0] - 1  # Adjust if your ranking starts from 0
-    best_image_path = img_list[best_image_idx]
-    return best_image_path
+    generator = ImageGenerator(host=get_host())
+    await generator.connect()
+
+    # Update workflow nodes
+    positive_prompt_node = search_for_nodes_with_key("Positive Prompt", workflow, "title", whether_to_use_meta=True)
+    negative_prompt_node = search_for_nodes_with_key("Negative Prompt", workflow, "title", whether_to_use_meta=True)
+    ksampler_node = search_for_nodes_with_key("KSampler", workflow, "title", whether_to_use_meta=True)
+    latent_image_node = search_for_nodes_with_key("Empty Latent Image", workflow, "title", whether_to_use_meta=True)
+
+    workflow = edit_given_nodes_properties(workflow, positive_prompt_node, "text", prompt)
+    workflow = edit_given_nodes_properties(workflow, negative_prompt_node, "text", negative_prompt)
+    workflow = edit_given_nodes_properties(workflow, ksampler_node, "seed", seed)
+    workflow = edit_given_nodes_properties(workflow, ksampler_node, "steps", steps)
+    workflow = edit_given_nodes_properties(workflow, ksampler_node, "cfg", cfg)
+    workflow = edit_given_nodes_properties(workflow, latent_image_node, "width", width)
+    workflow = edit_given_nodes_properties(workflow, latent_image_node, "height", height)
+
+    images = await generator.get_images(workflow)
+    await generator.close()
+
+    await save_images(images, user_id, UUID, "PixArt900M", prompt)
+    return images
+
+async def generate_avatar(
+    UUID: str,
+    user_id: int,
+    prompt: str,
+    negative_prompt: str,
+    batch_size: int,
+    width: int,
+    height: int,
+    model: str,
+    style: str,
+    user_image: discord.Attachment
+):
+    with open("workflow_api.json", "r") as file:
+        workflow = json.load(file)
+
+    generator = ImageGenerator(host=get_host())
+    await generator.connect()
+
+    # Save the user's image
+    user_image_path = f"input/user_{UUID}.png"
+    await user_image.save(user_image_path)
+
+    # Get the style image path
+    style_image_path = f"{style}.jpg"
+    
+    posprompt = search_for_nodes_with_key(
+        "Pos Prompt", workflow, "title", whether_to_use_meta=True
+    )
+    negprompt = search_for_nodes_with_key(
+        "Neg Prompt", workflow, "title", whether_to_use_meta=True
+    )
+    avatar_1 = search_for_nodes_with_key(
+        "avatar_1", workflow, "title", whether_to_use_meta=True
+    )
+    avatar_2 = search_for_nodes_with_key(
+        "avatar_2", workflow, "title", whether_to_use_meta=True
+    )
+    style = search_for_nodes_with_key(
+        "style", workflow, "title", whether_to_use_meta=True
+    )
+    KSampler= search_for_nodes_with_key(
+        "KSampler", workflow, "class_type", whether_to_use_meta=False
+        )
+    user_image_filename = os.path.basename(user_image_path)
+    
+    workflow = edit_given_nodes_properties(
+        workflow, negprompt, "text", negative_prompt
+    )
+    workflow = edit_given_nodes_properties(
+        workflow, posprompt, "text", prompt
+    )
+    workflow = edit_given_nodes_properties(
+        workflow, style, "image", style_image_path
+    )
+    workflow = edit_given_nodes_properties(
+        workflow, avatar_1, "image", user_image_filename
+    )
+    workflow = edit_given_nodes_properties(
+        workflow, avatar_2, "image", user_image_filename
+    )
+    # Upload images
+    upload_image(filepath=user_image_path, host=generator.host)
+    
+
+    images = await generator.get_images(workflow)
+
+    await generator.close()
+    await save_images(images, user_id, UUID, model, prompt)
+
+    return images
+
+AVATAR_STYLE_PRESETS = {
+    "Anime": "anime_style.jpg",
+    "Realistic": "realistic_style.jpg",
+    "Cartoon": "cartoon_style.jpg",
+    "Oil Painting": "oil_painting_style.jpg",
+    "Watercolor": "watercolor_style.jpg"
+}
+
 
 async def sigmafied_image_generation(
     UUID: str,
@@ -493,6 +604,78 @@ async def sigmafied_image_generation(
     await save_images(images, user_id, UUID, "sigma", prompt)
 
 
+async def generate_kolors(
+    UUID: str,
+    user_id: int,
+    cfg: float,
+    prompt: str,
+    negative_prompt: str,
+    batch_size: int,
+    width: int,
+    height: int,
+    steps: int,
+):
+   
+    with open("workflow_kolors.json", "r") as file:
+            workflow = json.load(file)
+    cfg_node = search_for_nodes_with_key(
+        "KolorsSampler", workflow, "class_type", whether_to_use_meta=False
+        )
+    workflow = edit_given_nodes_properties(workflow, cfg_node, "cfg", cfg)
+
+    generator = ImageGenerator(host=get_host())
+    await generator.connect()
+
+   
+    prompt_nodes = search_for_nodes_with_key(
+        "KolorsTextEncode", workflow, "class_type", whether_to_use_meta=False
+    )
+    ksampler_nodes = search_for_nodes_with_key(
+        "KolorsSampler", workflow, "class_type", whether_to_use_meta=False
+    )
+    seed = search_for_nodes_with_key(
+        "KolorsSampler", workflow, "class_type", whether_to_use_meta=False
+    )
+    neg_prompt_nodes = search_for_nodes_with_key(
+        "KolorsTextEncode", workflow, "class_type", whether_to_use_meta=False
+    )
+ 
+    
+
+    # Modify the prompt dictionary
+
+
+    workflow = edit_given_nodes_properties(workflow, prompt_nodes, "prompt", prompt)
+    workflow = edit_given_nodes_properties(
+        workflow, neg_prompt_nodes, "negative_prompt", negative_prompt
+    )
+
+    workflow = edit_given_nodes_properties(
+        workflow, prompt_nodes, "num_images_per_prompt", batch_size
+    )
+    workflow = edit_given_nodes_properties(workflow, ksampler_nodes, "steps", steps)
+    workflow = edit_given_nodes_properties(
+        workflow, seed, "seed", random.randint(0, 10000000)
+    )
+    default_width = 1024
+    default_height = 1024
+
+    # Modify the workflow nodes for width and height with provided values or defaults
+    workflow = edit_given_nodes_properties(
+        workflow, ksampler_nodes, "width", width if width is not None else default_width
+    )
+    workflow = edit_given_nodes_properties(
+        workflow, ksampler_nodes, "height", height if height is not None else default_height
+    )
+
+    with open("workflow.json", "w") as f:
+        json.dump(workflow, f)
+
+    images = await generator.get_images(workflow)
+
+    await generator.close()
+    await save_images(images, user_id, UUID, "Kolors", prompt)
+
 async def generate_images(
     UUID: str,
     user_id: int,
@@ -564,13 +747,13 @@ async def generate_images(
     # Modify the prompt dictionary
 
     workflow = edit_given_nodes_properties(
-            workflow, ksampler_nodes, "sampler_name", "dpmpp_3m_sde_gpu"
+            workflow, ksampler_nodes, "sampler_name", "uni_pc"
         )
 
 
     workflow = edit_given_nodes_properties(workflow, prompt_nodes, "text", prompt)
     if negative_prompt is None:
-        negative_prompt = "watermark"
+        negative_prompt = "worst quality, deformed"
     workflow = edit_given_nodes_properties(
         workflow, neg_prompt_nodes, "text", negative_prompt
     )
@@ -606,6 +789,98 @@ async def generate_images(
     await generator.close()
     await save_images(images, user_id, UUID, model, prompt)
 
+async def auraflow(
+    UUID: str,
+    user_id: int,
+    cfg: float,
+    prompt: str,
+    negative_prompt: str,
+    batch_size: int,
+    width: int,
+    height: int,
+    model: str,
+    steps: int,
+):
+   
+    with open("auraflow.json", "r") as file:
+            workflow = json.load(file)
+    cfg_node = search_for_nodes_with_key(
+        "KSampler", workflow, "class_type", whether_to_use_meta=False
+        )
+    workflow = edit_given_nodes_properties(workflow, cfg_node, "cfg", cfg)
+
+    generator = ImageGenerator(host=get_host())
+    await generator.connect()
+
+   
+    prompt_nodes = search_for_nodes_with_key(
+        "Positive Prompt", workflow, "title", whether_to_use_meta=True
+    )
+    latent_image_nodes = search_for_nodes_with_key(
+        "EmptyLatentImage", workflow, "class_type", whether_to_use_meta=False
+    )
+    ksampler_nodes = search_for_nodes_with_key(
+        "KSampler", workflow, "class_type", whether_to_use_meta=False
+    )
+    seed = search_for_nodes_with_key(
+        "KSampler", workflow, "class_type", whether_to_use_meta=False
+    )
+    widthnode = search_for_nodes_with_key(
+        "EmptyLatentImage", workflow, "class_type", whether_to_use_meta=False
+    )
+    heightnode = search_for_nodes_with_key(
+        "EmptyLatentImage", workflow, "class_type", whether_to_use_meta=False
+    )
+    neg_prompt_nodes = search_for_nodes_with_key(
+        "Negative Prompt", workflow, "title", whether_to_use_meta=True
+    )
+    model_node = search_for_nodes_with_key(
+        "Model Checkpoint", workflow, "title", whether_to_use_meta=True
+    )
+    
+
+    workflow = edit_given_nodes_properties(
+            workflow, ksampler_nodes, "sampler_name", "uni_pc"
+        )
+
+
+    workflow = edit_given_nodes_properties(workflow, prompt_nodes, "text", prompt)
+    if negative_prompt is None:
+        negative_prompt = "watermark, bad quality, worst quality, deformed, distorted, corrupted, low resolution, low quality,"
+    workflow = edit_given_nodes_properties(
+        workflow, neg_prompt_nodes, "text", negative_prompt
+    )
+
+    workflow = edit_given_nodes_properties(
+        workflow, latent_image_nodes, "batch_size", batch_size
+    )
+    workflow = edit_given_nodes_properties(workflow, ksampler_nodes, "steps", steps)
+    workflow = edit_given_nodes_properties(
+        workflow, seed, "seed", random.randint(0, 10000000)
+    )
+    default_width = 1024
+    default_height = 1024
+
+    # Modify the workflow nodes for width and height with provided values or defaults
+    workflow = edit_given_nodes_properties(
+        workflow, widthnode, "width", width if width is not None else default_width
+    )
+    workflow = edit_given_nodes_properties(
+        workflow, heightnode, "height", height if height is not None else default_height
+    )
+    if model_node:
+        # Before setting the model, ensure the model name is adjusted to remove ".safetensors" if present
+        model_name_adjusted = str(model) + ".safetensors"
+        workflow = edit_given_nodes_properties(
+            workflow, model_node, "ckpt_name", model_name_adjusted
+        )
+    with open("workflow.json", "w") as f:
+        json.dump(workflow, f)
+
+    images = await generator.get_images(workflow)
+
+    await generator.close()
+    await save_images(images, user_id, UUID, model, prompt)
 
 # Setup basic logging
 logging.basicConfig(
@@ -832,9 +1107,6 @@ async def generate_alternatives(
     model_node = search_for_nodes_with_key(
         "Model Checkpoint", workflow, "title", whether_to_use_meta=True
     )
-    latent_image_nodes = search_for_nodes_with_key(
-        "RepeatLatentBatch", workflow, "class_type", whether_to_use_meta=False
-    )
     ksampler_nodes = search_for_nodes_with_key(
         "KSampler", workflow, "class_type", whether_to_use_meta=False
     )
@@ -852,9 +1124,6 @@ async def generate_alternatives(
             workflow, neg_prompt_nodes, "text", negative_prompt
         )
 
-    workflow = edit_given_nodes_properties(
-        workflow, latent_image_nodes, "amount", batch_size
-    )
     workflow = edit_given_nodes_properties(workflow, ksampler_nodes, "steps", 30)
     workflow = edit_given_nodes_properties(
         workflow, seed, "seed", random.randint(0, 10000000)
@@ -866,21 +1135,6 @@ async def generate_alternatives(
             workflow, model_node, "ckpt_name", model_name_adjusted
         )
 
-    default_width = 1024
-    default_height = 1024
-    # Modify the workflow nodes for width and height with provided values or defaults
-    workflow = edit_given_nodes_properties(
-        workflow,
-        latent_image_nodes,
-        "width",
-        width if width is not None else default_width,
-    )
-    workflow = edit_given_nodes_properties(
-        workflow,
-        latent_image_nodes,
-        "height",
-        height if height is not None else default_height,
-    )
     print(f"Processing image: {inputname}")
     filename_without_directory = os.path.basename(inputname)
     print(f"Filename without directory: {filename_without_directory}")

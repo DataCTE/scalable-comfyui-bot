@@ -2,7 +2,7 @@
   "3": {
     "inputs": {
       "seed": 1079272804227755,
-      "steps": 50,
+      "steps": 25,
       "cfg": 7,
       "sampler_name": "dpmpp_3m_sde_gpu",
       "scheduler": "karras",
@@ -73,7 +73,7 @@
   },
   "58": {
     "inputs": {
-      "ckpt_name": "proteus-rundiffusionV2.5.safetensors"
+      "ckpt_name": "proteusV0.5.safetensors"
     },
     "class_type": "CheckpointLoaderSimple",
     "_meta": {

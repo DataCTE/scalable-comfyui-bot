@@ -1,134 +1,14 @@
 {
-  "6": {
+  "3": {
     "inputs": {
-      "text": "A split image. On the left side is an avocado chair, with the caption 'DALL-E'. On the right is a red sphere on top of a blue box. The blue box has green text which says 'SD3 zero-shot'.",
-      "clip": [
-        "275",
-        0
-      ]
-    },
-    "class_type": "CLIPTextEncode",
-    "_meta": {
-      "title": "Positive Prompt"
-    }
-  },
-  "13": {
-    "inputs": {
-      "shift": 3,
-      "model": [
-        "252",
-        0
-      ]
-    },
-    "class_type": "ModelSamplingSD3",
-    "_meta": {
-      "title": "ModelSamplingSD3"
-    }
-  },
-  "67": {
-    "inputs": {
-      "conditioning": [
-        "71",
-        0
-      ]
-    },
-    "class_type": "ConditioningZeroOut",
-    "_meta": {
-      "title": "ConditioningZeroOut"
-    }
-  },
-  "68": {
-    "inputs": {
-      "start": 0.1,
-      "end": 1,
-      "conditioning": [
-        "67",
-        0
-      ]
-    },
-    "class_type": "ConditioningSetTimestepRange",
-    "_meta": {
-      "title": "ConditioningSetTimestepRange"
-    }
-  },
-  "69": {
-    "inputs": {
-      "conditioning_1": [
-        "68",
-        0
-      ],
-      "conditioning_2": [
-        "70",
-        0
-      ]
-    },
-    "class_type": "ConditioningCombine",
-    "_meta": {
-      "title": "Conditioning (Combine)"
-    }
-  },
-  "70": {
-    "inputs": {
-      "start": 0,
-      "end": 0.1,
-      "conditioning": [
-        "71",
-        0
-      ]
-    },
-    "class_type": "ConditioningSetTimestepRange",
-    "_meta": {
-      "title": "ConditioningSetTimestepRange"
-    }
-  },
-  "71": {
-    "inputs": {
-      "text": "watermark, worst, bad, distorted, malformed, deformed, artifacts",
-      "clip": [
-        "275",
-        0
-      ]
-    },
-    "class_type": "CLIPTextEncode",
-    "_meta": {
-      "title": "Negative Prompt"
-    }
-  },
-  "231": {
-    "inputs": {
-      "samples": [
-        "271",
-        0
-      ],
-      "vae": [
-        "252",
-        2
-      ]
-    },
-    "class_type": "VAEDecode",
-    "_meta": {
-      "title": "VAE Decode"
-    }
-  },
-  "252": {
-    "inputs": {
-      "ckpt_name": "sd3_medium_incl_clips_t5xxlfp8.safetensors"
-    },
-    "class_type": "CheckpointLoaderSimple",
-    "_meta": {
-      "title": "Model Checkpoint"
-    }
-  },
-  "271": {
-    "inputs": {
-      "seed": 1047178867982657,
-      "steps": 32,
-      "cfg": 4.5,
-      "sampler_name": "dpmpp_2m",
-      "scheduler": "sgm_uniform",
+      "seed": 135024993850492,
+      "steps": 50,
+      "cfg": 7,
+      "sampler_name": "euler_ancestral",
+      "scheduler": "normal",
       "denoise": 1,
       "model": [
-        "13",
+        "11",
         0
       ],
       "positive": [
@@ -136,11 +16,11 @@
         0
       ],
       "negative": [
-        "69",
+        "7",
         0
       ],
       "latent_image": [
-        "273",
+        "5",
         0
       ]
     },
@@ -149,7 +29,16 @@
       "title": "KSampler"
     }
   },
-  "273": {
+  "4": {
+    "inputs": {
+      "ckpt_name": "Mobioboros.safetensors"
+    },
+    "class_type": "CheckpointLoaderSimple",
+    "_meta": {
+      "title": "Model Checkpoint"
+    }
+  },
+  "5": {
     "inputs": {
       "width": 1024,
       "height": 1024,
@@ -160,11 +49,53 @@
       "title": "Empty Latent Image"
     }
   },
-  "274": {
+  "6": {
+    "inputs": {
+      "text": "anime girl, NijiEX style",
+      "clip": [
+        "11",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "Positive Prompt"
+    }
+  },
+  "7": {
+    "inputs": {
+      "text": "text, watermark",
+      "clip": [
+        "11",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "Negative Prompt"
+    }
+  },
+  "8": {
+    "inputs": {
+      "samples": [
+        "3",
+        0
+      ],
+      "vae": [
+        "4",
+        2
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE Decode"
+    }
+  },
+  "9": {
     "inputs": {
       "filename_prefix": "final_output",
       "images": [
-        "231",
+        "8",
         0
       ]
     },
@@ -173,29 +104,36 @@
       "title": "Save Image"
     }
   },
-  "275": {
+  "11": {
     "inputs": {
-      "sd3_clip": [
-        "252",
-        1
+      "lora_name": "xl_more_art-full_v1.safetensors",
+      "strength_model": 0,
+      "strength_clip": 0,
+      "model": [
+        "4",
+        0
       ],
-      "sdxl_clip": [
-        "276",
+      "clip": [
+        "12",
+        0
+      ]
+    },
+    "class_type": "LoraLoader",
+    "_meta": {
+      "title": "Load LoRA"
+    }
+  },
+  "12": {
+    "inputs": {
+      "stop_at_clip_layer": -3,
+      "clip": [
+        "4",
         1
       ]
     },
-    "class_type": "SD3ClipSwap",
+    "class_type": "CLIPSetLastLayer",
     "_meta": {
-      "title": "SD3 Clip Swap"
-    }
-  },
-  "276": {
-    "inputs": {
-      "ckpt_name": "mobius.safetensors"
-    },
-    "class_type": "CheckpointLoaderSimple",
-    "_meta": {
-      "title": "Model Checkpoint"
+      "title": "CLIP Set Last Layer"
     }
   }
 }

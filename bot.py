@@ -1,6 +1,7 @@
 import logging
 logging.basicConfig()
-
+from imageGen import generate_avatar, AVATAR_STYLE_PRESETS, generate_pixart_900m
+from imageGen import generate_kolors, generate_images
 import discord
 import discord.ext
 from discord import app_commands
@@ -24,7 +25,8 @@ import traceback
 from discord.ext import tasks
 from stripe_integration import verify_payment_links_job
 import time
-
+import replicate
+import json
 
 # setting up the bot
 config = configparser.ConfigParser()
@@ -33,9 +35,16 @@ TOKEN = config["DISCORD"]["TOKEN"]
 IMAGE_SOURCE = config["IMAGE"]["SOURCE"]
 stripe_api_key = config["STRIPE"]["API_KEY"]
 stripe_product_id = config.get("STRIPE", "PRODUCT_ID")
+# Dictionary to store conversation history and system prompt for each user
+user_contexts = {}
 
+# Default system prompt
+default_system_prompt = "You are a helpful AI assistant."
 
-stripe.api_key = stripe_api_key
+# Replicate API setup
+os.environ["REPLICATE_API_TOKEN"] = config["REPLICATE"]["API_TOKEN"]
+
+#stripe.api_key = stripe_api_key
 intents = discord.Intents.all()
 intents.members = True  # Enable the members intent
 client = discord.Client(intents=intents)
@@ -190,8 +199,8 @@ class Buttons(discord.ui.View):
                     ),
                 )
                 # after successful reroll, deduct credits
-                amount = user_credits - 5
-                await deduct_credits(user_id, amount)
+                # amount = user_credits - 5
+                # await deduct_credits(user_id, amount)
 
             except sqlite3.Error as e:
                 print(f"Database error: {str(e)}")
@@ -271,9 +280,9 @@ class Buttons(discord.ui.View):
                     ),
                 )
                 # deduct credits
-                amount = user_credits - 5
-                print(amount)
-                await deduct_credits(user_id, amount)
+                #amount = user_credits - 5
+                #print(amount)
+                #await deduct_credits(user_id, amount)
 
             except sqlite3.Error as e:
                 print(f"Database error: {str(e)}")
@@ -290,93 +299,145 @@ class Buttons(discord.ui.View):
         except discord.errors.InteractionResponded:
             print("Interaction already responded")
 
+def is_allowed_channel(interaction: discord.Interaction) -> bool:
+    # Disallow DMs
+    if isinstance(interaction.channel, discord.DMChannel):
+        return False
+    
+    # Disallow channels named "general"
+    if interaction.channel.name.lower() == "general":
+        return False
+    
+    return True
+
+def allowed_channel():
+    async def predicate(interaction: discord.Interaction):
+        if not is_allowed_channel(interaction):
+            await interaction.response.send_message("This command is not allowed in this channel.", ephemeral=True)
+            return False
+        return True
+    return app_commands.check(predicate)
 
 @client.event
 async def on_ready():
     init_db()  # Initialize DB
     await tree.sync()
+
+    @tree.error
+    async def on_app_command_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
+        if isinstance(error, app_commands.errors.CheckFailure):
+            # This will catch any check failures, including our custom channel check
+            await interaction.response.send_message("This command is not allowed here.", ephemeral=True)
+        else:
+            # Handle other types of errors
+            await interaction.response.send_message("An error occurred while processing the command.", ephemeral=True)
+
     print(f"Logged in as {client.user.name} ({client.user.id})")
-    task_test.start()
 
-
-@tree.command(name="describe", description="Describe an image")
-@app_commands.describe(image="Image to describe")
-async def describe(interaction: discord.Interaction, image: discord.Attachment):
-    if image:
-        # Retrieve the image data from the attachment
-        image_data = await image.read()
-
-        # Open the image using Pillow
-        image = Image.open(BytesIO(image_data))
-        imguuid = uuid.uuid4()
-
-        # Generate the caption using the pre-trained model
-        await interaction.response.send_message("🧐 Analyzing your image!")
-        caption = await describe_image(imguuid, image, interaction.user.id)
-        await interaction.followup.send(content=f"<@{interaction.user.id}> 🧐 I finished analyzing your image!\n```\n{caption}\n```", allowed_mentions=discord.AllowedMentions(users=True,replied_user=True))
-
-    else:
-        await interaction.response.send_message(
-            "Please provide a valid image attachment."
-        )
-
-
-@tree.command(name="drain_database", description="Debloats the images table, saving the images outside the sqlite database")
-@app_commands.checks.has_permissions(administrator=True)
-async def drain_database(interaction: discord.Interaction):
-    conn = sqlite3.connect(DATABASE_URL)
-    cursor = conn.cursor()
-    cursor.execute('SELECT * from images WHERE data IS NOT NULL')
-    all = cursor.fetchall()
-    for (id, user_id, data, uuid, url, count, model, prompt) in all:
-        pathlib.Path(f'./generated_images/{uuid}.png').write_bytes(data)
-        await asyncio.sleep(0)
-        cursor.execute('UPDATE images SET data = NULL where id = ?', (id,))
-        await asyncio.sleep(0)
-    conn.commit()
-    interaction.channel.send("Alright, database drained into files.")
-
-@tree.command(name="dream", description="Produces an almost instant dream")
-@app_commands.describe(prompt="Prompt for the image being generated")
-@app_commands.describe(negative_prompt="Prompt for what you want to steer the AI away from")
-@app_commands.describe(width="width of the image")
-@app_commands.describe(height="height of the image" )
-@app_commands.describe(cfg="cfg to use")
-@app_commands.describe(steps="steps to use")
-async def imagine(
+@tree.command(name="chat", description="Chat with the AI assistant")
+@app_commands.describe(
+    message="Your message to the AI",
+    wipe_memory="Set to True to wipe conversation history before this message",
+    system_prompt="Set a custom system prompt for this conversation"
+)
+async def chat(
     interaction: discord.Interaction, 
-    prompt: str,
-    negative_prompt: str = None,
-    width: int = 1024,
-    height: int = 1024,
-    cfg: float = 7.5,
-    steps: int = 30
+    message: str, 
+    wipe_memory: bool = False,
+    system_prompt: Optional[str] = None
 ):
-    await interaction.response.defer(ephemeral=False)
-    user_id = interaction.user.id
-    #await interaction.response.send_message("Generating your instant dream, one second please!...")
-    UUID = str(uuid.uuid4())  # Generate unique hash for each image
-
-    await sigmafied_image_generation(
-        UUID=UUID,
-        cfg=cfg,
-        steps=steps,
-        user_id=user_id,
-        prompt=prompt,
-        negative_prompt=negative_prompt,
-        width=width,
-        height=height,
+    global user_contexts
+    user_id = str(interaction.user.id)
+    
+    if user_id not in user_contexts:
+        user_contexts[user_id] = {
+            "messages": [],
+            "system_prompt": default_system_prompt
+        }
+    
+    if wipe_memory:
+        user_contexts[user_id]["messages"] = []
+    
+    if system_prompt:
+        user_contexts[user_id]["system_prompt"] = system_prompt
+    
+    user_contexts[user_id]["messages"].append({"role": "user", "content": message})
+    
+    full_prompt = f"{user_contexts[user_id]['system_prompt']}\n\nConversation history:\n"
+    for msg in user_contexts[user_id]["messages"]:
+        full_prompt += f"{msg['role']}: {msg['content']}\n"
+    full_prompt += "assistant:"
+    
+    await interaction.response.defer()
+    
+    response = ""
+    for event in replicate.stream(
+        "meta/meta-llama-3.1-405b-instruct",
+        input={
+            "prompt": full_prompt,
+            "max_tokens": 2048
+        }
+    ):
+        response += event
+    
+    user_contexts[user_id]["messages"].append({"role": "assistant", "content": response})
+    
+    # Format the response
+    formatted_response = format_response(response)
+    
+    # Create an embed for the response
+    embed = discord.Embed(
+        title="AI Assistant Response",
+        description=formatted_response,
+        color=discord.Color.blue()
     )
+    embed.set_footer(text=f"Requested by {interaction.user.name}")
+    
+    await interaction.followup.send(embed=embed)
 
-    file = discord.File(f'./generated_images/{UUID}_1.png', filename="collage.png")
-    final_message = f"{interaction.user.mention}, here is what I imagined for you with \n```\n{prompt}\n```"
-
-    await interaction.delete_original_response()
-    await interaction.channel.send(
-        content=final_message, file=file, ephemeral=False
-    )
+def format_response(response):
+    # Split the response into paragraphs
+    paragraphs = response.split('\n\n')
+    
+    formatted = []
+    for para in paragraphs:
+        # Check if the paragraph is a list
+        if para.startswith(('- ', '• ', '* ')):
+            formatted.append(para)
+        elif para.strip().startswith(('1. ', '2. ', '3. ')):
+            formatted.append(para)
+        else:
+            # Wrap normal paragraphs in quotes
+            formatted.append(f"> {para}")
+    
+    # Join the formatted paragraphs
+    formatted_response = '\n\n'.join(formatted)
+    
+    # Apply additional formatting
+    formatted_response = formatted_response.replace('**', '**')  # Bold
+    formatted_response = formatted_response.replace('*', '*')    # Italic
+    formatted_response = formatted_response.replace('`', '`')    # Inline code
+    
+    # Check if there are any code blocks and format them
+    if '```' in formatted_response:
+        lines = formatted_response.split('\n')
+        in_code_block = False
+        for i, line in enumerate(lines):
+            if line.startswith('```'):
+                in_code_block = not in_code_block
+                if in_code_block:
+                    # Start of code block, add language if not specified
+                    if len(line) == 3:
+                        lines[i] = '```python'
+            elif in_code_block:
+                # Indent code within code blocks
+                lines[i] = '    ' + line
+        formatted_response = '\n'.join(lines)
+    
+    return formatted_response
 
 @tree.command(name="imagine", description="Generate an image based on input text")
+@allowed_channel()
 @app_commands.describe(prompt="Prompt for the image being generated")
 @app_commands.describe(negative_prompt="Prompt for what you want to steer the AI away from")
 @app_commands.describe(batch_size="Number of images to generate" )
@@ -386,9 +447,10 @@ async def imagine(
 @app_commands.describe(attachment="attachment to use")
 @app_commands.describe(steps="steps to use")
 @app_commands.choices(model=[
-    Choice(name="ProteusMobiusPhoto", value="ProteusMobiusPhoto"),
-    Choice(name="ProteusMobiusAnime", value="ProteusMobiusAnime"),
-    Choice(name="ProteusMobiusRAW", value="ProteusMobius"),
+    Choice(name="proteusV0.5", value="proteusV0.5"),
+    Choice(name="Prometheus", value="Prometheus"),
+    Choice(name="PrometheusV2_beta", value="PrometheusV2_beta"),
+    Choice(name="Proteus-Prometheus", value="Prometheus"),
 ])
 @app_commands.describe(lora="Choose the lora to use")
 @app_commands.choices(lora=[
@@ -403,13 +465,13 @@ async def imagine(
     batch_size: int = 4,
     width: int = 1024,
     height: int = 1024,
-    model: str = "ProteusMobius",
+    model: str = "PrometheusV2_beta",
     attachment: discord.Attachment = None, 
     lora: str = None,
-    cfg: float = 7.5,
-    steps: int = 30
+    cfg: float = 7.0,
+    steps: int = 50
 ):
-    ## TODO: package parameters into a dataclass and build functions around it.
+## TODO: package parameters into a dataclass and build functions around it.
    
     username = interaction.user.name
     user_id = interaction.user.id
@@ -494,8 +556,6 @@ async def imagine(
     )
    
    
-    if model == "ProteusMobius":
-        model = "ProteusMobiusRAW"
     file = discord.File(collage_blob, filename="collage.png")
     final_message = f"{interaction.user.mention}, here is what I imagined for you with ```{prompt}, {model}```"
 
@@ -504,11 +564,38 @@ async def imagine(
     )
 
 
-    amount = user_credits - 10
-    print(amount)
-    await deduct_credits(user_id, amount)
+    #amount = user_credits - 10
+    #print(amount)
+    #await deduct_credits(user_id, amount)
 
     return UUID
+
+
+@tree.command(name="describe", description="Describe an image")
+@app_commands.describe(image="Image to describe")
+async def describe(interaction: discord.Interaction, image: discord.Attachment):
+    if image:
+        # Retrieve the image data from the attachment
+        image_data = await image.read()
+
+        # Open the image using Pillow
+        image = Image.open(BytesIO(image_data))
+        imguuid = uuid.uuid4()
+
+        # Generate the caption using the pre-trained model
+        await interaction.response.send_message("🧐 Analyzing your image!")
+        caption = await describe_image(imguuid, image, interaction.user.id)
+        await interaction.followup.send(content=f"<@{interaction.user.id}> 🧐 I finished analyzing your image!\n```\n{caption}\n```", allowed_mentions=discord.AllowedMentions(users=True,replied_user=True))
+
+    else:
+        await interaction.response.send_message(
+            "Please provide a valid image attachment."
+        )
+
+
+
+
+
 
 
 @tree.command(name="recharge", description="Recharge credits with Stripe")
@@ -578,7 +665,7 @@ def generate_bot_invite_link(client_id):
 
 JOB_LOGGER = logging.getLogger("datapulse_jobs")
 
-@tasks.loop(seconds=15)
+#@tasks.loop(seconds=15)
 async def task_test():
     JOB_LOGGER.info("Stripe Events Check Started")
     start_time = time.perf_counter()
@@ -594,4 +681,12 @@ print("Invite your bot using this link:", invite_link)
 logging.getLogger('stripe').setLevel(logging.WARNING)
 
 # run the bot
-client.run(TOKEN)
+async def main():
+    try:
+        await client.start(TOKEN)
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        traceback.print_exc()
+
+if __name__ == "__main__":
+    asyncio.run(main())

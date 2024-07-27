@@ -1,7 +1,7 @@
 {
     "1": {
       "inputs": {
-        "ckpt_name": "ProteusMobius.safetensors"
+        "ckpt_name": "Prometheus.safetensors"
       },
       "class_type": "CheckpointLoaderSimple",
       "_meta": {
@@ -37,10 +37,10 @@
     "4": {
       "inputs": {
         "seed": 1007246773846082,
-        "steps": 20,
+        "steps": 30,
         "cfg": 7,
-        "sampler_name": "euler_ancestral",
-        "scheduler": "normal",
+        "sampler_name": "dpmpp_2m",
+        "scheduler": "sgm_uniform",
         "denoise": 0.6,
         "model": [
           "1",
