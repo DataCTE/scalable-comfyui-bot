@@ -1,120 +1,145 @@
 {
-    "1": {
-      "inputs": {
-        "ckpt_name": "Prometheus.safetensors"
-      },
-      "class_type": "CheckpointLoaderSimple",
-      "_meta": {
-        "title": "Model Checkpoint"
-      }
+  "1": {
+    "inputs": {
+      "ckpt_name": "PrometheusV2-tagFinV0.1.safetensors"
     },
-    "2": {
-      "inputs": {
-        "text": "",
-        "clip": [
-          "1",
-          1
-        ]
-      },
-      "class_type": "CLIPTextEncode",
-      "_meta": {
-        "title": "Positive Prompt"
-      }
+    "class_type": "CheckpointLoaderSimple",
+    "_meta": {
+      "title": "Model Checkpoint"
+    }
+  },
+  "2": {
+    "inputs": {
+      "text": "",
+      "clip": [
+        "1",
+        1
+      ]
     },
-    "3": {
-      "inputs": {
-        "text": "",
-        "clip": [
-          "1",
-          1
-        ]
-      },
-      "class_type": "CLIPTextEncode",
-      "_meta": {
-        "title": "Negative Prompt"
-      }
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "Positive Prompt"
+    }
+  },
+  "3": {
+    "inputs": {
+      "text": "",
+      "clip": [
+        "1",
+        1
+      ]
     },
-    "4": {
-      "inputs": {
-        "seed": 1007246773846082,
-        "steps": 30,
-        "cfg": 7,
-        "sampler_name": "dpmpp_2m",
-        "scheduler": "sgm_uniform",
-        "denoise": 0.6,
-        "model": [
-          "1",
-          0
-        ],
-        "positive": [
-          "2",
-          0
-        ],
-        "negative": [
-          "3",
-          0
-        ],
-        "latent_image": [
-          "10",
-          0
-        ]
-      },
-      "class_type": "KSampler"
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "Negative Prompt"
+    }
+  },
+  "4": {
+    "inputs": {
+      "seed": 1007246773846082,
+      "steps": 30,
+      "cfg": 7,
+      "sampler_name": "dpmpp_2m",
+      "scheduler": "sgm_uniform",
+      "denoise": 0.6,
+      "model": [
+        "11",
+        0
+      ],
+      "positive": [
+        "2",
+        0
+      ],
+      "negative": [
+        "3",
+        0
+      ],
+      "latent_image": [
+        "10",
+        0
+      ]
     },
-    "5": {
-      "inputs": {
-        "image": "",
-        "choose file to upload": "image"
-      },
-      "class_type": "LoadImage",
-      "_meta": {
-        "title": "Load Image"
-      }
+    "class_type": "KSampler",
+    "_meta": {
+      "title": "KSampler"
+    }
+  },
+  "5": {
+    "inputs": {
+      "image": "01b6ffc6-d5d6-42b6-8136-dc9fcb970695_1.png",
+      "upload": "image"
     },
-    "6": {
-      "inputs": {
-        "pixels": [
-          "5",
-          0
-        ],
-        "vae": [
-          "1",
-          2
-        ]
-      },
-      "class_type": "VAEEncode"
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Image"
+    }
+  },
+  "6": {
+    "inputs": {
+      "pixels": [
+        "5",
+        0
+      ],
+      "vae": [
+        "1",
+        2
+      ]
     },
-    "7": {
-      "inputs": {
-        "samples": [
-          "4",
-          0
-        ],
-        "vae": [
-          "1",
-          2
-        ]
-      },
-      "class_type": "VAEDecode"
+    "class_type": "VAEEncode",
+    "_meta": {
+      "title": "VAE Encode"
+    }
+  },
+  "7": {
+    "inputs": {
+      "samples": [
+        "4",
+        0
+      ],
+      "vae": [
+        "1",
+        2
+      ]
     },
-    "8": {
-      "inputs": {
-        "filename_prefix": "final_output",
-        "images": [
-          "7",
-          0
-        ]
-      },
-      "class_type": "SaveImage"
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE Decode"
+    }
+  },
+  "8": {
+    "inputs": {
+      "filename_prefix": "final_output",
+      "images": [
+        "7",
+        0
+      ]
     },
-    "10": {
-      "inputs": {
-        "amount": 4,
-        "samples": [
-          "6",
-          0
-        ]
-      },
-      "class_type": "RepeatLatentBatch"
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "Save Image"
+    }
+  },
+  "10": {
+    "inputs": {
+      "amount": 4,
+      "samples": [
+        "6",
+        0
+      ]
+    },
+    "class_type": "RepeatLatentBatch",
+    "_meta": {
+      "title": "Repeat Latent Batch"
+    }
+  },
+  "11": {
+    "inputs": {
+      "unet_name": "ComfyUI_DYN_TagFinV0.1_$dyn-b-1-4-2-h-512-2048-1024-w-512-2048-1024_00001_.engine",
+      "model_type": "sdxl_base"
+    },
+    "class_type": "TensorRTLoader",
+    "_meta": {
+      "title": "TensorRT Loader"
     }
   }
+}

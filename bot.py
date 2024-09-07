@@ -1,10 +1,10 @@
 import logging
 logging.basicConfig()
 from imageGen import generate_avatar, AVATAR_STYLE_PRESETS, generate_pixart_900m
-from imageGen import generate_kolors, generate_images
+from imageGen import generate_kolors, generate_images, auraflow, flux1dev
 import discord
 import discord.ext
-from discord import app_commands
+from discord import app_commands, Embed, Color, File
 import configparser
 from PIL import Image
 from datetime import datetime
@@ -27,6 +27,8 @@ from stripe_integration import verify_payment_links_job
 import time
 import replicate
 import json
+import urllib.parse
+import io
 
 # setting up the bot
 config = configparser.ConfigParser()
@@ -199,8 +201,8 @@ class Buttons(discord.ui.View):
                     ),
                 )
                 # after successful reroll, deduct credits
-                # amount = user_credits - 5
-                # await deduct_credits(user_id, amount)
+                amount = user_credits - 5
+                await deduct_credits(user_id, amount)
 
             except sqlite3.Error as e:
                 print(f"Database error: {str(e)}")
@@ -280,9 +282,9 @@ class Buttons(discord.ui.View):
                     ),
                 )
                 # deduct credits
-                #amount = user_credits - 5
-                #print(amount)
-                #await deduct_credits(user_id, amount)
+                amount = user_credits - 5
+                print(amount)
+                await deduct_credits(user_id, amount)
 
             except sqlite3.Error as e:
                 print(f"Database error: {str(e)}")
@@ -334,107 +336,8 @@ async def on_ready():
 
     print(f"Logged in as {client.user.name} ({client.user.id})")
 
-@tree.command(name="chat", description="Chat with the AI assistant")
-@app_commands.describe(
-    message="Your message to the AI",
-    wipe_memory="Set to True to wipe conversation history before this message",
-    system_prompt="Set a custom system prompt for this conversation"
-)
-async def chat(
-    interaction: discord.Interaction, 
-    message: str, 
-    wipe_memory: bool = False,
-    system_prompt: Optional[str] = None
-):
-    global user_contexts
-    user_id = str(interaction.user.id)
-    
-    if user_id not in user_contexts:
-        user_contexts[user_id] = {
-            "messages": [],
-            "system_prompt": default_system_prompt
-        }
-    
-    if wipe_memory:
-        user_contexts[user_id]["messages"] = []
-    
-    if system_prompt:
-        user_contexts[user_id]["system_prompt"] = system_prompt
-    
-    user_contexts[user_id]["messages"].append({"role": "user", "content": message})
-    
-    full_prompt = f"{user_contexts[user_id]['system_prompt']}\n\nConversation history:\n"
-    for msg in user_contexts[user_id]["messages"]:
-        full_prompt += f"{msg['role']}: {msg['content']}\n"
-    full_prompt += "assistant:"
-    
-    await interaction.response.defer()
-    
-    response = ""
-    for event in replicate.stream(
-        "meta/meta-llama-3.1-405b-instruct",
-        input={
-            "prompt": full_prompt,
-            "max_tokens": 2048
-        }
-    ):
-        response += event
-    
-    user_contexts[user_id]["messages"].append({"role": "assistant", "content": response})
-    
-    # Format the response
-    formatted_response = format_response(response)
-    
-    # Create an embed for the response
-    embed = discord.Embed(
-        title="AI Assistant Response",
-        description=formatted_response,
-        color=discord.Color.blue()
-    )
-    embed.set_footer(text=f"Requested by {interaction.user.name}")
-    
-    await interaction.followup.send(embed=embed)
 
-def format_response(response):
-    # Split the response into paragraphs
-    paragraphs = response.split('\n\n')
-    
-    formatted = []
-    for para in paragraphs:
-        # Check if the paragraph is a list
-        if para.startswith(('- ', '• ', '* ')):
-            formatted.append(para)
-        elif para.strip().startswith(('1. ', '2. ', '3. ')):
-            formatted.append(para)
-        else:
-            # Wrap normal paragraphs in quotes
-            formatted.append(f"> {para}")
-    
-    # Join the formatted paragraphs
-    formatted_response = '\n\n'.join(formatted)
-    
-    # Apply additional formatting
-    formatted_response = formatted_response.replace('**', '**')  # Bold
-    formatted_response = formatted_response.replace('*', '*')    # Italic
-    formatted_response = formatted_response.replace('`', '`')    # Inline code
-    
-    # Check if there are any code blocks and format them
-    if '```' in formatted_response:
-        lines = formatted_response.split('\n')
-        in_code_block = False
-        for i, line in enumerate(lines):
-            if line.startswith('```'):
-                in_code_block = not in_code_block
-                if in_code_block:
-                    # Start of code block, add language if not specified
-                    if len(line) == 3:
-                        lines[i] = '```python'
-            elif in_code_block:
-                # Indent code within code blocks
-                lines[i] = '    ' + line
-        formatted_response = '\n'.join(lines)
-    
-    return formatted_response
+
 
 @tree.command(name="imagine", description="Generate an image based on input text")
 @allowed_channel()
@@ -447,16 +350,7 @@ def format_response(response):
 @app_commands.describe(attachment="attachment to use")
 @app_commands.describe(steps="steps to use")
 @app_commands.choices(model=[
-    Choice(name="proteusV0.5", value="proteusV0.5"),
-    Choice(name="Prometheus", value="Prometheus"),
-    Choice(name="PrometheusV2_beta", value="PrometheusV2_beta"),
-    Choice(name="Proteus-Prometheus", value="Prometheus"),
-])
-@app_commands.describe(lora="Choose the lora to use")
-@app_commands.choices(lora=[
-    Choice(name="Detail", value="tweak-detail-xl"),
-    Choice(name="SythAnimeV2", value="AnimeSythenticV0.2"),
-    Choice(name="Artistic", value="xl_more_art-full_v1"),
+    Choice(name="TagV1", value="TagV1"),
 ])
 async def imagine(
     interaction: discord.Interaction, 
@@ -465,9 +359,8 @@ async def imagine(
     batch_size: int = 4,
     width: int = 1024,
     height: int = 1024,
-    model: str = "PrometheusV2_beta",
+    model: str = "TagV1",
     attachment: discord.Attachment = None, 
-    lora: str = None,
     cfg: float = 7.0,
     steps: int = 50
 ):
@@ -511,7 +404,16 @@ async def imagine(
         
 
     UUID = str(uuid.uuid4())  # Generate unique hash for each image
-
+    original_length = len(prompt)
+    addition = ", 6"
+    prompt += addition
+    
+    def get_old_prompt():
+    	return prompt[:original_length]
+    
+    def get_new_prompt():
+    	return prompt
+    	
     if attachment:
         # save input image
 
@@ -528,6 +430,17 @@ async def imagine(
             height=height,
             model=model,
         )
+    elif model == "Fluxteus":  # New condition for auraflow model
+        await flux1dev(
+        	UUID=UUID,
+        	steps=20,
+        	user_id=interaction.user.id,
+        	prompt=prompt,
+        	batch_size=2,
+        	width=width,
+        	height=height,
+        	model=model,
+    	)
     else:
         await generate_images(
             UUID=UUID,
@@ -540,7 +453,7 @@ async def imagine(
             width=width,
             height=height,
             model=model,
-            lora=lora,
+          
         )
 
     collage_blob = await create_collage(UUID, batch_size)
@@ -557,16 +470,16 @@ async def imagine(
    
    
     file = discord.File(collage_blob, filename="collage.png")
-    final_message = f"{interaction.user.mention}, here is what I imagined for you with ```{prompt}, {model}```"
+    final_message = f"{interaction.user.mention}, here is what I imagined for you with ```{get_old_prompt()}, {model}```"
 
     await interaction.followup.send(
         content=final_message, file=file, view=buttons_view, ephemeral=False
     )
 
 
-    #amount = user_credits - 10
-    #print(amount)
-    #await deduct_credits(user_id, amount)
+    amount = user_credits - 10
+    print(amount)
+    await deduct_credits(user_id, amount)
 
     return UUID
 

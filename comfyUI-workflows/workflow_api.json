@@ -1,0 +1,655 @@
+{
+  "3": {
+    "inputs": {
+      "seed": [
+        "85",
+        0
+      ],
+      "steps": 8,
+      "cfg": 2,
+      "sampler_name": "dpmpp_2m",
+      "scheduler": "karras",
+      "denoise": 1,
+      "model": [
+        "82",
+        0
+      ],
+      "positive": [
+        "6",
+        0
+      ],
+      "negative": [
+        "7",
+        0
+      ],
+      "latent_image": [
+        "5",
+        0
+      ]
+    },
+    "class_type": "KSampler",
+    "_meta": {
+      "title": "KSampler"
+    }
+  },
+  "4": {
+    "inputs": {
+      "ckpt_name": "dreamshaperXL_v21TurboDPMSDE.safetensors"
+    },
+    "class_type": "CheckpointLoaderSimple",
+    "_meta": {
+      "title": "Load Checkpoint"
+    }
+  },
+  "5": {
+    "inputs": {
+      "width": 1024,
+      "height": 1024,
+      "batch_size": 4
+    },
+    "class_type": "EmptyLatentImage",
+    "_meta": {
+      "title": "Empty Latent Image"
+    }
+  },
+  "6": {
+    "inputs": {
+      "text": "a king sitting in a lavish throne, anime style"
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "Pos Prompt"
+    }
+  },
+  "7": {
+    "inputs": {
+      "text": "blurry, noisy, messy, lowres, jpeg, artifacts, ill, distorted, malformed, naked",
+      "clip": [
+        "4",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP Text Encode (Prompt)"
+    }
+  },
+  "8": {
+    "inputs": {
+      "samples": [
+        "3",
+        0
+      ],
+      "vae": [
+        "4",
+        2
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE Decode"
+    }
+  },
+  "12": {
+    "inputs": {
+      "image": "mog.jpg",
+      "upload": "image"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "avatar_2"
+    }
+  },
+  "18": {
+    "inputs": {
+      "weight": 0.5,
+      "weight_faceidv2": 0.5,
+      "weight_type": "linear",
+      "combine_embeds": "average",
+      "start_at": 0,
+      "end_at": 1,
+      "embeds_scaling": "V only",
+      "model": [
+        "20",
+        0
+      ],
+      "ipadapter": [
+        "20",
+        1
+      ],
+      "image": [
+        "33",
+        0
+      ]
+    },
+    "class_type": "IPAdapterFaceID",
+    "_meta": {
+      "title": "IPAdapter FaceID"
+    }
+  },
+  "20": {
+    "inputs": {
+      "preset": "FACEID PLUS V2",
+      "lora_strength": 0.6,
+      "provider": "CPU",
+      "model": [
+        "4",
+        0
+      ]
+    },
+    "class_type": "IPAdapterUnifiedLoaderFaceID",
+    "_meta": {
+      "title": "IPAdapter Unified Loader FaceID"
+    }
+  },
+  "22": {
+    "inputs": {
+      "preset": "PLUS FACE (portraits)",
+      "model": [
+        "18",
+        0
+      ],
+      "ipadapter": [
+        "20",
+        1
+      ]
+    },
+    "class_type": "IPAdapterUnifiedLoader",
+    "_meta": {
+      "title": "IPAdapter Unified Loader"
+    }
+  },
+  "24": {
+    "inputs": {
+      "images": [
+        "27",
+        0
+      ]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "Preview Image"
+    }
+  },
+  "25": {
+    "inputs": {
+      "weight": 0.45,
+      "weight_type": "linear",
+      "combine_embeds": "average",
+      "start_at": 0,
+      "end_at": 1,
+      "embeds_scaling": "V only",
+      "model": [
+        "22",
+        0
+      ],
+      "ipadapter": [
+        "22",
+        1
+      ],
+      "image": [
+        "18",
+        1
+      ]
+    },
+    "class_type": "IPAdapterAdvanced",
+    "_meta": {
+      "title": "IPAdapter Advanced"
+    }
+  },
+  "27": {
+    "inputs": {
+      "similarity_metric": "L2_norm",
+      "filter_thresh": 100,
+      "filter_best": 1,
+      "generate_image_overlay": false,
+      "analysis_models": [
+        "28",
+        0
+      ],
+      "reference": [
+        "12",
+        0
+      ],
+      "image": [
+        "8",
+        0
+      ]
+    },
+    "class_type": "FaceEmbedDistance",
+    "_meta": {
+      "title": "Face Embeds Distance"
+    }
+  },
+  "28": {
+    "inputs": {
+      "library": "dlib",
+      "provider": "CPU"
+    },
+    "class_type": "FaceAnalysisModels",
+    "_meta": {
+      "title": "Face Analysis Models"
+    }
+  },
+  "29": {
+    "inputs": {
+      "image": "mog2.jpg",
+      "upload": "image"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "avatar_1"
+    }
+  },
+  "30": {
+    "inputs": {
+      "image1": [
+        "12",
+        0
+      ],
+      "image2": [
+        "29",
+        0
+      ]
+    },
+    "class_type": "ImageBatch",
+    "_meta": {
+      "title": "Batch Images"
+    }
+  },
+  "31": {
+    "inputs": {
+      "seed": 0,
+      "repeat": 4,
+      "variation": 0.4,
+      "image": [
+        "30",
+        0
+      ]
+    },
+    "class_type": "ImageRandomTransform+",
+    "_meta": {
+      "title": "🔧 Image Random Transform"
+    }
+  },
+  "33": {
+    "inputs": {
+      "image1": [
+        "30",
+        0
+      ],
+      "image2": [
+        "31",
+        0
+      ]
+    },
+    "class_type": "ImageBatch",
+    "_meta": {
+      "title": "Batch Images"
+    }
+  },
+  "34": {
+    "inputs": {
+      "padding": 0,
+      "padding_percent": 0.5,
+      "index": 0,
+      "analysis_models": [
+        "28",
+        0
+      ],
+      "image": [
+        "27",
+        0
+      ]
+    },
+    "class_type": "FaceBoundingBox",
+    "_meta": {
+      "title": "Face Bounding Box"
+    }
+  },
+  "35": {
+    "inputs": {
+      "images": [
+        "34",
+        0
+      ]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "Preview Image"
+    }
+  },
+  "36": {
+    "inputs": {
+      "width": 1024,
+      "height": 0,
+      "interpolation": "lanczos",
+      "method": "keep proportion",
+      "condition": "always",
+      "multiple_of": 0,
+      "image": [
+        "34",
+        0
+      ]
+    },
+    "class_type": "ImageResize+",
+    "_meta": {
+      "title": "🔧 Image Resize"
+    }
+  },
+  "37": {
+    "inputs": {
+      "pixels": [
+        "36",
+        0
+      ],
+      "vae": [
+        "4",
+        2
+      ]
+    },
+    "class_type": "VAEEncode",
+    "_meta": {
+      "title": "VAE Encode"
+    }
+  },
+  "39": {
+    "inputs": {
+      "seed": [
+        "85",
+        0
+      ],
+      "steps": 8,
+      "cfg": 2,
+      "sampler_name": "dpmpp_2m",
+      "scheduler": "karras",
+      "denoise": 0.3,
+      "model": [
+        "25",
+        0
+      ],
+      "positive": [
+        "44",
+        0
+      ],
+      "negative": [
+        "7",
+        0
+      ],
+      "latent_image": [
+        "43",
+        0
+      ]
+    },
+    "class_type": "KSampler",
+    "_meta": {
+      "title": "KSampler"
+    }
+  },
+  "40": {
+    "inputs": {
+      "samples": [
+        "39",
+        0
+      ],
+      "vae": [
+        "4",
+        2
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE Decode"
+    }
+  },
+  "41": {
+    "inputs": {
+      "similarity_metric": "L2_norm",
+      "filter_thresh": 100,
+      "filter_best": 1,
+      "generate_image_overlay": false,
+      "analysis_models": [
+        "28",
+        0
+      ],
+      "reference": [
+        "12",
+        0
+      ],
+      "image": [
+        "40",
+        0
+      ]
+    },
+    "class_type": "FaceEmbedDistance",
+    "_meta": {
+      "title": "Face Embeds Distance"
+    }
+  },
+  "43": {
+    "inputs": {
+      "amount": 6,
+      "samples": [
+        "37",
+        0
+      ]
+    },
+    "class_type": "RepeatLatentBatch",
+    "_meta": {
+      "title": "Repeat Latent Batch"
+    }
+  },
+  "44": {
+    "inputs": {
+      "text": "extremely detailed"
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP Text Encode (Prompt)"
+    }
+  },
+  "51": {
+    "inputs": {
+      "width": [
+        "34",
+        3
+      ],
+      "height": [
+        "34",
+        4
+      ],
+      "interpolation": "lanczos",
+      "method": "keep proportion",
+      "condition": "always",
+      "multiple_of": 0,
+      "image": [
+        "41",
+        0
+      ]
+    },
+    "class_type": "ImageResize+",
+    "_meta": {
+      "title": "🔧 Image Resize"
+    }
+  },
+  "52": {
+    "inputs": {
+      "area": "face+forehead (if available)",
+      "grow": -12,
+      "grow_tapered": false,
+      "blur": 55,
+      "analysis_models": [
+        "28",
+        0
+      ],
+      "image": [
+        "51",
+        0
+      ]
+    },
+    "class_type": "FaceSegmentation",
+    "_meta": {
+      "title": "Face Segmentation"
+    }
+  },
+  "55": {
+    "inputs": {
+      "x": [
+        "34",
+        1
+      ],
+      "y": [
+        "34",
+        2
+      ],
+      "resize_source": false,
+      "destination": [
+        "27",
+        0
+      ],
+      "source": [
+        "51",
+        0
+      ],
+      "mask": [
+        "52",
+        0
+      ]
+    },
+    "class_type": "ImageCompositeMasked",
+    "_meta": {
+      "title": "ImageCompositeMasked"
+    }
+  },
+  "56": {
+    "inputs": {
+      "images": [
+        "59",
+        0
+      ]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "Preview Image"
+    }
+  },
+  "59": {
+    "inputs": {
+      "similarity_metric": "cosine",
+      "filter_thresh": 100,
+      "filter_best": 1,
+      "generate_image_overlay": true,
+      "analysis_models": [
+        "28",
+        0
+      ],
+      "reference": [
+        "12",
+        0
+      ],
+      "image": [
+        "55",
+        0
+      ]
+    },
+    "class_type": "FaceEmbedDistance",
+    "_meta": {
+      "title": "Face Embeds Distance"
+    }
+  },
+  "70": {
+    "inputs": {
+      "images": [
+        "31",
+        0
+      ]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "Preview Image"
+    }
+  },
+  "72": {
+    "inputs": {
+      "images": [
+        "51",
+        0
+      ]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "Preview Image"
+    }
+  },
+  "77": {
+    "inputs": {
+      "preset": "STANDARD (medium strength)",
+      "model": [
+        "25",
+        0
+      ]
+    },
+    "class_type": "IPAdapterUnifiedLoader",
+    "_meta": {
+      "title": "IPAdapter Unified Loader"
+    }
+  },
+  "78": {
+    "inputs": {
+      "clip_name": "CLIP-ViT-H-14-laion2B-s32B-b79K.safetensors"
+    },
+    "class_type": "CLIPVisionLoader",
+    "_meta": {
+      "title": "Load CLIP Vision"
+    }
+  },
+  "82": {
+    "inputs": {
+      "weight_style": 1,
+      "weight_composition": 0,
+      "expand_style": false,
+      "start_at": 0,
+      "end_at": 0.9,
+      "embeds_scaling": "V only",
+      "model": [
+        "77",
+        0
+      ],
+      "ipadapter": [
+        "77",
+        1
+      ],
+      "image_style": [
+        "87",
+        0
+      ],
+      "clip_vision": [
+        "78",
+        0
+      ]
+    },
+    "class_type": "IPAdapterStyleCompositionBatch",
+    "_meta": {
+      "title": "IPAdapter Style & Composition Batch SDXL"
+    }
+  },
+  "85": {
+    "inputs": {
+      "seed": 0
+    },
+    "class_type": "Seed Everywhere",
+    "_meta": {
+      "title": "Seed Everywhere"
+    }
+  },
+  "87": {
+    "inputs": {
+      "image": "00159-3210855088.jpeg",
+      "upload": "image"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "style"
+    }
+  }
+}

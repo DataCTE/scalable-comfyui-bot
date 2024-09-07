@@ -210,15 +210,6 @@ async def get_image_from_database(image_id):
         cursor.close()
         conn.close()
 
-async def read_file_with_retry(file_path, max_retries=5, delay=0.5):
-    for attempt in range(max_retries):
-        try:
-            return pathlib.Path(file_path).read_bytes()
-        except FileNotFoundError:
-            if attempt < max_retries - 1:
-                await asyncio.sleep(delay)
-            else:
-                raise
 
 async def create_collage(UUID: str, batch_size: int):
     conn = sqlite3.connect(DATABASE_URL)
@@ -227,53 +218,73 @@ async def create_collage(UUID: str, batch_size: int):
     result = None
 
     try:
-        for i in range(1, batch_size + 1):
+        # TODO
+        batch_size_range = range(1, batch_size + 1)
+        for i in batch_size_range:
             UUID_count = f"{UUID}_{i}"
-            file_path = f'./generated_images/{UUID_count}.png'
-            try:
-                single_result = await read_file_with_retry(file_path)
-                images.append(single_result)
-            except FileNotFoundError:
-                print(f"No image data found for UUID: {UUID_count} after multiple attempts")
+            # cursor.execute(
+            #     """
+            #     SELECT data FROM images WHERE UUID = ?
+            #     """,
+            #     (UUID_count,),
+            # )
+            single_result = pathlib.Path(f'./generated_images/{UUID_count}.png').read_bytes()
+            #result = cursor.fetchone()
+            if single_result is None:
+                print(f"No image data found for UUID: {UUID_count}")
                 continue
-
-        if not images:
-            print("No images found to create collage")
+            images.append(single_result)
+        # Open the first image to get its width and height
+        try:
+            first_image = PILImage.open(BytesIO(images[0]))
+        except Exception as e:
+            print(f"A PILImage error occurred: {str(e)}")
             return None
 
-        # Handle single image case
-        if len(images) == 1:
-            result = f'./generated_images/{UUID}.png'
-            pathlib.Path(result).write_bytes(images[0])
-            return result
+        image_width, image_height = first_image.width, first_image.height
 
-        # Open the first image to get its dimensions
-        first_image = PILImage.open(BytesIO(images[0]))
-        image_width, image_height = first_image.size
-
-        # Calculate optimal grid size
-        num_images = len(images)
-        cols = ceil(sqrt(num_images))
-        rows = ceil(num_images / cols)
+        # Determine the dimensions of the collage
+        num_images = batch_size
+        rows = cols = ceil(sqrt(num_images))
+        collage_width, collage_height = cols * image_width, rows * image_height
 
         # Create a new blank collage image
-        collage_width = cols * image_width
-        collage_height = rows * image_height
         collage = PILImage.new("RGB", (collage_width, collage_height))
 
         # Paste each image onto the collage
-        for i, image_data in enumerate(images):
-            img = PILImage.open(BytesIO(image_data))
-            row = i // cols
-            col = i % cols
+        for i, image in enumerate(images):
+            img = PILImage.open(BytesIO(image))
+            row, col = i // cols, i % cols
             collage.paste(img, (col * image_width, row * image_height))
         
         collage_bytes = io.BytesIO()
         collage.save(collage_bytes, format="PNG")
         blob = collage_bytes.getvalue()
 
-        result = f'./generated_images/{UUID}.png'
-        pathlib.Path(result).write_bytes(blob)
+        # Update the database with the collage image ##TODO: pass dataclass with user info for collage database
+        try:
+            # cursor.execute(
+            #     """
+            #     INSERT INTO images (UUID, data)
+            #     VALUES (?, ?)
+            # """,
+            #     (UUID, blob),
+            # )
+
+            result = f'./generated_images/{UUID}.png'
+            pathlib.Path(result).write_bytes(blob)
+
+            conn.commit()
+            conn.close()
+
+        except sqlite3.Error as e:
+            print(f"Database error: {str(e)}")
+            return None
+
+    except sqlite3.Error as e:
+        print(f"Database error: {str(e)}")
+        print(traceback.format_exc())
+        return None
 
     except Exception as e:
         print(f"An error occurred: {str(e)}")
@@ -281,8 +292,6 @@ async def create_collage(UUID: str, batch_size: int):
         return None
 
     finally:
-        cursor.close()
-        conn.close()
         return result
 
 
@@ -619,7 +628,7 @@ async def generate_kolors(
 
    
     prompt_nodes = search_for_nodes_with_key(
-        "KolorsTextEncode", workflow, "class_type", whether_to_use_meta=False
+        "KolorsTextEncode", workflow, "class_type", whether_to_use_meta=
     )
     ksampler_nodes = search_for_nodes_with_key(
         "KolorsSampler", workflow, "class_type", whether_to_use_meta=False
@@ -628,7 +637,7 @@ async def generate_kolors(
         "KolorsSampler", workflow, "class_type", whether_to_use_meta=False
     )
     neg_prompt_nodes = search_for_nodes_with_key(
-        "KolorsTextEncode", workflow, "class_type", whether_to_use_meta=False
+        "KolorsTextEncode", workflow, "class_type", whether_to_use_meta=True
     )
  
     
@@ -642,7 +651,7 @@ async def generate_kolors(
     )
 
     workflow = edit_given_nodes_properties(
-        workflow, prompt_nodes, "num_images_per_prompt", batch_size
+        workflow, ksampler_nodes, "num_images_per_prompt", batch_size
     )
     workflow = edit_given_nodes_properties(workflow, ksampler_nodes, "steps", steps)
     workflow = edit_given_nodes_properties(
@@ -665,76 +674,6 @@ async def generate_kolors(
     images = await generator.get_images(workflow)
 
     await generator.close()
-    await save_images(images, user_id, UUID, "Kolors", prompt)
-
-async def flux1dev(
-    UUID: str,
-    user_id: int,
-    prompt: str,
-    batch_size: int,
-    width: int,
-    height: int,
-    model: str,
-    steps: int,
-):
-
-    with open("flux.json", "r") as file:
-            workflow = json.load(file)
-    generator = ImageGenerator(host=get_host())
-    await generator.connect()
-
-
-    prompt_nodes = search_for_nodes_with_key(
-        "CLIP Text Encode (Positive Prompt)", workflow, "title", whether_to_use_meta=True
-    )
-    latent_image_nodes = search_for_nodes_with_key(
-        "EmptyLatentImage", workflow, "class_type", whether_to_use_meta=False
-    )
-    ksampler_nodes = search_for_nodes_with_key(
-        "KSampler", workflow, "class_type", whether_to_use_meta=False
-    )
-   
-    widthnode = search_for_nodes_with_key(
-        "EmptyLatentImage", workflow, "class_type", whether_to_use_meta=False
-    )
-    heightnode = search_for_nodes_with_key(
-        "EmptyLatentImage", workflow, "class_type", whether_to_use_meta=False
-    )
-  
-
-
-    # Modify the prompt dictionary
-
-    workflow = edit_given_nodes_properties(
-            workflow, ksampler_nodes, "scheduler", "simple"
-        )
-
-
-    workflow = edit_given_nodes_properties(workflow, prompt_nodes, "text", prompt)
-
-    workflow = edit_given_nodes_properties(
-        workflow, latent_image_nodes, "batch_size", batch_size
-    )
-    workflow = edit_given_nodes_properties(workflow, ksampler_nodes, "steps", steps)
-    workflow = edit_given_nodes_properties(
-        workflow, ksampler_nodes, "seed", random.randint(0, 10000000)
-    )
-    default_width = 1024
-    default_height = 1024
-
-    # Modify the workflow nodes for width and height with provided values or defaults
-    workflow = edit_given_nodes_properties(
-        workflow, widthnode, "width", width if width is not None else default_width
-    )
-    workflow = edit_given_nodes_properties(
-        workflow, heightnode, "height", height if height is not None else default_height
-    )
-    with open("workflow.json", "w") as f:
-        json.dump(workflow, f)
-
-    images = await generator.get_images(workflow)
-
-    await generator.close()
     await save_images(images, user_id, UUID, model, prompt)
 
 async def generate_images(
@@ -747,6 +686,7 @@ async def generate_images(
     width: int,
     height: int,
     model: str,
+    lora: str,
     steps: int,
 ):
    
@@ -768,10 +708,10 @@ async def generate_images(
         "EmptyLatentImage", workflow, "class_type", whether_to_use_meta=False
     )
     ksampler_nodes = search_for_nodes_with_key(
-        "KSampler-First", workflow, "title", whether_to_use_meta=True
+        "KSampler", workflow, "class_type", whether_to_use_meta=False
     )
     seed = search_for_nodes_with_key(
-        "KSampler-First", workflow, "title", whether_to_use_meta=True
+        "KSampler", workflow, "class_type", whether_to_use_meta=False
     )
     widthnode = search_for_nodes_with_key(
         "EmptyLatentImage", workflow, "class_type", whether_to_use_meta=False
@@ -785,30 +725,35 @@ async def generate_images(
     model_node = search_for_nodes_with_key(
         "Model Checkpoint", workflow, "title", whether_to_use_meta=True
     )
+    lora_node = search_for_nodes_with_key(
+        "LoraLoader", workflow, "class_type", whether_to_use_meta=False
+    )
     
-    
-    
+    if lora is not None:
+        lora += ".safetensors"
+        workflow = edit_given_nodes_properties(workflow, lora_node, "lora_name", lora)
+        workflow = edit_given_nodes_properties(
+            workflow, lora_node, "strength_model", "1"
+        )
+        workflow = edit_given_nodes_properties(
+            workflow, lora_node, "strength_clip", "1"
+        )
 
-    workflow = edit_given_nodes_properties(
-            workflow, ksampler_nodes, "sampler_name", "dpmpp_3m_sde_gpu"
-        )
-    if model == "":
+    if model == "ProteusMobiusAnime":
         workflow = edit_given_nodes_properties(
-            workflow, ksampler_nodes, "sampler_name", "heunpp2"
-        )
-        workflow = edit_given_nodes_properties(
-            workflow, ksampler_nodes, "scheduler", "normal"
+            workflow, ksampler_nodes, "sampler_name", "euler_ancestral"
         )
 
     # Modify the prompt dictionary
 
-   
+    workflow = edit_given_nodes_properties(
+            workflow, ksampler_nodes, "sampler_name", "uni_pc"
+        )
 
-    
+
     workflow = edit_given_nodes_properties(workflow, prompt_nodes, "text", prompt)
     if negative_prompt is None:
-        negative_prompt = "deformed, malformed, worst, bad"
-    #, embedding:ac_neg1 , embedding:ac_neg2
+        negative_prompt = "watermark, bad quality, worst quality, deformed, distorted, corrupted, low resolution, low quality,"
     workflow = edit_given_nodes_properties(
         workflow, neg_prompt_nodes, "text", negative_prompt
     )
@@ -846,7 +791,6 @@ async def generate_images(
 
 async def auraflow(
     UUID: str,
-    model: str,
     user_id: int,
     cfg: float,
     prompt: str,
@@ -854,11 +798,12 @@ async def auraflow(
     batch_size: int,
     width: int,
     height: int,
+    model: str,
     steps: int,
 ):
    
-    with open("./comfyUI-workflows/auraflow.json", "r") as file:
-    	workflow = json.load(file)
+    with open("auraflow.json", "r") as file:
+            workflow = json.load(file)
     cfg_node = search_for_nodes_with_key(
         "KSampler", workflow, "class_type", whether_to_use_meta=False
         )
@@ -901,7 +846,7 @@ async def auraflow(
 
     workflow = edit_given_nodes_properties(workflow, prompt_nodes, "text", prompt)
     if negative_prompt is None:
-        negative_prompt = "watermark, worst quality, deformed"
+        negative_prompt = "watermark, bad quality, worst quality, deformed, distorted, corrupted, low resolution, low quality,"
     workflow = edit_given_nodes_properties(
         workflow, neg_prompt_nodes, "text", negative_prompt
     )
@@ -1162,6 +1107,9 @@ async def generate_alternatives(
     model_node = search_for_nodes_with_key(
         "Model Checkpoint", workflow, "title", whether_to_use_meta=True
     )
+    latent_image_nodes = search_for_nodes_with_key(
+        "RepeatLatentBatch", workflow, "class_type", whether_to_use_meta=False
+    )
     ksampler_nodes = search_for_nodes_with_key(
         "KSampler", workflow, "class_type", whether_to_use_meta=False
     )
@@ -1179,6 +1127,9 @@ async def generate_alternatives(
             workflow, neg_prompt_nodes, "text", negative_prompt
         )
 
+    workflow = edit_given_nodes_properties(
+        workflow, latent_image_nodes, "amount", batch_size
+    )
     workflow = edit_given_nodes_properties(workflow, ksampler_nodes, "steps", 30)
     workflow = edit_given_nodes_properties(
         workflow, seed, "seed", random.randint(0, 10000000)
@@ -1190,6 +1141,21 @@ async def generate_alternatives(
             workflow, model_node, "ckpt_name", model_name_adjusted
         )
 
+    default_width = 1024
+    default_height = 1024
+    # Modify the workflow nodes for width and height with provided values or defaults
+    workflow = edit_given_nodes_properties(
+        workflow,
+        latent_image_nodes,
+        "width",
+        width if width is not None else default_width,
+    )
+    workflow = edit_given_nodes_properties(
+        workflow,
+        latent_image_nodes,
+        "height",
+        height if height is not None else default_height,
+    )
     print(f"Processing image: {inputname}")
     filename_without_directory = os.path.basename(inputname)
     print(f"Filename without directory: {filename_without_directory}")
