@@ -31,6 +31,15 @@ from utils import ensure_folder
 IMG_LOGGER = logging.getLogger("Datapulse.imageGen")
 IMG_LOGGER.info("Importing imageGen")
 
+# Setup basic logging
+logging.basicConfig(
+    level=logging.INFO,
+    filename="bot.log",
+    filemode="a",
+    format="%(name)s - %(levelname)s - %(message)s",
+)
+
+
 # Read the configuration
 config = configparser.ConfigParser()
 config.read("config.properties")
@@ -40,14 +49,29 @@ server_address = config["LOCAL"]["SERVER_ADDRESS"]
 cluster_hosts = config["COMFY_CLUSTER"]["SERVER_ADDRESSES"].split(",")
 
 text2img_config = config["LOCAL_TEXT2IMG"]["CONFIG"]
-sigmafiedtext2img_config = "comfyUI-workflows/pixarttext2img_config.json"
+sigmafiedtext2img_config = config["LOCAL_SIGMAFIED_TEXT2IMG"]["CONFIG"]
 img2img_config = config["LOCAL_IMG2IMG"]["CONFIG"]
 upscale_config = config["LOCAL_UPSCALE"]["CONFIG"]
 style_config = config["LOCAL_STYLE2IMG"]["CONFIG"]
 text2imgV3_config = config["LOCAL_TEXT2IMGV3"]["CONFIG"]
-describe_config = "./comfyUI-workflows/describe_config.json"
+describe_config = config["DESCRIBE"]["CONFIG"]
+M900_TEXT2IMG_CONFIG = config["900M_TEXT2IMG"]["CONFIG"]
+AURAFLOW_TEXT2IMG_CONFIG = config["AURAFLOW_TEXT2IMG"]["CONFIG"]
+FLUX_TEXT2IMG_CONFIG = config["FLUX_TEXT2IMG"]["CONFIG"]
+KOLORS_TEXT2IMG_CONFIG = config["KOLORS_TEXT2IMG"]["CONFIG"]
+GEN_AVATAR_CONFIG = config["GEN_AVATAR"]["CONFIG"]
 
 host_iter = cycle(cluster_hosts)
+
+
+AVATAR_STYLE_PRESETS = {
+    "Anime": "anime_style.jpg",
+    "Realistic": "realistic_style.jpg",
+    "Cartoon": "cartoon_style.jpg",
+    "Oil Painting": "oil_painting_style.jpg",
+    "Watercolor": "watercolor_style.jpg"
+}
+
 
 def get_host():
     # global host_iter
@@ -416,7 +440,7 @@ async def generate_pixart_900m(
     width: int,
     height: int
 ):
-    with open("900M.json", "r") as file:
+    with open(M900_TEXT2IMG_CONFIG, "r") as file:
         workflow = json.load(file)
 
     generator = ImageGenerator(host=get_host())
@@ -454,7 +478,7 @@ async def generate_avatar(
     style: str,
     user_image: discord.Attachment
 ):
-    with open("workflow_api.json", "r") as file:
+    with open(GEN_AVATAR_CONFIG, "r") as file:
         workflow = json.load(file)
 
     generator = ImageGenerator(host=get_host())
@@ -512,14 +536,6 @@ async def generate_avatar(
     await save_images(images, user_id, UUID, model, prompt)
 
     return images
-
-AVATAR_STYLE_PRESETS = {
-    "Anime": "anime_style.jpg",
-    "Realistic": "realistic_style.jpg",
-    "Cartoon": "cartoon_style.jpg",
-    "Oil Painting": "oil_painting_style.jpg",
-    "Watercolor": "watercolor_style.jpg"
-}
 
 
 async def sigmafied_image_generation(
@@ -607,7 +623,7 @@ async def generate_kolors(
     steps: int,
 ):
    
-    with open("workflow_kolors.json", "r") as file:
+    with open(KOLORS_TEXT2IMG_CONFIG, "r") as file:
             workflow = json.load(file)
     cfg_node = search_for_nodes_with_key(
         "KolorsSampler", workflow, "class_type", whether_to_use_meta=False
@@ -678,7 +694,7 @@ async def flux1dev(
     steps: int,
 ):
 
-    with open("flux.json", "r") as file:
+    with open(FLUX_TEXT2IMG_CONFIG, "r") as file:
             workflow = json.load(file)
     generator = ImageGenerator(host=get_host())
     await generator.connect()
@@ -785,26 +801,11 @@ async def generate_images(
     model_node = search_for_nodes_with_key(
         "Model Checkpoint", workflow, "title", whether_to_use_meta=True
     )
-    
-    
-    
 
     workflow = edit_given_nodes_properties(
             workflow, ksampler_nodes, "sampler_name", "dpmpp_3m_sde_gpu"
         )
-    if model == "":
-        workflow = edit_given_nodes_properties(
-            workflow, ksampler_nodes, "sampler_name", "heunpp2"
-        )
-        workflow = edit_given_nodes_properties(
-            workflow, ksampler_nodes, "scheduler", "normal"
-        )
 
-    # Modify the prompt dictionary
-
-   
-
-    
     workflow = edit_given_nodes_properties(workflow, prompt_nodes, "text", prompt)
     if negative_prompt is None:
         negative_prompt = "deformed, malformed, worst, bad"
@@ -857,8 +858,9 @@ async def auraflow(
     steps: int,
 ):
    
-    with open("./comfyUI-workflows/auraflow.json", "r") as file:
+    with open(AURAFLOW_TEXT2IMG_CONFIG, "r") as file:
     	workflow = json.load(file)
+    
     cfg_node = search_for_nodes_with_key(
         "KSampler", workflow, "class_type", whether_to_use_meta=False
         )
@@ -937,13 +939,6 @@ async def auraflow(
     await generator.close()
     await save_images(images, user_id, UUID, model, prompt)
 
-# Setup basic logging
-logging.basicConfig(
-    level=logging.INFO,
-    filename="bot.log",
-    filemode="a",
-    format="%(name)s - %(levelname)s - %(message)s",
-)
 
 
 async def style_images(

@@ -37,11 +37,6 @@ TOKEN = config["DISCORD"]["TOKEN"]
 IMAGE_SOURCE = config["IMAGE"]["SOURCE"]
 stripe_api_key = config["STRIPE"]["API_KEY"]
 stripe_product_id = config.get("STRIPE", "PRODUCT_ID")
-# Dictionary to store conversation history and system prompt for each user
-user_contexts = {}
-
-# Default system prompt
-default_system_prompt = "You are a helpful AI assistant."
 
 # Replicate API setup
 os.environ["REPLICATE_API_TOKEN"] = config["REPLICATE"]["API_TOKEN"]
@@ -586,8 +581,8 @@ async def task_test():
     end_time = time.perf_counter()
     JOB_LOGGER.info(f"Stripe Events Check Done: {end_time - start_time} seconds")
 
-# Example usage
-client_id = "1222513177699422279"  # Replace with your bot's client ID
+
+client_id = "1222513177699422279"  
 invite_link = generate_bot_invite_link(client_id)
 print("Invite your bot using this link:", invite_link)
 
