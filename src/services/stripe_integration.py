@@ -1,7 +1,7 @@
 import asyncio
 import sqlite3
 #import stripe
-from utils import config
+from src.utils.config import config
 from datetime import datetime
 import traceback
 import pathlib

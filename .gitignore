@@ -1,19 +1,35 @@
-build/
-dist/
-out/
+# Configuration
+config.properties
+config/*.json
+!config/example.properties
+
+# Environment
+venv/
+.env
+*.pyc
 __pycache__/
-config.properties
-*.spec
-datacomp_small*
-config.properties
-output/
+.DS_Store
+
+# Generated files
+logs/
 out/
-input/
+generated_images/
 input_images/
 collageimages/
-bot.log
-.DS_Store
-venv
+*.log
+
+# Database
 config/database.sqlite
-generated_images/*.png
-.DS_Store
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Notebooks
+notebooks/*.ipynb
+!notebooks/example.ipynb
+
+# Temporary files
+tmp/
+temp/

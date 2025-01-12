@@ -7,8 +7,8 @@ from PIL import Image
 import io
 import logging
 
-from imageGen import ImageGenerator, search_for_nodes_with_key, edit_given_nodes_properties, upload_image, save_images
-from utils import ensure_folder
+from src.services.imageGen import ImageGenerator, search_for_nodes_with_key, edit_given_nodes_properties, upload_image, save_images
+from src.utils.config import ensure_folder
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)

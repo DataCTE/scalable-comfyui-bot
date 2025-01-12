@@ -1,21 +1,21 @@
 import logging
 logging.basicConfig()
-from imageGen import generate_avatar, AVATAR_STYLE_PRESETS, generate_pixart_900m
-from imageGen import generate_kolors, generate_images, auraflow, flux1dev
+from src.services.imageGen import generate_avatar, AVATAR_STYLE_PRESETS, generate_pixart_900m
+from src.services.imageGen import generate_kolors, generate_images, auraflow, flux1dev
 import discord
 import discord.ext
 from discord import app_commands, Embed, Color, File
 import configparser
 from PIL import Image
 from datetime import datetime
-from db import init_db
-from imageGen import *
+from src.database.db import init_db
+from src.services.imageGen import *
 from discord.app_commands import Choice
 import uuid
-from payment_service import *
-from utils import config
+from src.services.payment_service import *
+from src.utils.config import config
 from typing import Optional
-from stripe_integration import *
+from src.services.stripe_integration import *
 import functools
 import sqlite3
 from transformers import VisionEncoderDecoderModel, ViTImageProcessor, AutoTokenizer
@@ -23,7 +23,7 @@ import torch
 import asyncio
 import traceback
 from discord.ext import tasks
-from stripe_integration import verify_payment_links_job
+from src.services.stripe_integration import verify_payment_links_job
 import time
 import replicate
 import json
@@ -50,7 +50,7 @@ tree = discord.app_commands.CommandTree(client)
 
 if IMAGE_SOURCE == "LOCAL":
     server_address = config.get("LOCAL", "SERVER_ADDRESS")
-    from imageGen import generate_images, upscale_image, generate_alternatives, get_image_from_database, get_prompt_from_database, describe_image, sigmafied_image_generation
+    from src.services.imageGen import generate_images, upscale_image, generate_alternatives, get_image_from_database, get_prompt_from_database, describe_image, sigmafied_image_generation
 
 
 

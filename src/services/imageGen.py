@@ -6,9 +6,9 @@ import urllib.request
 import time
 import urllib.parse
 from PIL import Image as PILImage
-from db import init_db
+from src.database.db import init_db
 from io import BytesIO
-from database_query_same_energy import perform_search
+from src.database.database_query_same_energy import perform_search
 import configparser
 import os
 import tempfile
@@ -21,12 +21,12 @@ import aiofiles
 import discord
 import logging
 import sqlite3
-from db import DATABASE_URL
+from src.database.db import DATABASE_URL
 import traceback
 from itertools import cycle
 from collections import defaultdict
 import pathlib
-from utils import ensure_folder
+from src.utils.config import ensure_folder
 
 IMG_LOGGER = logging.getLogger("Datapulse.imageGen")
 IMG_LOGGER.info("Importing imageGen")

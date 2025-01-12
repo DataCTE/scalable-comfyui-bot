@@ -1,6 +1,6 @@
 from sqlalchemy.future import select
 from sqlalchemy import update
-from db import User, AsyncSessionLocal
+from src.database.db import User, AsyncSessionLocal
 
 async def get_user_balance(user_id: int) -> float:
     async with AsyncSessionLocal() as session:

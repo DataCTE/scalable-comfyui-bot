@@ -15,7 +15,7 @@ from PIL import Image
 import configparser
 
 # Import necessary functions from imageGen
-from imageGen import (
+from src.services.imageGen import (
     ImageGenerator, 
     search_for_nodes_with_key, 
     edit_given_nodes_properties, 
@@ -25,8 +25,8 @@ from imageGen import (
 )
 
 # Import credit and payment functions
-from payment_service import deduct_credits, discord_balance_prompt, discord_recharge_prompt
-from db import init_db, get_user_images
+from src.services.payment_service import deduct_credits, discord_balance_prompt, discord_recharge_prompt
+from src.database.db import init_db, get_user_images
 
 # Load environment variables
 load_dotenv()

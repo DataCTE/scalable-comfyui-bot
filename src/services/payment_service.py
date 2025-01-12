@@ -1,6 +1,6 @@
 import sqlite3
 from datetime import datetime
-from stripe_integration import create_payment_link, get_default_pricing, verify_payment_links_job
+from src.services.stripe_integration import create_payment_link, get_default_pricing, verify_payment_links_job
 import traceback
 
 DATABASE_URL = "./config/database.sqlite"
