@@ -10,7 +10,6 @@ This bot started as an internal tool for testing SDXL model iterations in a cont
 
 - **Private Testing**: Enabled testing of SDXL models without distributing weights
 - **Feedback Collection**: Used to gather user feedback on model outputs during training
-- **Credit System**: Implemented to manage and track usage during testing phases
 - **Multiple Models**: Supported testing different model versions and architectures:
   - SDXL base models
   - Fine-tuned variations
