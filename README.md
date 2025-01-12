@@ -1,10 +1,12 @@
-# DataPulse Bot
+# Scalable ComfyUI Bot
 
-A powerful Discord bot for AI image generation with integrated credit system and payment processing. Supports distributed image generation across multiple ComfyUI instances.
+A distributed Discord bot for AI image generation with integrated credit system and payment processing. Supports load balancing across multiple ComfyUI instances.
+
+> **Attribution**: This project builds upon the excellent foundation of [ComfyUI-SDXL-DiscordBot](https://github.com/aaronfisher-code/ComfyUI-SDXL-DiscordBot) by [Aaron Fisher](https://github.com/aaronfisher-code). The initial framework and ComfyUI integration were inspired by their work.
 
 ## Project History
 
-DataPulse Bot started as an internal tool for testing SDXL model iterations in a controlled environment. Key aspects of its development:
+This bot started as an internal tool for testing SDXL model iterations in a controlled environment. Key aspects of its development:
 
 - **Private Testing**: Enabled testing of SDXL models without distributing weights
 - **Feedback Collection**: Used to gather user feedback on model outputs during training
